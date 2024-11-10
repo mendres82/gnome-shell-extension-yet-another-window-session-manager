@@ -18,7 +18,7 @@ export const Log = class {
 
     debug(logContent) {
         if (this.isDebug()) {
-            log(`[DEBUG][Another window session manager] ${logContent}`);
+            log(`[DEBUG  ][Another window session manager] ${logContent}`);
         }
     }
 
@@ -26,12 +26,12 @@ export const Log = class {
         if (!(e instanceof Error)) {
             e = new Error(e);
         }
-        logError(e, `[ERROR][Another window session manager] ${logContent}`);
+        logError(e, `[ERROR  ][Another window session manager] ${logContent}`);
     }
 
     info(logContent) {
         if (this.isVerboseLogging()) {
-            log(`[INFO][Another window session manager] ${logContent}`);
+            log(`[INFO   ][Another window session manager] ${logContent}`);
         }
     }
 

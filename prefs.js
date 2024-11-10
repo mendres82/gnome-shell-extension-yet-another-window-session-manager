@@ -220,7 +220,7 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this._builder.add_from_file(this.path + '/ui/prefs-gtk4.ui');
 
         this.debugging_mode_switch = this._builder.get_object('debugging_mode_switch');
-        this.verbose_logging_switch_switch = this._builder.get_object('verbose_logging_switch');
+        this.verbose_logging_switch = this._builder.get_object('verbose_logging_switch');
         this.show_indicator_switch = this._builder.get_object('show_indicator_switch');
 
         this.save_session_notification_switch = this._builder.get_object('save_session_notification_switch');
