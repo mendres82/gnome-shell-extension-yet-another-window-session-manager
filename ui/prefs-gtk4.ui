@@ -777,6 +777,8 @@
                 <child>
                   <object class="GtkListBoxRow">
                     <property name="focusable">1</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
                     <property name="child">
                       <object class="GtkBox">
                         <child>
@@ -821,7 +823,6 @@
                     <property name="child">
                       <object class="GtkGrid" id="debugging_mode_multi_grid">
                         <property name="margin-top">12</property>
-                        <property name="margin-bottom">12</property>
                         <property name="row-spacing">6</property>
                         <property name="column-spacing">32</property>
                         <child>
@@ -849,6 +850,46 @@
                         </child>
                       </object>
                     </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkListBox" id="verbose_logging_listbox">
+                    <property name="selection-mode">none</property>
+                    <child>
+                      <object class="GtkListBoxRow" id="verbose_logging_row">
+                      <property name="focusable">1</property>
+                      <property name="child">
+                        <object class="GtkGrid" id="verbose_logging_grid">
+                        <property name="margin-bottom">12</property>
+                        <property name="row-spacing">6</property>
+                        <property name="column-spacing">32</property>
+                        <child>
+                          <object class="GtkLabel" id="verbose_logging_label">
+                          <property name="hexpand">1</property>
+                          <property name="label" translatable="yes">Verbose logging</property>
+                          <property name="use-markup">1</property>
+                          <property name="xalign">0</property>
+                          <layout>
+                            <property name="column">0</property>
+                            <property name="row">0</property>
+                          </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="verbose_logging_switch">
+                          <property name="focusable">1</property>
+                          <property name="halign">end</property>
+                          <property name="valign">center</property>
+                          <layout>
+                            <property name="column">1</property>
+                            <property name="row">0</property>
+                          </layout>
+                          </object>
+                        </child>
+                        </object>
+                      </property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

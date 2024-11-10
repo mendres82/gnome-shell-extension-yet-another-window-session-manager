@@ -57,6 +57,10 @@ const PrefsUtilsClass = class {
         return this.settings.get_boolean('debugging-mode');
     }
 
+    isVerboseLogging() {
+        return this.settings.get_boolean('verbose-logging');
+    }
+
     destroy() {
         this.settings = null;
         this.extensionObject = null;

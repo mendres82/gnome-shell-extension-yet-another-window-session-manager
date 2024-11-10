@@ -12,6 +12,10 @@ export const Log = class {
         return PrefsUtils.isDebug();
     }
 
+    isVerboseLogging() {
+        return PrefsUtils.isVerboseLogging();
+    }
+
     debug(logContent) {
         if (this.isDebug()) {
             log(`[DEBUG  ][Another window session manager] ${logContent}`);
@@ -26,7 +30,9 @@ export const Log = class {
     }
 
     info(logContent) {
-        log(`[INFO   ][Another window session manager] ${logContent}`);
+        if (this.isVerboseLogging()) {
+            log(`[INFO   ][Another window session manager] ${logContent}`);
+        }
     }
 
     warn(logContent) {
