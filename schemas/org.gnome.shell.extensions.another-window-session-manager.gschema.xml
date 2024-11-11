@@ -149,7 +149,7 @@
       </description>
     </key>
     <key name="verbose-logging" type="b">
-      <default>true</default>
+      <default>false</default>
       <summary>Enable or disable verbose logging</summary>
       <description>
       Enable verbose logging for more informational output like windows position saving, session information etc
