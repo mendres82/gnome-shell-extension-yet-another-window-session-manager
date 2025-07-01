@@ -24,7 +24,7 @@
   </object>
 
   <object class="AdwPreferencesPage" id="close_windows_page">
-    <!-- <property name="icon-name">text-x-generic-symbolic</property> -->
+    <property name="icon-name">window-close-symbolic</property>
     <property name="use_underline">true</property>
     <property name="title" translatable="yes">Close windows</property>
     <child>
@@ -194,6 +194,7 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="save_windows_page">
+    <property name="icon-name">document-save-symbolic</property>
     <property name="use_underline">true</property>
     <property name="margin_bottom">12</property>
     <property name="margin_start">12</property>
@@ -272,6 +273,7 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="restore_sessions_page">
+    <property name="icon-name">view-refresh-symbolic</property>
     <property name="use_underline">true</property>
     <property name="title" translatable="yes">Restore sessions</property>
     <child>
@@ -799,6 +801,7 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="general_page">
+    <property name="icon-name">preferences-system-symbolic</property>
     <property name="use_underline">true</property>
     <property name="margin_bottom">12</property>
     <property name="margin_start">12</property>
