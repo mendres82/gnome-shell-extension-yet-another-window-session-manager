@@ -8,7 +8,6 @@ import GdkWayland from 'gi://GdkWayland';
 import Gdk from 'gi://Gdk';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-
 import * as FileUtils from './utils/fileUtils.js';
 import * as Log from './utils/log.js';
 import {prefsUtilsInit, prefsUtilsDestroy, PrefsUtils} from './utils/prefsUtils.js';
@@ -272,7 +271,6 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
 
         this.close_by_rules_switch = this._builder.get_object('close_by_rules_switch');
         this.auto_close_session_switch = this._builder.get_object('auto_close_session_switch');
-
     }
 
     _installAutostartDesktopFile(desktopFileTemplate, targetDesktopFilePath) {

@@ -47,6 +47,8 @@
                           <object class="GtkGrid" id="auto_close_session_multi_grid1">
                             <property name="margin-top">12</property>
                             <property name="margin-bottom">12</property>
+                            <property name="margin_start">12</property>
+                            <property name="margin_end">12</property>
                             <property name="row-spacing">6</property>
                             <property name="column-spacing">32</property>
                             <child>
@@ -103,6 +105,8 @@
                           <object class="GtkGrid" id="close_by_rules_multi_grid1">
                             <property name="margin-top">12</property>
                             <property name="margin-bottom">12</property>
+                            <property name="margin_start">12</property>
+                            <property name="margin_end">12</property>
                             <property name="row-spacing">6</property>
                             <property name="column-spacing">32</property>
                             <child>
@@ -191,6 +195,9 @@
   </object>
   <object class="AdwPreferencesPage" id="save_windows_page">
     <property name="use_underline">true</property>
+    <property name="margin_bottom">12</property>
+    <property name="margin_start">12</property>
+    <property name="margin_end">12</property>
     <property name="title" translatable="yes">Save windows</property>
     <child>
       <object class="GtkBox">
@@ -266,6 +273,9 @@
     <property name="title" translatable="yes">Restore sessions</property>
     <child>
       <object class="GtkScrolledWindow">
+        <property name="margin_bottom">12</property>
+        <property name="margin_start">12</property>
+        <property name="margin_end">12</property>
         <property name="hscrollbar_policy">never</property>
         <child>
           <object class="GtkViewport">
@@ -763,6 +773,9 @@
   </object>
   <object class="AdwPreferencesPage" id="general_page">
     <property name="use_underline">true</property>
+    <property name="margin_bottom">12</property>
+    <property name="margin_start">12</property>
+    <property name="margin_end">12</property>
     <property name="title" translatable="yes">General</property>
     <child>
       <object class="GtkBox">

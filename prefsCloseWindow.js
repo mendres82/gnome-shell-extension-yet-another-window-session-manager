@@ -51,7 +51,7 @@ export const UICloseWindows = GObject.registerClass(
             const settingKey = 'close-windows-whitelist';
             const close_windows_whitelist_listbox = this._builder.get_object('close_windows_whitelist_listbox');
             close_windows_whitelist_listbox.set_header_func((currentRow, beforeRow, data) => {
-                this._setHeader(currentRow, beforeRow, data, 'Whitelist', {margin_start: 0});
+                this._setHeader(currentRow, beforeRow, data, 'Whitelist');
             });
 
             const whitelistColumnView = new PrefsColumnView.WhitelistColumnView();
@@ -186,7 +186,7 @@ export const UICloseWindows = GObject.registerClass(
                     margin_start: 12,
                     use_markup: true,
                     label: `<b>${headerName}</b>`,
-                    tooltip_text: 'Apps in the whitelist will be closed even they has multiple windows'
+                    tooltip_text: 'Apps in the whitelist will be closed even if they have multiple windows'
                 });
                 if (labelProperties)
                     Object.assign(label, labelProperties);
