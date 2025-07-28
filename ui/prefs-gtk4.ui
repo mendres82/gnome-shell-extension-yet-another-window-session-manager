@@ -24,7 +24,7 @@
   </object>
 
   <object class="AdwPreferencesPage" id="close_windows_page">
-    <!-- <property name="icon-name">text-x-generic-symbolic</property> -->
+    <property name="icon-name">window-close-symbolic</property>
     <property name="use_underline">true</property>
     <property name="title" translatable="yes">Close windows</property>
     <child>
@@ -47,6 +47,8 @@
                           <object class="GtkGrid" id="auto_close_session_multi_grid1">
                             <property name="margin-top">12</property>
                             <property name="margin-bottom">12</property>
+                            <property name="margin_start">12</property>
+                            <property name="margin_end">12</property>
                             <property name="row-spacing">6</property>
                             <property name="column-spacing">32</property>
                             <child>
@@ -103,6 +105,8 @@
                           <object class="GtkGrid" id="close_by_rules_multi_grid1">
                             <property name="margin-top">12</property>
                             <property name="margin-bottom">12</property>
+                            <property name="margin_start">12</property>
+                            <property name="margin_end">12</property>
                             <property name="row-spacing">6</property>
                             <property name="column-spacing">32</property>
                             <child>
@@ -190,7 +194,11 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="save_windows_page">
+    <property name="icon-name">document-save-symbolic</property>
     <property name="use_underline">true</property>
+    <property name="margin_bottom">12</property>
+    <property name="margin_start">12</property>
+    <property name="margin_end">12</property>
     <property name="title" translatable="yes">Save windows</property>
     <child>
       <object class="GtkBox">
@@ -208,8 +216,10 @@
                         <property name="margin-bottom">12</property>
                         <property name="row-spacing">6</property>
                         <property name="column-spacing">32</property>
+                        <property name="margin_start">6</property>
                         <child>
                           <object class="GtkLabel" id="save_session_notification_label">
+                            <property name="margin_top">12</property>
                             <property name="hexpand">1</property>
                             <property name="label" translatable="yes">Session is saved notification</property>
                             <property name="use-markup">1</property>
@@ -222,6 +232,7 @@
                         </child>
                         <child>
                           <object class="GtkSwitch" id="save_session_notification_switch">
+                            <property name="margin_end">6</property>
                             <property name="focusable">1</property>
                             <property name="active">1</property>
                             <property name="halign">end</property>
@@ -262,10 +273,14 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="restore_sessions_page">
+    <property name="icon-name">view-refresh-symbolic</property>
     <property name="use_underline">true</property>
     <property name="title" translatable="yes">Restore sessions</property>
     <child>
       <object class="GtkScrolledWindow">
+        <property name="margin_bottom">12</property>
+        <property name="margin_start">12</property>
+        <property name="margin_end">12</property>
         <property name="hscrollbar_policy">never</property>
         <child>
           <object class="GtkViewport">
@@ -287,7 +302,10 @@
                                 <property name="margin-top">12</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">32</property>
-                                <property name="margin-top">12</property><child>
+                                <property name="margin-top">12</property>
+                                <property name="margin_start">6</property>
+                                <property name="margin_end">6</property>
+                                <child>
                                   <object class="GtkLabel">
                                     <property name="hexpand">1</property>
                                     <property name="label" translatable="yes">Restore previous apps and windows at startup</property>
@@ -339,6 +357,9 @@
                                 <property name="margin-bottom">12</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">32</property>
+                                <property name="margin_start">6</property>
+                                <property name="margin_top">12</property>
+                                <property name="margin_end">12</property>
                                 <child>
                                   <object class="GtkLabel" id="restore_previous_delay_multi_label">
                                     <property name="hexpand">1</property>
@@ -402,6 +423,8 @@
                             <property name="margin-bottom">12</property>
                             <property name="row-spacing">6</property>
                             <property name="column-spacing">32</property>
+                            <property name="margin_start">6</property>
+                            <property name="margin_end">12</property>
                             <child>
                               <object class="GtkLabel" id="restore_at_startup_multi_label">
                                 <property name="hexpand">1</property>
@@ -529,6 +552,8 @@
                                 <property name="margin-top">12</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">32</property>
+                                <property name="margin_start">6</property>
+                                <property name="margin_end">12</property>
                                 <child>
                                   <object class="GtkLabel" id="restore_session_interval_label">
                                     <property name="hexpand">1</property>
@@ -584,6 +609,9 @@
                                 <property name="margin-bottom">12</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">32</property>
+                                <property name="margin_start">6</property>
+                                <property name="margin_top">6</property>
+                                <property name="margin_end">6</property>
                                 <child>
                                   <object class="GtkLabel" id="autostart_delay_multi_label">
                                     <property name="hexpand">1</property>
@@ -645,6 +673,10 @@
                             <property name="focusable">1</property>
                             <property name="child">
                               <object class="GtkBox">
+                                <property name="margin_start">6</property>
+                                <property name="margin_top">6</property>
+                                <property name="margin_end">6</property>
+                                <property name="margin_bottom">6</property>
                                 <child>
                                   <object class="GtkLabel" id="restore_window_tiling_label">
                                     <property name="label" translatable="yes">Restore window tiling</property>
@@ -668,6 +700,10 @@
                             <property name="focusable">1</property>
                             <property name="child">
                               <object class="GtkBox">
+                                <property name="margin_start">6</property>
+                                <property name="margin_end">6</property>
+                                <property name="margin_top">6</property>
+                                <property name="margin_bottom">6</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="label" translatable="yes">Raise windows together</property>
@@ -701,6 +737,9 @@
                             <property name="child">
                               <object class="GtkGrid">
                                 <property name="margin-bottom">12</property>
+                                <property name="margin_start">6</property>
+                                <property name="margin_end">6</property>
+                                <property name="margin_top">6</property>
                                 <property name="row-spacing">6</property>
                                 <property name="column-spacing">32</property>
                                 <child>
@@ -762,7 +801,11 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="general_page">
+    <property name="icon-name">preferences-system-symbolic</property>
     <property name="use_underline">true</property>
+    <property name="margin_bottom">12</property>
+    <property name="margin_start">12</property>
+    <property name="margin_end">12</property>
     <property name="title" translatable="yes">General</property>
     <child>
       <object class="GtkBox">
@@ -779,6 +822,8 @@
                     <property name="focusable">1</property>
                     <property name="margin-top">12</property>
                     <property name="margin-bottom">12</property>
+                    <property name="margin_start">6</property>
+                    <property name="margin_end">6</property>
                     <property name="child">
                       <object class="GtkBox">
                         <child>
@@ -823,6 +868,9 @@
                     <property name="child">
                       <object class="GtkGrid" id="debugging_mode_multi_grid">
                         <property name="margin-top">12</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="margin_start">6</property>
+                        <property name="margin_end">6</property>
                         <property name="row-spacing">6</property>
                         <property name="column-spacing">32</property>
                         <child>
@@ -861,6 +909,9 @@
                       <property name="child">
                         <object class="GtkGrid" id="verbose_logging_grid">
                         <property name="margin-bottom">12</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin_start">6</property>
+                        <property name="margin_end">6</property>
                         <property name="row-spacing">6</property>
                         <property name="column-spacing">32</property>
                         <child>

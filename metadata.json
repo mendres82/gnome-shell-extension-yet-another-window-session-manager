@@ -4,9 +4,11 @@
     "name": "Another Window Session Manager",
     "shell-version": [
       "45",
-      "46"
+      "46",
+      "47",
+      "48"
     ],
     "url": "https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager",
     "uuid": "another-window-session-manager@gmail.com",
-    "version": 49
+    "version": 50
   }
