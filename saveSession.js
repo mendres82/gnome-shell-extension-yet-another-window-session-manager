@@ -283,7 +283,7 @@ export const SaveSession = class {
         // See: ui/windowMenu.js:L80
         window_state.is_sticky = metaWindow.is_on_all_workspaces();
         window_state.is_above = metaWindow.is_above();
-        window_state.meta_maximized = metaWindow.get_maximized();
+        window_state.meta_maximized = metaWindow.is_maximized();
 
         const windowTileFor = metaWindow.get_tile_match() ?? metaWindow._tile_match_awsm;
         if (windowTileFor) {
