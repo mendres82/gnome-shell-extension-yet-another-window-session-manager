@@ -335,9 +335,9 @@ export const MoveSession = class {
         const savedMetaMaximized = window_state.meta_maximized;
         if (shellVersion >= 49) {
             // Maximize a window to take up all of the space
-            if (savedMetaMaximized === true) {
+            if (savedMetaMaximized) {
                 const currentMetaMaximized = metaWindow.is_maximized();
-                if (currentMetaMaximized !== true) {
+                if (!currentMetaMaximized) {
                     this._log.debug(`Maximizing ${metaWindow.get_title()}`);
                     metaWindow.maximize();
                 }
@@ -363,12 +363,12 @@ export const MoveSession = class {
         const window_state = saved_window_session.window_state;
         const savedMetaMaximized = window_state.meta_maximized;
         if (shellVersion >= 49) {
-            if (savedMetaMaximized === false) {
+            if (!savedMetaMaximized) {
                 // It can't be resized if current window is in maximum mode, including vertically maximization along the left and right sides of the screen
                 const currentMetaMaximized = metaWindow.is_maximized();
                 if (currentMetaMaximized) {
                     metaWindow.unmaximize();
-                    if (Meta.is_wayland_compositor() && currentMetaMaximized === false) {
+                    if (Meta.is_wayland_compositor() && !currentMetaMaximized) {
                         delay = true;
                     }
                 }
