@@ -367,6 +367,7 @@ export const MoveSession = class {
                 // It can't be resized if current window is in maximum mode, including vertically maximization along the left and right sides of the screen
                 const currentMetaMaximized = metaWindow.is_maximized();
                 if (currentMetaMaximized) {
+                    metaWindow.set_unmaximize_flags(Meta.MaximizeFlags.BOTH);
                     metaWindow.unmaximize();
                     if (Meta.is_wayland_compositor() && !currentMetaMaximized) {
                         delay = true;
