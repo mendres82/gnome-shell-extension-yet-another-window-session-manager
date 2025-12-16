@@ -18,6 +18,7 @@ import * as CommonError from './utils/CommonError.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
 import {PrefsUtils} from './utils/prefsUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
+import { shellVersion } from './constants.js';
 
 
 export const SaveSession = class {
@@ -283,7 +284,12 @@ export const SaveSession = class {
         // See: ui/windowMenu.js:L80
         window_state.is_sticky = metaWindow.is_on_all_workspaces();
         window_state.is_above = metaWindow.is_above();
-        window_state.meta_maximized = metaWindow.is_maximized();
+        
+        if (shellVersion >= 49) {
+            window_state.meta_maximized = metaWindow.is_maximized();
+        } else {
+            window_state.meta_maximized = metaWindow.get_maximized();
+        }
 
         const windowTileFor = metaWindow.get_tile_match() ?? metaWindow._tile_match_awsm;
         if (windowTileFor) {

@@ -8,7 +8,13 @@ class WindowState {
 
     // Additional fields
 
-    // https://gjs-docs.gnome.org/meta9~9_api/meta.window#method-is_maximized
+    // GNOME 49+
+    // https://gjs-docs.gnome.org/meta17~17/meta.window#method-is_maximized
+    // true: Maximized
+    // false: Not maximized
+
+    // GNOME 48 and below
+    // https://gjs-docs.gnome.org/meta9~9_api/meta.window#method-get_maximized
     // 0: Not in the maximization mode
     // 1: Horizontal - Meta.MaximizeFlags.HORIZONTAL
     // 2: Vertical - Meta.MaximizeFlags.VERTICAL
