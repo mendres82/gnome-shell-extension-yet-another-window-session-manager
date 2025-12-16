@@ -1,5 +1,8 @@
 'use strict';
 
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+export const shellVersion = parseFloat(Config.PACKAGE_VERSION);
+
 /*
  * GdkModifierType
  * 
