@@ -38,6 +38,9 @@ export const UICloseWindows = GObject.registerClass(
 
             // TODO
             this._scrollToWidget = null;
+            
+            // Store ListBox references for cleanup
+            this._listBoxes = [];
         }
 
         init() {
@@ -50,6 +53,7 @@ export const UICloseWindows = GObject.registerClass(
         _initWhitelist() {
             const settingKey = 'close-windows-whitelist';
             const close_windows_whitelist_listbox = this._builder.get_object('close_windows_whitelist_listbox');
+            this._listBoxes.push(close_windows_whitelist_listbox);
             close_windows_whitelist_listbox.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Whitelist');
             });
@@ -103,6 +107,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initAppRules() {
             const close_by_rules_list_box = this._builder.get_object('close_by_rules_applications_list_box');
+            this._listBoxes.push(close_by_rules_list_box);
             close_by_rules_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Applications');
             });
@@ -136,6 +141,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initKeywordRules() {
             const close_by_rules_by_keyword_list_box = this._builder.get_object('close_by_rules_keywords_list_box');
+            this._listBoxes.push(close_by_rules_by_keyword_list_box);
             close_by_rules_by_keyword_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Keywords');
             });
@@ -276,6 +282,30 @@ export const UICloseWindows = GObject.registerClass(
             removed.forEach(r => {
                 listBox.remove(r);
             });
+        }
+
+        destroy() {
+            // Clear header functions to prevent callbacks during shutdown
+            if (this._listBoxes) {
+                this._listBoxes.forEach(listBox => {
+                    if (listBox) {
+                        listBox.set_header_func(null);
+                    }
+                });
+                this._listBoxes = null;
+            }
+            
+            // Disconnect settings signals
+            if (this._settings) {
+                if (this._changedId) {
+                    this._settings.disconnect(this._changedId);
+                    this._changedId = null;
+                }
+                if (this._rulesChangedId) {
+                    this._settings.disconnect(this._rulesChangedId);
+                    this._rulesChangedId = null;
+                }
+            }
         }
 
     });

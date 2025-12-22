@@ -27,7 +27,8 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this._log = new Log.Log();
 
         this.render_ui();
-        new PrefsCloseWindow.UICloseWindows(this._builder).init();
+        this._uiCloseWindows = new PrefsCloseWindow.UICloseWindows(this._builder);
+        this._uiCloseWindows.init();
         this._bindSettings();
         
         // Set sensitive AFTER this._bindSettings() to make it work
@@ -304,6 +305,12 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
     }
 
     _destroy() {
+        // Destroy UICloseWindows first to clear ListBox header functions
+        if (this._uiCloseWindows) {
+            this._uiCloseWindows.destroy();
+            this._uiCloseWindows = null;
+        }
+        
         prefsUtilsDestroy();
         
     }
