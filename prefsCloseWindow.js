@@ -2,6 +2,7 @@
 
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
+import GioUnix from 'gi://GioUnix';
 import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import Pango from 'gi://Pango';
@@ -769,7 +770,7 @@ const RuleRowByApp = GObject.registerClass({
     _init(ruleDetail) {
         super._init(ruleDetail);
 
-        const appInfo = Gio.DesktopAppInfo.new_from_filename(ruleDetail.appDesktopFilePath)
+        const appInfo = GioUnix.DesktopAppInfo.new_from_filename(ruleDetail.appDesktopFilePath)
         this._appInfo = appInfo;
 
         let displayName
