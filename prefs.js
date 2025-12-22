@@ -18,7 +18,7 @@ import * as PrefsCloseWindow from './prefsCloseWindow.js';
 
 export default class AnotherWindowSessionManagerPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        window.set_default_size(1000, 800);
+        window.set_default_size(1202, 800);
 
         const settings = this.getSettings('org.gnome.shell.extensions.another-window-session-manager');
         
