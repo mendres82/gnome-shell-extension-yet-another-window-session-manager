@@ -230,11 +230,11 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this.timer_on_the_autostart_dialog_spinbutton = this._builder.get_object('timer_on_the_autostart_dialog_spinbutton');
         this.autostart_delay_spinbutton = this._builder.get_object('autostart_delay_spinbutton');
         this.restore_window_tiling_switch = this._builder.get_object('restore_window_tiling_switch');
+        this.raise_windows_together_switch = this._builder.get_object('raise_windows_together_switch');
         this.restore_window_tiling_switch.connect('notify::active', (widget) => {
             const active = widget.active;
             this.raise_windows_together_switch.set_sensitive(active);
         });
-        this.raise_windows_together_switch = this._builder.get_object('raise_windows_together_switch');
         this.stash_and_restore_states_switch = this._builder.get_object('stash_and_restore_states_switch');
 
         this.restore_previous_delay_spinbutton = this._builder.get_object('restore_previous_delay_spinbutton');
