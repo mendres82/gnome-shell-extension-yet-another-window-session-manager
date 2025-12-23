@@ -62,6 +62,12 @@ export const UICloseWindows = GObject.registerClass(
             const whitelistColumnView = new PrefsColumnView.WhitelistColumnView();
             const addWhitelist = new AwsmNewRuleRow();
             close_windows_whitelist_listbox.append(whitelistColumnView);
+            // Get the auto-created ListBoxRow and make it non-activatable
+            const whitelistRow = whitelistColumnView.get_parent();
+            if (whitelistRow instanceof Gtk.ListBoxRow) {
+                whitelistRow.set_activatable(false);
+                whitelistRow.set_selectable(false);
+            }
             close_windows_whitelist_listbox.append(addWhitelist);
 
             addWhitelist.connect('clicked', (source) => {

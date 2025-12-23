@@ -35,7 +35,7 @@ export const ColumnView = GObject.registerClass({
 
     _initUI() {
         this.model = new Gio.ListStore({ item_type: GObject.TYPE_OBJECT });
-        this.selectionModel = new Gtk.SingleSelection({ model: this.model });
+        this.selectionModel = new Gtk.NoSelection({ model: this.model });
 
         this.view = new Gtk.ColumnView({
             css_classes: ['view'],

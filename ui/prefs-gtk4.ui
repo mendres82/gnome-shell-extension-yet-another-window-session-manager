@@ -39,6 +39,7 @@
           <object class="GtkFrame" id="close_windows_frame">
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow" id="auto_close_session_multi_row">
                     <property name="focusable">1</property>
@@ -164,6 +165,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox" id="close_by_rules_applications_list_box">
+                <property name="selection-mode">none</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <property name="show-separators">True</property>
@@ -176,6 +178,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox" id="close_by_rules_keywords_list_box">
+                <property name="selection-mode">none</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <property name="show-separators">True</property>
@@ -188,6 +191,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox" id="close_windows_whitelist_listbox">
+                <property name="selection-mode">none</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <property name="show-separators">True</property>
@@ -209,6 +213,7 @@
           <object class="GtkFrame" id="save_session_notification_frame">
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow">
                     <property name="focusable">1</property>
@@ -284,6 +289,7 @@
           <object class="GtkFrame" id="restore_previous_frame">
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow" id="restore_previous_multi_row">
                     <property name="focusable">1</property>
@@ -405,6 +411,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow" id="restore_at_startup_multi_row">
                     <property name="focusable">1</property>
@@ -534,6 +541,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow">
                     <property name="focusable">1</property>
@@ -658,6 +666,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow">
                     <property name="focusable">1</property>
@@ -721,6 +730,7 @@
             <property name="margin-top">30</property>
             <property name="child">
               <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkListBoxRow">
                     <property name="focusable">1</property>
