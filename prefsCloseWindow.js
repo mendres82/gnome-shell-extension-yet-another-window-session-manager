@@ -448,7 +448,7 @@ const RuleRow = GObject.registerClass({
                 value: savedKeyDelay ? savedKeyDelay : 0
             }),
             snap_to_ticks: true,
-            margin_end: 6,
+            margin_end: 4,
         });
         spinButton.connect('value-changed', (source) => {
             const keyDelayValue = source.get_value();
