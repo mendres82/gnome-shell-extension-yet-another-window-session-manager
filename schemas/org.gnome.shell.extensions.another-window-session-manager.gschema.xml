@@ -131,7 +131,7 @@
       Stash states while Gnome Shell restarts via `Alt+F2 -> r` or `killall -3 gnome-shell`, 
       and restore the windows states after the restart finishes.
       
-      Only enabled on X11, since Wayand doesn't support restart on fly.
+      Only enabled on X11, since Wayland doesn't support restart on fly.
       </description>
     </key>
     <key name="show-indicator" type="b">
