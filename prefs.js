@@ -18,7 +18,8 @@ import * as PrefsCloseWindow from './prefsCloseWindow.js';
 
 export default class AnotherWindowSessionManagerPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        window.set_default_size(1000, 800);
+        window.set_default_size(1200, 800);
+        window.set_size_request(1200, 800);
 
         const settings = this.getSettings('org.gnome.shell.extensions.another-window-session-manager');
         
@@ -27,7 +28,8 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this._log = new Log.Log();
 
         this.render_ui();
-        new PrefsCloseWindow.UICloseWindows(this._builder).init();
+        this._uiCloseWindows = new PrefsCloseWindow.UICloseWindows(this._builder);
+        this._uiCloseWindows.init();
         this._bindSettings();
         
         // Set sensitive AFTER this._bindSettings() to make it work
@@ -228,11 +230,11 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this.timer_on_the_autostart_dialog_spinbutton = this._builder.get_object('timer_on_the_autostart_dialog_spinbutton');
         this.autostart_delay_spinbutton = this._builder.get_object('autostart_delay_spinbutton');
         this.restore_window_tiling_switch = this._builder.get_object('restore_window_tiling_switch');
+        this.raise_windows_together_switch = this._builder.get_object('raise_windows_together_switch');
         this.restore_window_tiling_switch.connect('notify::active', (widget) => {
             const active = widget.active;
             this.raise_windows_together_switch.set_sensitive(active);
         });
-        this.raise_windows_together_switch = this._builder.get_object('raise_windows_together_switch');
         this.stash_and_restore_states_switch = this._builder.get_object('stash_and_restore_states_switch');
 
         this.restore_previous_delay_spinbutton = this._builder.get_object('restore_previous_delay_spinbutton');
@@ -304,6 +306,12 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
     }
 
     _destroy() {
+        // Destroy UICloseWindows first to clear ListBox header functions
+        if (this._uiCloseWindows) {
+            this._uiCloseWindows.destroy();
+            this._uiCloseWindows = null;
+        }
+        
         prefsUtilsDestroy();
         
     }

@@ -2,6 +2,7 @@
 
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
+import GioUnix from 'gi://GioUnix';
 import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import Pango from 'gi://Pango';
@@ -38,6 +39,9 @@ export const UICloseWindows = GObject.registerClass(
 
             // TODO
             this._scrollToWidget = null;
+            
+            // Store ListBox references for cleanup
+            this._listBoxes = [];
         }
 
         init() {
@@ -50,6 +54,7 @@ export const UICloseWindows = GObject.registerClass(
         _initWhitelist() {
             const settingKey = 'close-windows-whitelist';
             const close_windows_whitelist_listbox = this._builder.get_object('close_windows_whitelist_listbox');
+            this._listBoxes.push(close_windows_whitelist_listbox);
             close_windows_whitelist_listbox.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Whitelist');
             });
@@ -57,6 +62,12 @@ export const UICloseWindows = GObject.registerClass(
             const whitelistColumnView = new PrefsColumnView.WhitelistColumnView();
             const addWhitelist = new AwsmNewRuleRow();
             close_windows_whitelist_listbox.append(whitelistColumnView);
+            // Get the auto-created ListBoxRow and make it non-activatable
+            const whitelistRow = whitelistColumnView.get_parent();
+            if (whitelistRow instanceof Gtk.ListBoxRow) {
+                whitelistRow.set_activatable(false);
+                whitelistRow.set_selectable(false);
+            }
             close_windows_whitelist_listbox.append(addWhitelist);
 
             addWhitelist.connect('clicked', (source) => {
@@ -103,6 +114,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initAppRules() {
             const close_by_rules_list_box = this._builder.get_object('close_by_rules_applications_list_box');
+            this._listBoxes.push(close_by_rules_list_box);
             close_by_rules_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Applications');
             });
@@ -136,6 +148,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initKeywordRules() {
             const close_by_rules_by_keyword_list_box = this._builder.get_object('close_by_rules_keywords_list_box');
+            this._listBoxes.push(close_by_rules_by_keyword_list_box);
             close_by_rules_by_keyword_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, 'Keywords');
             });
@@ -278,6 +291,30 @@ export const UICloseWindows = GObject.registerClass(
             });
         }
 
+        destroy() {
+            // Clear header functions to prevent callbacks during shutdown
+            if (this._listBoxes) {
+                this._listBoxes.forEach(listBox => {
+                    if (listBox) {
+                        listBox.set_header_func(null);
+                    }
+                });
+                this._listBoxes = null;
+            }
+            
+            // Disconnect settings signals
+            if (this._settings) {
+                if (this._changedId) {
+                    this._settings.disconnect(this._changedId);
+                    this._changedId = null;
+                }
+                if (this._rulesChangedId) {
+                    this._settings.disconnect(this._rulesChangedId);
+                    this._rulesChangedId = null;
+                }
+            }
+        }
+
     });
 
 const Row = GObject.registerClass({
@@ -417,7 +454,7 @@ const RuleRow = GObject.registerClass({
                 value: savedKeyDelay ? savedKeyDelay : 0
             }),
             snap_to_ticks: true,
-            margin_end: 6,
+            margin_end: 4,
         });
         spinButton.connect('value-changed', (source) => {
             const keyDelayValue = source.get_value();
@@ -739,7 +776,7 @@ const RuleRowByApp = GObject.registerClass({
     _init(ruleDetail) {
         super._init(ruleDetail);
 
-        const appInfo = Gio.DesktopAppInfo.new_from_filename(ruleDetail.appDesktopFilePath)
+        const appInfo = GioUnix.DesktopAppInfo.new_from_filename(ruleDetail.appDesktopFilePath)
         this._appInfo = appInfo;
 
         let displayName
