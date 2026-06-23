@@ -31,7 +31,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
 
     enable() {
         // settings is needed by the initialization of some utils
-        this._settings = this.getSettings('org.gnome.shell.extensions.another-window-session-manager');        
+        this._settings = this.getSettings('org.gnome.shell.extensions.yet-another-window-session-manager');        
 
         this.initUtils();
         
@@ -64,7 +64,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
                     existingIndicator.destroy();
                 }
                 _indicator = new Indicator.AwsIndicator();
-                Main.panel.addToStatusArea('Another Window Session Manager', _indicator);
+                Main.panel.addToStatusArea('Yet Another Window Session Manager', _indicator);
             }
         } else {
             this.hideIndicator();
