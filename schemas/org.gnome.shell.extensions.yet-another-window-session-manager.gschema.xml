@@ -140,6 +140,21 @@
       <description>
       </description>
     </key>
+    <key name="save-session-shortcut" type="as">
+      <default><![CDATA[['<Control><Alt>s']]]></default>
+      <summary>Keyboard shortcut for Save Session</summary>
+      <description></description>
+    </key>
+    <key name="restore-session-shortcut" type="as">
+      <default><![CDATA[['<Control><Alt>r']]]></default>
+      <summary>Keyboard shortcut for Restore Session</summary>
+      <description></description>
+    </key>
+    <key name="move-windows-shortcut" type="as">
+      <default><![CDATA[['<Control><Alt>m']]]></default>
+      <summary>Keyboard shortcut for Move Windows</summary>
+      <description></description>
+    </key>
 
     <key name="debugging-mode" type="b">
       <default>false</default>

@@ -804,129 +804,142 @@
       <object class="AdwPreferencesGroup" id="general_group">
         <property name="title" translatable="yes">General</property>
         <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
+          <object class="GtkFrame" id="show_indicator_frame">
             <child>
-              <object class="GtkFrame" id="show_indicator_frame">
+              <object class="GtkListBox">
+                <property name="selection-mode">none</property>
                 <child>
-                  <object class="GtkListBox">
-                    <property name="selection-mode">none</property>
-                    <child>
-                      <object class="GtkListBoxRow">
-                        <property name="focusable">true</property>
-                        <property name="margin-top">12</property>
-                        <property name="margin-bottom">12</property>
-                        <property name="margin_start">6</property>
-                        <property name="margin_end">6</property>
-                        <property name="child">
-                          <object class="GtkBox">
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="hexpand">true</property>
-                                <property name="label" translatable="yes">Show indicator on the panel</property>
-                                <property name="use-markup">true</property>
-                                <property name="xalign">0</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkSwitch" id="show_indicator_switch">
-                                <property name="focusable">true</property>
-                                <property name="halign">end</property>
-                                <property name="valign">center</property>
-                              </object>
-                            </child>
+                  <object class="GtkListBoxRow">
+                    <property name="focusable">true</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
+                    <property name="margin_start">6</property>
+                    <property name="margin_end">6</property>
+                    <property name="child">
+                      <object class="GtkBox">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="hexpand">true</property>
+                            <property name="label" translatable="yes">Show indicator on the panel</property>
+                            <property name="use-markup">true</property>
+                            <property name="xalign">0</property>
                           </object>
-                        </property>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="show_indicator_switch">
+                            <property name="focusable">true</property>
+                            <property name="halign">end</property>
+                            <property name="valign">center</property>
+                          </object>
+                        </child>
                       </object>
-                    </child>
+                    </property>
                   </object>
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="keyboard_shortcuts_group">
+        <property name="title" translatable="yes">Keyboard shortcuts</property>
+        <child>
+          <object class="GtkFrame" id="keyboard_shortcuts_frame">
             <child>
-              <object class="GtkFrame" id="debugging_mode_frame">
-                <property name="margin-top">30</property>
-                <property name="child">
-                  <object class="GtkListBox" id="debugging_mode_listbox">
-                    <property name="selection-mode">none</property>
-                    <child>
-                      <object class="GtkListBoxRow" id="debugging_mode_multi_row">
-                        <property name="focusable">true</property>
-                        <property name="child">
-                          <object class="GtkGrid" id="debugging_mode_multi_grid">
-                            <property name="margin-top">12</property>
-                            <property name="margin-bottom">6</property>
-                            <property name="margin_start">6</property>
-                            <property name="margin_end">6</property>
-                            <property name="row-spacing">6</property>
-                            <property name="column-spacing">32</property>
-                            <child>
-                              <object class="GtkLabel" id="debugging_mode_label">
-                                <property name="hexpand">true</property>
-                                <property name="label" translatable="yes">Debugging mode</property>
-                                <property name="use-markup">true</property>
-                                <property name="xalign">0</property>
-                                <layout>
-                                  <property name="column">0</property>
-                                  <property name="row">0</property>
-                                </layout>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkSwitch" id="debugging_mode_switch">
-                                <property name="focusable">true</property>
-                                <property name="halign">end</property>
-                                <property name="valign">center</property>
-                                <layout>
-                                  <property name="column">1</property>
-                                  <property name="row">0</property>
-                                </layout>
-                              </object>
-                            </child>
+              <object class="GtkListBox" id="keyboard_shortcuts_listbox">
+                <property name="selection-mode">none</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="debug_group">
+        <property name="title" translatable="yes">Debug</property>
+        <child>
+          <object class="GtkFrame" id="debugging_mode_frame">
+            <child>
+              <object class="GtkListBox" id="debugging_mode_listbox">
+                <property name="selection-mode">none</property>
+                <child>
+                  <object class="GtkListBoxRow" id="debugging_mode_multi_row">
+                    <property name="focusable">true</property>
+                    <property name="child">
+                      <object class="GtkGrid" id="debugging_mode_multi_grid">
+                        <property name="margin-top">12</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="margin_start">6</property>
+                        <property name="margin_end">6</property>
+                        <property name="row-spacing">6</property>
+                        <property name="column-spacing">32</property>
+                        <child>
+                          <object class="GtkLabel" id="debugging_mode_label">
+                            <property name="hexpand">true</property>
+                            <property name="label" translatable="yes">Debugging mode</property>
+                            <property name="use-markup">true</property>
+                            <property name="xalign">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkListBoxRow" id="verbose_logging_row">
-                        <property name="focusable">true</property>
-                        <property name="child">
-                          <object class="GtkGrid" id="verbose_logging_grid">
-                            <property name="margin-bottom">12</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin_start">6</property>
-                            <property name="margin_end">6</property>
-                            <property name="row-spacing">6</property>
-                            <property name="column-spacing">32</property>
-                            <child>
-                              <object class="GtkLabel" id="verbose_logging_label">
-                                <property name="hexpand">true</property>
-                                <property name="label" translatable="yes">Verbose logging</property>
-                                <property name="use-markup">true</property>
-                                <property name="xalign">0</property>
-                                <layout>
-                                  <property name="column">0</property>
-                                  <property name="row">0</property>
-                                </layout>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkSwitch" id="verbose_logging_switch">
-                                <property name="focusable">true</property>
-                                <property name="halign">end</property>
-                                <property name="valign">center</property>
-                                <layout>
-                                  <property name="column">1</property>
-                                  <property name="row">0</property>
-                                </layout>
-                              </object>
-                            </child>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="debugging_mode_switch">
+                            <property name="focusable">true</property>
+                            <property name="halign">end</property>
+                            <property name="valign">center</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
-                        </property>
+                        </child>
                       </object>
-                    </child>
+                    </property>
                   </object>
-                </property>
+                </child>
+                <child>
+                  <object class="GtkListBoxRow" id="verbose_logging_row">
+                    <property name="focusable">true</property>
+                    <property name="child">
+                      <object class="GtkGrid" id="verbose_logging_grid">
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin_start">6</property>
+                        <property name="margin_end">6</property>
+                        <property name="row-spacing">6</property>
+                        <property name="column-spacing">32</property>
+                        <child>
+                          <object class="GtkLabel" id="verbose_logging_label">
+                            <property name="hexpand">true</property>
+                            <property name="label" translatable="yes">Verbose logging</property>
+                            <property name="use-markup">true</property>
+                            <property name="xalign">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="verbose_logging_switch">
+                            <property name="focusable">true</property>
+                            <property name="halign">end</property>
+                            <property name="valign">center</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

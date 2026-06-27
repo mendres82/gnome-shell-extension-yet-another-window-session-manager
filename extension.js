@@ -9,6 +9,7 @@ import * as Autostart from './ui/autostart.js';
 import * as Autoclose from './ui/autoclose.js';
 import {WindowTilingSupport} from './windowTilingSupport.js';
 import * as WindowPicker from './utils/WindowPicker.js';
+import {KeyboardShortcuts} from './keyboardShortcuts.js';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -22,6 +23,7 @@ let _autostartServiceProvider;
 let _openWindowsTracker;
 let _autoclose;
 let _windowPickerServiceProvider;
+let _keyboardShortcuts;
 
 export default class AnotherWindowSessionManagerExtension extends Extension {
 
@@ -47,6 +49,9 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
     
         _windowPickerServiceProvider = new WindowPicker.WindowPickerServiceProvider();
         _windowPickerServiceProvider.enable();
+
+        _keyboardShortcuts = new KeyboardShortcuts(this._settings);
+        _keyboardShortcuts.enable();
     }
 
     initUtils() {
@@ -104,6 +109,11 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
         if (_windowPickerServiceProvider) {
             _windowPickerServiceProvider.destroy();
             _windowPickerServiceProvider = null;
+        }
+
+        if (_keyboardShortcuts) {
+            _keyboardShortcuts.disable();
+            _keyboardShortcuts = null;
         }
 
         if (this._settings) {
