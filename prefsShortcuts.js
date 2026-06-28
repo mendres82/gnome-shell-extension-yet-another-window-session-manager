@@ -133,9 +133,9 @@ const ShortcutRow = GObject.registerClass({
 
 export function initShortcutRows(listBox, settings) {
     for (const [title, description, settingsKey] of [
-        [_('Save Session'), _('Save open windows using the default session'), 'save-session-shortcut'],
-        [_('Restore Session'), _('Restore windows from the default session'), 'restore-session-shortcut'],
-        [_('Move Windows'), _('Move windows to their workspace and position by the default session'), 'move-windows-shortcut'],
+        [_('Save Session'), _('Save open windows using the default session.'), 'save-session-shortcut'],
+        [_('Restore Session'), _('Restore windows from the default session.'), 'restore-session-shortcut'],
+        [_('Move Windows'), _('Move windows to their workspace and position by the default session.'), 'move-windows-shortcut'],
     ]) {
         listBox.append(new ShortcutRow({title, description, settingsKey, settings}));
     }
