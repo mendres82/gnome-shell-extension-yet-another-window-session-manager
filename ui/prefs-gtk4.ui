@@ -78,7 +78,7 @@
                         <child>
                           <object class="GtkLabel" id="auto_close_session_multi_label_description">
                             <property name="hexpand">true</property>
-                            <property name="label" translatable="yes">Enable to close running apps and windows while Logout, Reboot and Shutdown via endSessionDialog.</property>
+                            <property name="label" translatable="yes">Close running apps and windows when logging out, rebooting, or shutting down.</property>
                             <property name="wrap">true</property>
                             <property name="use-markup">true</property>
                             <property name="xalign">0</property>
