@@ -4,6 +4,7 @@ import GObject from 'gi://GObject';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
+import Gtk from 'gi://Gtk';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -47,28 +48,29 @@ class SessionItemButtons extends GObject.Object {
     addButtons() {
         this._addTags();
 
+        this._actionTooltips = [];
+
         const saveButton = this._addButton('save-symbolic.svg');
-        new Tooltip.Tooltip({
-            parent: saveButton,
-            markup: 'Save open windows using the current session name',
-        });
+        this._addActionTooltip(saveButton, 'Save open windows using the current session name', 'save-session-shortcut');
         saveButton.connect('clicked', this._onClickSave.bind(this));
 
         const restoreButton = this._addButton('restore-symbolic.svg');
         restoreButton.set_reactive(this.sessionItem._available);
-        new Tooltip.Tooltip({
-            parent: restoreButton,
-            markup: 'Restore windows from the saved session',
-        });
+        this._addActionTooltip(restoreButton, 'Restore windows from the saved session', 'restore-session-shortcut');
         restoreButton.connect('clicked', this._onClickRestore.bind(this));
 
         const moveButton = this._addButton('move-symbolic.svg');
         moveButton.set_reactive(this.sessionItem._available);
-        new Tooltip.Tooltip({
-            parent: moveButton,
-            markup: 'Move windows to their workspace by the saved session',
-        });
+        this._addActionTooltip(moveButton, 'Move windows to their workspace by the saved session', 'move-windows-shortcut');
         moveButton.connect('clicked', this._onClickMove.bind(this));
+
+        for (const settingsKey of [
+            'save-session-shortcut',
+            'restore-session-shortcut',
+            'move-windows-shortcut',
+        ]) {
+            this._settings.connect(`changed::${settingsKey}`, () => this._updateActionTooltips());
+        }
 
         // this._addSeparator();
 
@@ -98,6 +100,7 @@ class SessionItemButtons extends GObject.Object {
             this._syncingAutostartSwitch = true;
             this._autostartSwitch.state = toggled;
             this._syncingAutostartSwitch = false;
+            this._updateActionTooltips();
         });
 
         this._addSeparator();
@@ -131,6 +134,35 @@ class SessionItemButtons extends GObject.Object {
             FileUtils.trashSession(this.sessionItem._filename);
         });
 
+    }
+
+    _addActionTooltip(button, description, settingsKey) {
+        const tooltip = new Tooltip.Tooltip({
+            parent: button,
+            markup: this._getActionTooltipMarkup(description, settingsKey),
+        });
+        this._actionTooltips.push({tooltip, description, settingsKey});
+    }
+
+    _getActionTooltipMarkup(description, settingsKey) {
+        if (this.sessionItem._filename !== this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS))
+            return description;
+
+        const shortcut = this._settings.get_strv(settingsKey)[0];
+        if (!shortcut || shortcut === 'disabled')
+            return description;
+
+        const [ok, keyval, mask] = Gtk.accelerator_parse(shortcut);
+        if (!ok)
+            return description;
+
+        return `${description} (${Gtk.accelerator_get_label(keyval, mask)})`;
+    }
+
+    _updateActionTooltips() {
+        for (const action of this._actionTooltips) {
+            action.tooltip.markup = this._getActionTooltipMarkup(action.description, action.settingsKey);
+        }
     }
 
     _addAutostartSwitcher() {

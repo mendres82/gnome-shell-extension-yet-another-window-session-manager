@@ -14,6 +14,7 @@ import {prefsUtilsInit, prefsUtilsDestroy, PrefsUtils} from './utils/prefsUtils.
 import * as StringUtils from './utils/stringUtils.js';
 
 import * as PrefsCloseWindow from './prefsCloseWindow.js';
+import {initShortcutRows} from './prefsShortcuts.js';
 
 
 export default class AnotherWindowSessionManagerPreferences extends ExtensionPreferences {
@@ -30,6 +31,7 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this.render_ui();
         this._uiCloseWindows = new PrefsCloseWindow.UICloseWindows(this._builder);
         this._uiCloseWindows.init();
+        initShortcutRows(this._builder.get_object('keyboard_shortcuts_listbox'), settings);
         this._bindSettings();
         
         // Set sensitive AFTER this._bindSettings() to make it work
