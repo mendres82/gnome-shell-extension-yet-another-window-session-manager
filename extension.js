@@ -31,7 +31,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
 
     enable() {
         // settings is needed by the initialization of some utils
-        this._settings = this.getSettings('org.gnome.shell.extensions.another-window-session-manager');        
+        this._settings = this.getSettings('org.gnome.shell.extensions.yet-another-window-session-manager');        
 
         this.initUtils();
         
@@ -59,12 +59,12 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
             if (!_indicator) {
                 // Remove any stale indicator left over from a previous enable/disable cycle
                 // (e.g. after screen lock/unlock) to avoid "Extension point conflict" error
-                const existingIndicator = Main.panel.statusArea['Another Window Session Manager'];
+                const existingIndicator = Main.panel.statusArea['Yet Another Window Session Manager'];
                 if (existingIndicator) {
                     existingIndicator.destroy();
                 }
                 _indicator = new Indicator.AwsIndicator();
-                Main.panel.addToStatusArea('Another Window Session Manager', _indicator);
+                Main.panel.addToStatusArea('Yet Another Window Session Manager', _indicator);
             }
         } else {
             this.hideIndicator();
