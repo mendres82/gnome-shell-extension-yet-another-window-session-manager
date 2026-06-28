@@ -24,7 +24,7 @@ import * as Constants from '../constants.js';
 
 import {Button} from './button.js';
 
-import * as Autoclose from './autoclose.js';
+import {sessionEndState} from '../openWindowsTracker.js';
 
 
 export const SessionItemButtons = GObject.registerClass(
@@ -264,7 +264,7 @@ class SessionItemButtons extends GObject.Object {
     }
     
     _onClickRestore(button, event) {
-        Autoclose.autocloseObject.sessionClosedByUser = false;
+        sessionEndState.sessionClosedByUser = false;
         RestoreSession.restoreSessionObject.restoringApps = new Map();
         // Using _restoredApps to hold restored apps so we create new instance every time for now
         const _restoreSession = new RestoreSession.RestoreSession();

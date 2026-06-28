@@ -2,6 +2,7 @@
 'use strict';
 
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
@@ -27,11 +28,7 @@ try {
 }
 
 import {PrefsUtils} from '../utils/prefsUtils.js';
-
-// In ESM, we put variables like `sessionClosedByUser` in an object to share them crossing modules
-export const autocloseObject = {
-    sessionClosedByUser: false
-}
+import {sessionEndState} from '../openWindowsTracker.js';
 
 let __confirm = null;
 let __init = null;
@@ -71,7 +68,12 @@ export const Autoclose = GObject.registerClass(
             
             this._retryIdleId = null;
 
-            this._overrideEndSessionDialog();
+            // org.gnome.SessionManager logout-prompt=false skips EndSessionDialog;
+            // session preservation is handled via SystemActions in openWindowsTracker.js.
+            const logoutPrompt = new Gio.Settings({schema_id: 'org.gnome.SessionManager'})
+                .get_boolean('logout-prompt');
+            if (logoutPrompt)
+                this._overrideEndSessionDialog();
         }
 
         _overrideEndSessionDialog() {
@@ -128,7 +130,7 @@ export const Autoclose = GObject.registerClass(
 
             EndSessionDialog.EndSessionDialog.prototype._confirm = async function (signal) {
                 try {
-                    autocloseObject.sessionClosedByUser = true;
+                    sessionEndState.sessionClosedByUser = true;
 
                     const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
                     if (!enableAutocloseSession) {

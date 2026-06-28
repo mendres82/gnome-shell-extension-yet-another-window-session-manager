@@ -82,13 +82,13 @@ After you click the `Log Out/Restart/Power Off` button:
 
 If the second button on the above dialog has `via YAWSM`, it means this feature is enabled. 
 
-After you click `Log Out(via YAWSM)`, all apps and windows will be closed automatically by YAWSM. But some apps might be still opening, you have to close them yourself; then if there are no running apps, this extension logs out the current user immediately.
+After you click `Log Out (via YAWSM)`, all apps and windows will be closed automatically by YAWSM. But some apps might be still opening, you have to close them yourself; then if there are no running apps, this extension logs out the current user immediately.
 
 ![image](https://user-images.githubusercontent.com/2271720/214394659-651e6259-842c-49ca-9c97-6df62c9485d1.png)
 
 You can move it around in case it covers other windows.
 
-Please note that currently if this option is enabled, it modifies the Gnome Shell `endSessionDialog` **globally**, which means running `gnome-session-quit --logout` will also popup the new modified dialog.
+Please note that currently if this option is enabled, it modifies the Gnome Shell `endSessionDialog` **globally**, which means running `gnome-session-quit --logout` will also popup the new modified dialog. It does not run when `org.gnome.SessionManager` `logout-prompt` is `false`.
 
 ### How to make `Close by rules` work
 

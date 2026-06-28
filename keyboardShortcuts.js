@@ -8,7 +8,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as SaveSession from './saveSession.js';
 import * as RestoreSession from './restoreSession.js';
 import * as MoveSession from './moveSession.js';
-import * as Autoclose from './ui/autoclose.js';
+import {sessionEndState} from './openWindowsTracker.js';
 import * as Constants from './constants.js';
 import * as Log from './utils/log.js';
 
@@ -76,7 +76,7 @@ export class KeyboardShortcuts {
         if (!sessionName)
             return;
 
-        Autoclose.autocloseObject.sessionClosedByUser = false;
+        sessionEndState.sessionClosedByUser = false;
         RestoreSession.restoreSessionObject.restoringApps = new Map();
         new RestoreSession.RestoreSession().restoreSession(sessionName);
     }
