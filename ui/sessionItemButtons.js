@@ -61,7 +61,7 @@ class SessionItemButtons extends GObject.Object {
 
         const moveButton = this._addButton('move-symbolic.svg');
         moveButton.set_reactive(this.sessionItem._available);
-        this._addActionTooltip(moveButton, 'Move windows to their workspace by the saved session', 'move-windows-shortcut');
+        this._addActionTooltip(moveButton, 'Move windows to their workspace and position by the saved session', 'move-windows-shortcut');
         moveButton.connect('clicked', this._onClickMove.bind(this));
 
         for (const settingsKey of [
@@ -80,7 +80,7 @@ class SessionItemButtons extends GObject.Object {
         const autoRestoreSwitcher = this._addAutostartSwitcher();
         new Tooltip.Tooltip({
             parent: autoRestoreSwitcher,
-            markup: 'Restore at startup',
+            markup: 'Set as default session',
         });
         this._syncingAutostartSwitch = false;
         this._autostartSwitch.connect('notify::state', () => {

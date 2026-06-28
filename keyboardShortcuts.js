@@ -44,20 +44,20 @@ export class KeyboardShortcuts {
         }
     }
 
-    _autorestoreSessionName() {
+    _defaultSessionName() {
         const sessionName = this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS).trim();
         if (sessionName)
             return sessionName;
 
         global.notify_error(
             'Yet Another Window Session Manager',
-            'No session selected for restore at startup. Enable restore at startup for a session in the panel menu first.'
+            'No default session selected. Set a default session in the panel menu first.'
         );
         return null;
     }
 
     _onSaveSession() {
-        const sessionName = this._autorestoreSessionName();
+        const sessionName = this._defaultSessionName();
         if (!sessionName)
             return;
 
@@ -72,7 +72,7 @@ export class KeyboardShortcuts {
     }
 
     _onRestoreSession() {
-        const sessionName = this._autorestoreSessionName();
+        const sessionName = this._defaultSessionName();
         if (!sessionName)
             return;
 
@@ -82,7 +82,7 @@ export class KeyboardShortcuts {
     }
 
     _onMoveWindows() {
-        const sessionName = this._autorestoreSessionName();
+        const sessionName = this._defaultSessionName();
         if (!sessionName)
             return;
 
