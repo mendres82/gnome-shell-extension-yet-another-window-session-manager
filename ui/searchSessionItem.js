@@ -75,7 +75,7 @@ export const SearchSessionItem = GObject.registerClass(
 
             new Tooltip.Tooltip({
                 parent: button,
-                markup: 'Show only auto-restore item(s)',
+                markup: 'Show only the default session',
             });
 
             this.add_child(button);

@@ -41,7 +41,7 @@
     </key>
     <key name='autorestore-sessions' type="s">
       <default>''</default>
-      <summary>Session(s) restored on startup</summary>
+      <summary>Default session</summary>
       <description>
       </description>
     </key>
@@ -142,17 +142,17 @@
     <key name="save-session-shortcut" type="as">
       <default><![CDATA[['<Control><Alt>s']]]></default>
       <summary>Keyboard shortcut for Save Session</summary>
-      <description></description>
+      <description>Save open windows using the default session</description>
     </key>
     <key name="restore-session-shortcut" type="as">
       <default><![CDATA[['<Control><Alt>r']]]></default>
       <summary>Keyboard shortcut for Restore Session</summary>
-      <description></description>
+      <description>Restore windows from the default session</description>
     </key>
     <key name="move-windows-shortcut" type="as">
       <default><![CDATA[['<Control><Alt>m']]]></default>
       <summary>Keyboard shortcut for Move Windows</summary>
-      <description></description>
+      <description>Move windows to their workspace and position by the default session</description>
     </key>
 
     <key name="debugging-mode" type="b">

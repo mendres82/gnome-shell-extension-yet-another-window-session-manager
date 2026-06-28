@@ -39,7 +39,7 @@ After confirm to save:
 
 ![image](https://user-images.githubusercontent.com/2271720/163229511-f83df883-5afe-47ae-8855-fef68586e5a4.png)
 
-## Activate the current session to be restored at startup
+## Set the default session
 ![image](https://user-images.githubusercontent.com/2271720/162792703-20da002b-b590-4df5-964e-9c586e8915bc.png)
 
 ## Preferences
@@ -148,9 +148,9 @@ gdbus call --session --dest org.gnome.Shell.Extensions.yawsm --object-path /org/
 
 ### How to `Restore a session at startup`?
 
-To make it work, you must enable it through `Restore sessions -> Restore at startup` in the Preferences AND active a session by clicking <img src=https://user-images.githubusercontent.com/2271720/162792222-0fc7e6ca-1382-49cf-975a-f53d878d0479.png width="24" height="13"> in the popup menu.
+To make it work, you must enable it through `Restore sessions -> Restore selected session at startup` in the Preferences AND set a session as the default by clicking <img src=https://user-images.githubusercontent.com/2271720/162792222-0fc7e6ca-1382-49cf-975a-f53d878d0479.png width="24" height="13"> in the popup menu.
 
-While you enable it through `Restore sessions -> Restore at startup`, it creates a `_gnome-shell-extension-yet-another-window-session-manager.desktop` under the folder `~/.config/autostart/`. 
+While you enable it through `Restore sessions -> Restore selected session at startup`, it creates a `_gnome-shell-extension-yet-another-window-session-manager.desktop` under the folder `~/.config/autostart/`. 
 
 Test the settings in command line via:
 ```Bash
@@ -169,9 +169,9 @@ Please do not modify `_gnome-shell-extension-yet-another-window-session-manager.
 | <img src=icons/restore-symbolic.svg width="14" height="14">  | Restore the saved session using the item's name               |
 | <img src=icons/move-symbolic.svg width="14" height="14">     | Move the open windows using the item's name                  |
 | <img src=icons/close-symbolic.svg width="14" height="14">    | Close the current open windows                               |
-| <img src=icons/toggle-on-autorestore-symbolic.svg width="24" height="13">    | Activate the current session to be restored at startup |
-| <img src=https://user-images.githubusercontent.com/2271720/162792222-0fc7e6ca-1382-49cf-975a-f53d878d0479.png width="24" height="13">    | Inactivate the current session to be restored at startup |
-| <img src=icons/autorestore-symbolic.svg width="13" height="13">    | Indicate the autorestore button       |
+| <img src=icons/toggle-on-autorestore-symbolic.svg width="24" height="13">    | Set the current session as the default session |
+| <img src=https://user-images.githubusercontent.com/2271720/162792222-0fc7e6ca-1382-49cf-975a-f53d878d0479.png width="24" height="13">    | Unset the current session as the default session |
+| <img src=icons/autorestore-symbolic.svg width="13" height="13">    | Indicate the default session toggle       |
 
 
 # Dependencies
