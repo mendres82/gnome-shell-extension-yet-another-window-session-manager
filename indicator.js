@@ -5,15 +5,12 @@ import St from 'gi://St';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
-import Meta from 'gi://Meta';
 import Clutter from 'gi://Clutter';
 
 
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
-import * as MoveSession from './moveSession.js';
-import * as RestoreSession from './restoreSession.js';
 import * as Constants from './constants.js';
 
 import * as FileUtils from './utils/fileUtils.js';
@@ -23,7 +20,6 @@ import * as PopupMenuButtonItems from './ui/popupMenuButtonItems.js';
 import * as IconFinder from './utils/iconFinder.js';
 import {PrefsUtils} from './utils/prefsUtils.js';
 import * as Log from './utils/log.js';
-import * as Signal from './utils/signal.js';
 
 
 export const AwsIndicator = GObject.registerClass(
@@ -36,7 +32,6 @@ class AwsIndicator extends PanelMenu.Button {
 
         this._settings = PrefsUtils.getSettings();
         this._log = new Log.Log();
-        this._signal = new Signal.Signal();
         
         this._itemIndex = 0;
 
@@ -68,193 +63,8 @@ class AwsIndicator extends PanelMenu.Button {
         // See: PopupMenu#itemActivated() => this.menu._getTopMenu().close
         this.menu.itemActivated = function(animate) {};
 
-        this._moveSession = new MoveSession.MoveSession();
-
-        this._metaWindowConnectIds = [];
-        this._display = global.display;
-        this._displayId = this._display.connect('window-created', this._windowCreated.bind(this));
-
         this._isDestroyed = false;
         
-    }
-
-    // TODO Move this method and related code to a single .js file
-    async _windowCreated(display, metaWindow, userData) {
-        if (Constants.shellVersion < 50) {
-            if (!Meta.is_wayland_compositor()) {
-                // We call createEnoughWorkspaceAndMoveWindows() if and only if all conditions checked.
-                
-                // But we give some windows (such as the OS running in VirtualBox) a chance to connect `first-frame` and `shown` signals.
-                // The reason I do this is that 
-                // `Shell.AppSystem.get_default().lookup_app('a-VirtualBox-machine-name.desktop')`
-                // and `Shell.WindowTracker.get_default().get_window_app(metaWindow_of_VirtualBoxMachine)`
-                // are not the same instance. 
-                
-                // My best guess is:
-                // Looks like if launch a VirtualBox machine via `/usr/lib64/virtualbox/VirtualBoxVM --comment "test" --startvm "{xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxxxxxxxxx}"`,
-                // it will open two process: the first process open another process, which is running a machine, and then the first process stops to run and the associated Shell.App is also destroyed.
-                // And
-                // the two processes all have window, window of the first process will be destroyed before/after the second process open a new window, which is running the virtual OS.
-                // Install https://extensions.gnome.org/extension/4679/burn-my-windows/ to watch this process.
-
-                const shellApp = this._windowTracker.get_window_app(metaWindow);
-                let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
-                if (!shellAppData) {
-                    shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
-                }
-
-                if (shellAppData) {
-                    const saved_window_sessions = shellAppData.saved_window_sessions;
-
-                    // On X11, we have to create enough workspace and move windows before receive the first-frame signal.
-                    // If not, all windows will be shown in current workspace when stay in Overview, which is not pretty.
-                    let matchedSavedWindowSession = await this._moveSession.createEnoughWorkspaceAndMoveWindows(metaWindow, saved_window_sessions);
-                    
-                    if (matchedSavedWindowSession) {
-                        // We try to restore window state here if necessary.
-                        // Below are possible reasons:
-                        // 1) In current implement there is no guarantee that the first-frame and shown signals can be triggered immediately. You have to click a window to trigger them.
-                        // 2) The restored window state could be lost
-                        this._log.debug(`Restoring window state of ${shellApp.get_name()} - ${metaWindow.get_title()} if necessary`);
-                        this._moveSession._restoreWindowState(metaWindow, matchedSavedWindowSession);
-
-
-                        // Fix window geometry later on in first-frame signal
-                        // TODO The side-effect is when a window is already in the current workspace there will be two same logs (The window 'Clocks' is already on workspace 0 for Clocks) in the journalctl, which is not pretty.
-                        // TODO Maybe it's better to use another state to indicator whether a window has been restored geometry.
-                        matchedSavedWindowSession.moved = false;
-                    }
-                }
-            }   
-        }
-        
-        let metaWindowActor = metaWindow.get_compositor_private();
-        // https://github.com/paperwm/PaperWM/blob/10215f57e8b34a044e10b7407cac8fac4b93bbbc/tiling.js#L2120
-        // https://gjs-docs.gnome.org/meta8~8_api/meta.windowactor#signal-first-frame
-        let firstFrameId = metaWindowActor.connect('first-frame', () => {
-            if (this._isDestroyed) {
-                metaWindowActor.disconnect(firstFrameId);
-                return;
-            }
-
-            if (metaWindow._aboutToClose) {
-                return;
-            }
-
-            const shellApp = this._windowTracker.get_window_app(metaWindow);
-            if (!shellApp) {
-                return;
-            }
-
-            // NOTE: The title of a dialog (for example a close warning dialog, like gnome-terminal) attached to a window is ''
-            this._log.debug(`window-created -> first-frame: ${shellApp.get_name()} -> ${metaWindow.get_title()}`);
-
-            let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
-            if (!shellAppData) {
-                shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
-            }
-            if (!shellAppData) {
-                return;
-            }
-            
-            const saved_window_sessions = shellAppData.saved_window_sessions;
-            
-            this._moveSession.moveWindowByMetaWindow(metaWindow, saved_window_sessions);
-        
-            metaWindowActor.disconnect(firstFrameId);
-            firstFrameId = 0;
-        })
-        
-        let shownId = metaWindow.connect('shown', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(shownId);
-                return;
-            }
-
-            if (metaWindow._aboutToClose) {
-                return;
-            }
-
-            const shellApp = this._windowTracker.get_window_app(metaWindow);
-            if (!shellApp) {
-                return;
-            }
-
-            // NOTE: The title of a dialog (for example a close warning dialog, like gnome-terminal) attached to a window is ''
-            this._log.debug(`window-created -> shown: ${shellApp.get_name()} -> ${metaWindow.get_title()}`);
-
-            let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
-            if (!shellAppData) {
-                shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
-            }
-            if (!shellAppData) {
-                return;
-            }
-            
-            const saved_window_sessions = shellAppData.saved_window_sessions;
-            
-            this._moveSession.moveWindowByMetaWindow(metaWindow, saved_window_sessions);
-        
-            metaWindow.disconnect(shownId);
-            shownId = 0;
-        });
-
-
-        /*
-        We have to disconnect firstFrameId within the unmanaging signal of metaWindow.
-        
-        If we do this in `destroy()`, the metaWindowActor instance has been disposed, disconnecting signals from 
-        metaWindowActor gets many errors when disable extension: Object .MetaWindowActorWayland (0x55fae658e3d0), has been already disposed — impossible to access it. This might be caused by the object having been destroyed from C code using something such as destroy(), dispose(), or remove() vfuncs.
-        I don't know why 😢. TODO
-
-        But metaWindow is not disposed in `destroy()`, so we can disconnect signals from it there.
-        */
-        let unmanagingId = metaWindow.connect('unmanaging', () => {
-            // Fix ../gobject/gsignal.c:2732: instance '0x55629xxxxxx' has no handler with id '11000' when disable this extension right after restore apps
-            this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-        });
-
-        // The window title might be changing multiple times while the app is starting. 
-        // For some apps, such as Visual Studio Code, when it's starting, the first title is `Visual Studio Code`,
-        // the second could be `indicator.js - gnome-shell-extension-yet-another-window-session-manager - Visual Studio Code`.
-        // In the above instance, `notify::title` catches the second.
-        let titleChangedId = metaWindow.connect('notify::title', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(titleChangedId);
-                return;
-            }
-
-            if (metaWindow._aboutToClose) {
-                return;
-            }
-
-            const shellApp = this._windowTracker.get_window_app(metaWindow);
-            if (!shellApp) {
-                return;
-            }
-
-            // NOTE: The title of a dialog (for example a close warning dialog, like gnome-terminal) attached to a window is ''
-            this._log.debug(`window-created -> title changed: ${shellApp.get_name()} -> ${metaWindow.get_title()}`);
-
-            let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
-            if (!shellAppData) {
-                shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
-            }
-            if (!shellAppData) {
-                return;
-            }
-            
-            const saved_window_sessions = shellAppData.saved_window_sessions;
-            
-            this._moveSession.moveWindowByMetaWindow(metaWindow, saved_window_sessions);
-        
-            metaWindow.disconnect(titleChangedId);
-            titleChangedId = 0;
-        });
-
-        this._metaWindowConnectIds.push([metaWindow, shownId]);
-        this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
-        this._metaWindowConnectIds.push([metaWindow, titleChangedId]);
     }
 
     _onOpenStateChanged(menu, state) {
@@ -555,19 +365,6 @@ class AwsIndicator extends PanelMenu.Button {
 
         if (this._sessions_path) {
             this._sessions_path = null;
-        }
-
-        if (this._metaWindowConnectIds) {
-            for (let [obj, signalId] of this._metaWindowConnectIds) {
-                // Fix ../gobject/gsignal.c:2732: instance '0x55629xxxxxx' has no handler with id '11000' when disable this extension right after restore apps
-                this._signal.disconnectSafely(obj, signalId);
-            }
-            this._metaWindowConnectIds = null;
-        }
-        
-        if (this._displayId) {
-            this._display.disconnect(this._displayId);
-            this._displayId = 0;
         }
 
         if (this._log) {
