@@ -17,6 +17,7 @@ import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 
 import {sessionEndState} from '../openWindowsTracker.js';
 import * as RestoreSession from '../restoreSession.js';
+import * as MoveSession from '../moveSession.js';
 import * as Constants from '../constants.js';
 
 import * as Log from '../utils/log.js';
@@ -128,30 +129,33 @@ const AutostartService = GObject.registerClass(
                 return disabledFeatureMsg;
             }
 
+            if (!Main.layoutManager._startingUp) {
+                return this._startRestoreSelectedSession();
+            }
+
+            Main.layoutManager.connect('startup-complete', () => {
+                this._startRestoreSelectedSession();
+            });
+            return `Waiting for startup to restore session '${this._sessionName}' ...`;
+        }
+
+        _startRestoreSelectedSession() {
             const restoringMsg = `Restoring selected session '${this._sessionName}'`;
             this._log.info(restoringMsg);
             Main.notify('Yet Another Window Session Manager', restoringMsg);
-            
+
             this._autostartDialog = new AutostartDialog();
             if (this._settings.get_boolean('restore-at-startup-without-asking')) {
                 this._autostartDialog._confirm();
                 return `Restore session '${this._sessionName}' without asking ...`;
-            } else {
-                // Since this._autostartDialog.open() is idempotent (it will check the dialog state),
-                // it's ok to call it twice.
-                // Before the startup-complete emits, `Main.pushModal(this, params).get_seat_state()`
-                // returns CLUTTER_GRAB_STATE_NONE (0), which causes the dialog can't open. See: modalDialog.open() -> modalDialog.pushModal()
-                Main.layoutManager.connect('startup-complete', () => {
-                    this._idleIdOpenRestoreSessionDialog = GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                        this._autostartDialog.open();
-                        this._idleIdOpenRestoreSessionDialog = null;
-                        return GLib.SOURCE_REMOVE;
-                    });
-                });
-                this._autostartDialog.open();
-                return 'Opening dialog to restore ...';
             }
 
+            this._idleIdOpenRestoreSessionDialog = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                this._autostartDialog.open();
+                this._idleIdOpenRestoreSessionDialog = null;
+                return GLib.SOURCE_REMOVE;
+            });
+            return 'Opening dialog to restore ...';
         }
 
         // TODO Press some hotkey (like Ctrl) so this time will not restore the previous session?
@@ -247,6 +251,7 @@ const AutostartDialog = GObject.registerClass(
 
             this._totalSecondsToStayOpen = this._settings.get_int('autorestore-sessions-timer');
             this._secondsLeft = 0;
+            this._moveWindowsFallbackSourceId = 0;
 
             this.connect('opened', this._onOpened.bind(this));
 
@@ -276,8 +281,27 @@ const AutostartDialog = GObject.registerClass(
 
         _confirm() {
             sessionEndState.sessionClosedByUser = false;
+            RestoreSession.restoreSessionObject.restoringApps = new Map();
             const _restoreSession = new RestoreSession.RestoreSession();
             _restoreSession.restoreSession(this._sessionName);
+            this._scheduleMoveWindowsFallback();
+        }
+
+        _scheduleMoveWindowsFallback() {
+            if (this._moveWindowsFallbackSourceId) {
+                GLib.Source.remove(this._moveWindowsFallbackSourceId);
+                this._moveWindowsFallbackSourceId = null;
+            }
+
+            const restorePreviousDelay = this._settings.get_int('restore-previous-delay');
+            this._moveWindowsFallbackSourceId = GLib.timeout_add(
+                GLib.PRIORITY_DEFAULT,
+                restorePreviousDelay * 1000,
+                () => {
+                    this._moveWindowsFallbackSourceId = null;
+                    new MoveSession.MoveSession().moveWindows(this._sessionName);
+                    return GLib.SOURCE_REMOVE;
+                });
         }
 
         _cancel() {
@@ -350,6 +374,10 @@ const AutostartDialog = GObject.registerClass(
             if (this._timerId > 0) {
                 GLib.source_remove(this._timerId);
                 this._timerId = 0;
+            }
+            if (this._moveWindowsFallbackSourceId) {
+                GLib.Source.remove(this._moveWindowsFallbackSourceId);
+                this._moveWindowsFallbackSourceId = 0;
             }
             this._secondsLeft = 0;
         }

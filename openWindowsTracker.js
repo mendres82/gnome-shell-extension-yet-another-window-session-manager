@@ -11,6 +11,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as SaveSession from './saveSession.js';
 import * as RestoreSession from './restoreSession.js';
 import * as MoveSession from './moveSession.js';
+import * as Constants from './constants.js';
 
 import * as UiHelper from './ui/uiHelper.js';
 
@@ -19,6 +20,7 @@ import {PrefsUtils} from './utils/prefsUtils.js';
 import * as FileUtils from './utils/fileUtils.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
 import * as Function from './utils/function.js';
+import * as Signal from './utils/signal.js';
 
 import {WindowTilingSupport} from './windowTilingSupport.js';
 
@@ -80,6 +82,9 @@ export const OpenWindowsTracker = class {
 
         this._log = new Log.Log();
         this._settings = PrefsUtils.getSettings();
+        this._signal = new Signal.Signal();
+        this._metaWindowConnectIds = [];
+        this._isDestroyed = false;
 
         this._saveSession = new SaveSession.SaveSession();
         this._moveSession = new MoveSession.MoveSession();
@@ -127,6 +132,7 @@ export const OpenWindowsTracker = class {
             this._onWindowCreatedSaveOrUpdateWindowsMapping(display, window, userData);
 
             this._restoreOrSaveWindowSession(window);
+            this._placeRestoredWindow(window);
         });
         this._signals.push([windowCreatedId, this._display]);
 
@@ -237,6 +243,126 @@ export const OpenWindowsTracker = class {
         } catch (e) {
             this._log.error(e);
         }
+    }
+
+    _getRestoringShellAppData(metaWindow) {
+        const shellApp = this._windowTracker.get_window_app(metaWindow);
+        if (!shellApp)
+            return null;
+
+        let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
+        if (!shellAppData)
+            shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
+
+        return shellAppData;
+    }
+
+    async _placeRestoredWindow(metaWindow) {
+        try {
+            if (Constants.shellVersion < 50) {
+                if (!Meta.is_wayland_compositor()) {
+                    const shellApp = this._windowTracker.get_window_app(metaWindow);
+                    let shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(shellApp);
+                    if (!shellAppData)
+                        shellAppData = RestoreSession.restoreSessionObject.restoringApps.get(metaWindow.get_pid());
+
+                    if (shellAppData) {
+                        const saved_window_sessions = shellAppData.saved_window_sessions;
+                        let matchedSavedWindowSession = await this._moveSession.createEnoughWorkspaceAndMoveWindows(metaWindow, saved_window_sessions);
+
+                        if (matchedSavedWindowSession) {
+                            this._log.debug(`Restoring window state of ${shellApp.get_name()} - ${metaWindow.get_title()} if necessary`);
+                            this._moveSession._restoreWindowState(metaWindow, matchedSavedWindowSession);
+                            matchedSavedWindowSession.moved = false;
+                        }
+                    }
+                }
+            }
+
+            this._connectPlacementSignals(metaWindow);
+        } catch (error) {
+            this._log.error(error, metaWindow ? metaWindow.get_title() : 'window-created');
+        }
+    }
+
+    _connectPlacementSignals(metaWindow) {
+        const moveIfRestoring = (phase) => {
+            if (this._isDestroyed || metaWindow._aboutToClose)
+                return;
+
+            const shellApp = this._windowTracker.get_window_app(metaWindow);
+            if (!shellApp)
+                return;
+
+            this._log.debug(`window-created -> ${phase}: ${shellApp.get_name()} -> ${metaWindow.get_title()}`);
+
+            const shellAppData = this._getRestoringShellAppData(metaWindow);
+            if (!shellAppData)
+                return;
+
+            this._moveSession.moveWindowByMetaWindow(metaWindow, shellAppData.saved_window_sessions);
+        };
+
+        const connectFirstFrame = (metaWindowActor) => {
+            let firstFrameId = metaWindowActor.connect('first-frame', () => {
+                if (this._isDestroyed) {
+                    this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+                    return;
+                }
+
+                moveIfRestoring('first-frame');
+                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+                firstFrameId = 0;
+            });
+
+            let unmanagingId = metaWindow.connect('unmanaging', () => {
+                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+            });
+            this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
+        };
+
+        let metaWindowActor = metaWindow.get_compositor_private();
+        if (metaWindowActor) {
+            connectFirstFrame(metaWindowActor);
+        } else {
+            const idleCompositorId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                if (this._isDestroyed)
+                    return GLib.SOURCE_REMOVE;
+
+                metaWindowActor = metaWindow.get_compositor_private();
+                if (!metaWindowActor)
+                    return GLib.SOURCE_CONTINUE;
+
+                connectFirstFrame(metaWindowActor);
+                return GLib.SOURCE_REMOVE;
+            });
+            GLib.Source.set_name_by_id(idleCompositorId, '[gnome-shell-extension-yet-another-window-session-manager] wait-for-compositor');
+        }
+
+        let shownId = metaWindow.connect('shown', () => {
+            if (this._isDestroyed) {
+                metaWindow.disconnect(shownId);
+                return;
+            }
+
+            moveIfRestoring('shown');
+            metaWindow.disconnect(shownId);
+            shownId = 0;
+        });
+
+        let titleChangedId = metaWindow.connect('notify::title', () => {
+            if (this._isDestroyed) {
+                metaWindow.disconnect(titleChangedId);
+                return;
+            }
+
+            moveIfRestoring('title changed');
+            metaWindow.disconnect(titleChangedId);
+            titleChangedId = 0;
+        });
+
+        this._metaWindowConnectIds.push([metaWindow, shownId]);
+        this._metaWindowConnectIds.push([metaWindow, titleChangedId]);
     }
 
     _connectWindowSignalsToSaveSession(window) {
@@ -584,6 +710,7 @@ export const OpenWindowsTracker = class {
     }
 
     destroy() {
+        this._isDestroyed = true;
         this._cancelAllRunningSave();
 
         if (this._busWatchId) {
@@ -628,6 +755,13 @@ export const OpenWindowsTracker = class {
             });
             this._overrideSystemActionsPrototypeMap.clear();
             this._overrideSystemActionsPrototypeMap = null;
+        }
+
+        if (this._metaWindowConnectIds) {
+            for (let [obj, signalId] of this._metaWindowConnectIds) {
+                this._signal.disconnectSafely(obj, signalId);
+            }
+            this._metaWindowConnectIds = null;
         }
 
         if (this._signals && this._signals.length) {
