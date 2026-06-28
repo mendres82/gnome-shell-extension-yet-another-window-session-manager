@@ -76,19 +76,13 @@ Enable this feature through `Auto close session` under `Close windows`:
 
 ![image](https://user-images.githubusercontent.com/2271720/214387813-fece3c78-6e27-494a-9edd-4705350c7179.png)
 
-After you click the `Log Out/Restart/Power Off` button:
+After you click the `Log Out/Restart/Power Off` button and confirm GNOME's session dialog, YAWSM closes running apps and windows automatically. If everything closes successfully, logout, reboot, or shutdown continues without an extra prompt.
 
-![image](https://user-images.githubusercontent.com/2271720/214377307-0af5b841-93b8-4b6c-bd09-7a620dc79025.png)
-
-If the second button on the above dialog has `via YAWSM`, it means this feature is enabled. 
-
-After you click `Log Out (via YAWSM)`, all apps and windows will be closed automatically by YAWSM. But some apps might be still opening, you have to close them yourself; then if there are no running apps, this extension logs out the current user immediately.
+If one or more apps cannot be closed automatically, YAWSM shows a dialog listing them so you can close them manually:
 
 ![image](https://user-images.githubusercontent.com/2271720/214394659-651e6259-842c-49ca-9c97-6df62c9485d1.png)
 
-You can move it around in case it covers other windows.
-
-Please note that currently if this option is enabled, it modifies the Gnome Shell `endSessionDialog` **globally**, which means running `gnome-session-quit --logout` will also popup the new modified dialog. It does not run when `org.gnome.SessionManager` `logout-prompt` is `false`.
+This feature hooks into GNOME Shell's `endSessionDialog`, so it also runs when you log out via `gnome-session-quit --logout`. It does not run when `org.gnome.SessionManager` `logout-prompt` is `false`.
 
 ### How to make `Close by rules` work
 

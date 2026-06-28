@@ -14,8 +14,6 @@ import * as CloseSession from '../closeSession.js';
 
 import * as EndSessionDialog from 'resource:///org/gnome/shell/ui/endSessionDialog.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as DND from 'resource:///org/gnome/shell/ui/dnd.js';
-import * as Layout from 'resource:///org/gnome/shell/ui/layout.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
@@ -32,7 +30,6 @@ import {sessionEndState} from '../openWindowsTracker.js';
 
 let __confirm = null;
 let __init = null;
-let _addButton = null;
 let _OpenAsync = null;
 
 
@@ -83,7 +80,6 @@ export const Autoclose = GObject.registerClass(
             }
             __confirm = EndSessionDialog.EndSessionDialog.prototype._confirm;
             __init = EndSessionDialog.EndSessionDialog.prototype._init;
-            _addButton = EndSessionDialog.EndSessionDialog.prototype.addButton;
             _OpenAsync = EndSessionDialog.EndSessionDialog.prototype.OpenAsync;
 
             this._log.debug('Overriding some functions in EndSessionDialog');
@@ -107,26 +103,6 @@ export const Autoclose = GObject.registerClass(
                     that._log.error(e);
                 }
             }
-
-            EndSessionDialog.EndSessionDialog.prototype.addButton = function (buttonInfo) {
-                try {
-                    const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
-                    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name#bound_function
-                    // Function.prototype.bind() produces a function whose name is "bound " plus the function name.
-                    if (buttonInfo.action.name !== `bound ${this.cancel.name}` && enableAutocloseSession) {
-                        buttonInfo.label = (`${buttonInfo.label} (via YAWSM)`);
-
-                        // The button underlying uses `label` as an input param, so we cannot use Clutter.Text here
-                        // const label = new Clutter.Text();
-                        // label.set_markup(`${buttonInfo.label} (<b style='color:red'>via YAWSM</b>)`);
-                        // buttonInfo.label = label;
-                    }
-                } catch (error) {
-                    that._log.error(error);
-                } finally {
-                    return callFunc(this, _addButton, buttonInfo);
-                }
-            };
 
             EndSessionDialog.EndSessionDialog.prototype._confirm = async function (signal) {
                 try {
@@ -172,7 +148,7 @@ export const Autoclose = GObject.registerClass(
                                     that._retryIdleId = null;
                                     return GLib.SOURCE_REMOVE;
                                 });
-                            }
+                            },
                         );
                     }
 
@@ -197,6 +173,7 @@ export const Autoclose = GObject.registerClass(
                                     that._log.debug('One or more apps cannot be closed, please close them manually.');
                                     that._runningApplicationListWindow._applicationSection.title = `These apps can't be closed, please close them manually`;
                                     that._runningApplicationListWindow.showRunningApps();
+                                    that._runningApplicationListWindow.showToUser();
                                     that._runningApplicationListWindow._retryButton.reactive = true;
                                 } else {
                                     that._runningApplicationListWindow._prepareToConfirm();
@@ -223,11 +200,6 @@ export const Autoclose = GObject.registerClass(
             if (__init) {
                 EndSessionDialog.EndSessionDialog.prototype._init = __init;
                 __init = null;
-            }
-
-            if (_addButton) {
-                EndSessionDialog.EndSessionDialog.prototype.addButton = _addButton;
-                _addButton = null;
             }
 
             if (_OpenAsync) {
@@ -258,6 +230,7 @@ const RunningApplicationListWindow = GObject.registerClass({
     class RunningApplicationListWindow extends St.BoxLayout {
 
         _init(confirmButtOnLabel, onOpen, onComplete, onRetry) {
+            this._visibleToUser = false;
             super._init({
                 // TODO
                 // style: 'width: 150em;',
@@ -265,7 +238,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 // destroyOnClose: true
                 style_class: 'modal-dialog',
                 can_focus: true,
-                visible: true,
+                visible: false,
                 reactive: true,
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
@@ -280,23 +253,10 @@ const RunningApplicationListWindow = GObject.registerClass({
 
             this._confirmIdleId = null;
             this._checkProcessStateId = null;
+            this._updatePositionIdleId = null;
 
             // wm_class 
             this._apps_recheck_process_state = new Set(['Microsoft-edge']);
-
-            this._delegate = this;
-            this._draggable = DND.makeDraggable(this, {
-                restoreOnSuccess: false,
-                manualMode: false,
-                dragActorMaxSize: null,
-                dragActorOpacity: 128
-            });
-            this._draggable.connect('drag-begin', this._onDragBegin.bind(this));
-            this._draggable.connect('drag-cancelled', this._onDragCancelled.bind(this));
-            this._draggable.connect('drag-end', this._onDragEnd.bind(this));
-            this.inDrag = false;
-
-            this._positionInitialed = false;
 
             this._initialKeyFocus = null;
 
@@ -306,30 +266,11 @@ const RunningApplicationListWindow = GObject.registerClass({
             
             this._pidsMap = new Map();
 
-            this._removeFromLayoutIfNecessary(this);
-            // Main.layoutManager.modalDialogGroup.add_child(this);
-            // Main.layoutManager.uiGroup.add_child(this);
             Main.layoutManager.addChrome(this);
 
             this._confirmDialogContent = new Dialog.MessageDialogContent();
             this._confirmDialogContent.title = `Running applications`;
 
-            this.backgroundStack = new St.Widget({
-                layout_manager: new Clutter.BinLayout(),
-                x_expand: true,
-                y_expand: true,
-            });
-            this._backgroundBin = new St.Bin({ child: this.backgroundStack });
-            this._monitorConstraint = new Layout.MonitorConstraint();
-            this._backgroundBin.add_constraint(this._monitorConstraint);
-            this.add_child(this._backgroundBin);
-
-            this.backgroundStack.add_child(this);
-
-
-            // this.dialogLayout = new Dialog.Dialog(this.backgroundStack, null);
-            // this.contentLayout = this.dialogLayout.contentLayout;
-            // this.buttonLayout = this.dialogLayout.buttonLayout;
             this.contentLayout = new St.BoxLayout({
                 vertical: true,
                 style_class: 'modal-dialog-content-box',
@@ -378,10 +319,14 @@ const RunningApplicationListWindow = GObject.registerClass({
             this.showRunningApps();
 
             this._overViewShowingId = Main.overview.connect('showing', () => {
-                this.close();
+                if (this._visibleToUser)
+                    this.hide();
             });
             this._overViewHidingId = Main.overview.connect('hidden', () => {
-                this.showAndUpdateState();
+                if (this._visibleToUser) {
+                    this.show();
+                    this._scheduleUpdatePosition();
+                }
             });
 
         }
@@ -397,56 +342,6 @@ const RunningApplicationListWindow = GObject.registerClass({
                         this._pidsMap.set(pid, app);
                     });
                 });
-        }
-
-        _onDragBegin(_draggable, _time) {
-            this._removeFromLayoutIfNecessary();
-
-            this.inDrag = true;
-            this._dragMonitor = {
-                dragMotion: this._onDragMotion.bind(this),
-                dragDrop: this._onDragDrop.bind(this),
-            };
-            DND.addDragMonitor(this._dragMonitor);
-        }
-
-        _onDragDrop(dropEvent) {
-            this._draggable._dragState = DND.DragState.DRAGGING;
-            this._dropTarget = dropEvent.targetActor;
-            return DND.DragMotionResult.SUCCESS;
-        }
-
-        _removeFromLayoutIfNecessary() {
-            if (Main.uiGroup.contains(this)) {
-                // Fix clutter_actor_add_child: assertion 'child->priv->parent == NULL' failed
-                // complained by dnd.startDrag() https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/7ea0230a86dbee935b256171b07f2f8302917433/js/ui/dnd.js#L347
-                Main.uiGroup.remove_child(this);
-            }
-        }
-
-        _onDragMotion(dropEvent) {
-            this._inDrag = true;
-            this.set_position(dropEvent.dragActor.x, dropEvent.dragActor.y);
-            this._dragToXY = [dropEvent.dragActor.x, dropEvent.dragActor.y];
-            this._dragActor = dropEvent.dragActor;
-            return DND.DragMotionResult.CONTINUE;
-        }
-
-        _onDragCancelled(_draggable, _time) {
-            this._inDrag = false;
-        }
-
-        getDragActor() {
-            return this.get_actor();
-        }
-
-        acceptDrop() {
-            return true;
-        }
-
-        _onDragEnd(_draggable, _time, _snapback) {
-            this._inDrag = false;
-            DND.removeDragMonitor(this._dragMonitor);
         }
 
         addButton(buttonInfo) {
@@ -498,15 +393,34 @@ const RunningApplicationListWindow = GObject.registerClass({
             });
         }
 
+        showToUser() {
+            if (this._visibleToUser)
+                return;
+
+            this._visibleToUser = true;
+            this.show();
+            this._scheduleUpdatePosition();
+        }
+
+        _scheduleUpdatePosition() {
+            if (this._updatePositionIdleId)
+                return;
+
+            this._updatePositionIdleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                this._updatePositionIdleId = null;
+                if (!this._visibleToUser || !this.visible)
+                    return GLib.SOURCE_REMOVE;
+
+                this._updatePosition();
+                return GLib.SOURCE_REMOVE;
+            });
+        }
+
         open() {
             if (this.state == State.OPENED || this.state == State.OPENING)
                 return true;
 
             this._updateState(State.OPENING);
-            this._updatePosition();
-
-            this._monitorConstraint.index = global.display.get_current_monitor();
-            this.show();
             if (this._onOpen)
                 this._onOpen();
             this.emit('opened');
@@ -518,11 +432,9 @@ const RunningApplicationListWindow = GObject.registerClass({
             const activeWorkspace = global.workspace_manager.get_active_workspace();
             const currentMonitorIndex = global.display.get_current_monitor();
             const workArea = activeWorkspace.get_work_area_for_monitor(currentMonitorIndex);
-            const workAreaWidth = workArea.width;
-            const workAreaHeight = workArea.height;
-            const x = workAreaWidth / 2 - this.width / 2;
-            const y = workAreaHeight / 2 - this.height / 2;
-            this.set_position(x, y);
+            const x = workArea.x + (workArea.width - this.width) / 2;
+            const y = workArea.y + (workArea.height - this.height) / 2;
+            this.set_position(Math.round(x), Math.round(y));
         }
 
         close() {
@@ -537,11 +449,15 @@ const RunningApplicationListWindow = GObject.registerClass({
         }
 
         showAndUpdateState() {
+            if (!this._visibleToUser)
+                return;
+
             const aboutToShow = this.state == State.CLOSING || this.state == State.CLOSED;
             this._log.debug(`Showing RunningApplicationListWindow with state ${this.state}: ${aboutToShow}`)
             if (aboutToShow) {
                 this._updateState(State.OPENING);
                 this.show();
+                this._scheduleUpdatePosition();
                 this._updateState(State.OPENED);
             }
         }
@@ -649,6 +565,9 @@ const RunningApplicationListWindow = GObject.registerClass({
                 });
                 this._applicationSection.list.add_child(listItem);
             });
+
+            if (this._visibleToUser)
+                this._scheduleUpdatePosition();
         }
 
         // Translated to js and borrowed from https://github.com/GNOME/gnome-system-monitor/blob/d80dceedd106ca2415aeb0cb71b54ae4bd93bf75/src/util.cpp#format_process_state
@@ -701,10 +620,14 @@ const RunningApplicationListWindow = GObject.registerClass({
                 listItem._description.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
                 this._applicationSection.list.add_child(listItem);
             });
+
+            if (this._visibleToUser)
+                this._scheduleUpdatePosition();
         }
 
         _confirmNow() {
             // Ignore the dialog state
+            this._visibleToUser = false;
             if (this._onComplete) {
                 this._onComplete('Confirm');
             }
@@ -715,6 +638,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 return;
 
             this._updateState(State.CONFIRMING);
+            this._visibleToUser = false;
             if (this._onComplete) {
                 this._onComplete('Confirm');
                 this._cancelButton.reactive = false;
@@ -729,10 +653,16 @@ const RunningApplicationListWindow = GObject.registerClass({
                 return;
 
             this._updateState(State.CANCELING);
-            
+            this._visibleToUser = false;
+
             if (this._checkProcessStateId) {
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
+            }
+
+            if (this._updatePositionIdleId) {
+                GLib.source_remove(this._updatePositionIdleId);
+                this._updatePositionIdleId = null;
             }
 
             this.hide();
@@ -744,12 +674,6 @@ const RunningApplicationListWindow = GObject.registerClass({
 
         _updateState(state) {
             this.state = state
-        }
-
-        destroy() {
-            // This function is called when drag is canceled, but the dialog should be always shown.
-            // So we override it but do nothing. And there is a `destroyDialog()` which can be used to destroy the dialog anyway.
-            // TODO This function is also called after releasing the left button, which is wired, I probably misuse something in this class.
         }
 
         destroyDialog() {
@@ -774,6 +698,10 @@ const RunningApplicationListWindow = GObject.registerClass({
             if (this._checkProcessStateId) {
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
+            }
+            if (this._updatePositionIdleId) {
+                GLib.source_remove(this._updatePositionIdleId);
+                this._updatePositionIdleId = null;
             }
         }
 
