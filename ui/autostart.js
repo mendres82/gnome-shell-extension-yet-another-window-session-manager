@@ -15,7 +15,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 
-import * as Autoclose from './autoclose.js';
+import {sessionEndState} from '../openWindowsTracker.js';
 import * as RestoreSession from '../restoreSession.js';
 import * as Constants from '../constants.js';
 
@@ -275,7 +275,7 @@ const AutostartDialog = GObject.registerClass(
         }
 
         _confirm() {
-            Autoclose.autocloseObject.sessionClosedByUser = false;
+            sessionEndState.sessionClosedByUser = false;
             const _restoreSession = new RestoreSession.RestoreSession();
             _restoreSession.restoreSession(this._sessionName);
         }

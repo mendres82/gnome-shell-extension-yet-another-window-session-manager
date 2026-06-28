@@ -12,7 +12,6 @@ import * as SaveSession from './saveSession.js';
 import * as RestoreSession from './restoreSession.js';
 import * as MoveSession from './moveSession.js';
 
-import * as Autoclose from './ui/autoclose.js';
 import * as UiHelper from './ui/uiHelper.js';
 
 import * as Log from './utils/log.js';
@@ -25,6 +24,12 @@ import {WindowTilingSupport} from './windowTilingSupport.js';
 
 
 let _meta_restart = null;
+
+// When true, saved session files must not be deleted because windows/apps are
+// closing due to logout, reboot, or shutdown (not manual user closes).
+export const sessionEndState = {
+    sessionClosedByUser: false,
+};
 
 export const OpenWindowsTracker = class {
 
@@ -169,7 +174,7 @@ export const OpenWindowsTracker = class {
             const originalFunc = proto[funcName];
             this._overrideSystemActionsPrototypeMap.set(funcName, originalFunc);
             proto[funcName] = function () {
-                Autoclose.autocloseObject.sessionClosedByUser = true;
+                sessionEndState.sessionClosedByUser = true;
                 Function.callFunc(this, originalFunc);
             };
         }
@@ -377,7 +382,7 @@ export const OpenWindowsTracker = class {
     }
 
     _cleanUpSessionFileByWindow(window, sessionDirectory, sessionName) {
-        if (!window || Autoclose.autocloseObject.sessionClosedByUser || this._meta_is_restarting) return;
+        if (!window || sessionEndState.sessionClosedByUser || this._meta_is_restarting) return;
 
         const sessionFilePath = `${sessionDirectory}/${sessionName}`;
         if (!GLib.file_test(sessionFilePath, GLib.FileTest.EXISTS)) return;
@@ -417,7 +422,7 @@ export const OpenWindowsTracker = class {
     }
 
     _cleanUpSessionFileByApp(app, appName, window, sessionDirectory) {
-        if (!app || Autoclose.autocloseObject.sessionClosedByUser || this._meta_is_restarting) return;
+        if (!app || sessionEndState.sessionClosedByUser || this._meta_is_restarting) return;
 
         if (!GLib.file_test(sessionDirectory, GLib.FileTest.EXISTS)) return;
 
@@ -471,7 +476,7 @@ export const OpenWindowsTracker = class {
 
     _onCancel() {
         this._log.debug(`User cancel endSessionDialog`);
-        Autoclose.autocloseObject.sessionClosedByUser = false;
+        sessionEndState.sessionClosedByUser = false;
     }
 
     _onConfirmedLogout(proxy, sender) {
