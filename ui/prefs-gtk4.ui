@@ -797,12 +797,12 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="general_page">
-    <property name="icon-name">preferences-system-symbolic</property>
+    <property name="icon-name">view-more-symbolic</property>
     <property name="use_underline">true</property>
-    <property name="title" translatable="yes">General</property>
+    <property name="title" translatable="yes">More</property>
     <child>
       <object class="AdwPreferencesGroup" id="general_group">
-        <property name="title" translatable="yes">General</property>
+        <property name="title" translatable="yes">Panel indicator</property>
         <child>
           <object class="GtkFrame" id="show_indicator_frame">
             <child>
