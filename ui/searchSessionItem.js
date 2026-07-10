@@ -28,7 +28,8 @@ export const SearchSessionItem = GObject.registerClass(
                 hint_text: _('Type to search'),
                 track_hover: true,
                 x_expand: false,
-                y_expand: true
+                y_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
             });
 
             this._entry.set_primary_icon(new St.Icon({
@@ -66,6 +67,8 @@ export const SearchSessionItem = GObject.registerClass(
                 style_class: 'dnd-button',
                 can_focus: true,
                 x_align: Clutter.ActorAlign.END,
+                y_align: Clutter.ActorAlign.CENTER,
+                y_expand: true,
                 toggle_mode: true,
                 child: this._filterAutoRestoreSwitch,
             });
@@ -90,6 +93,8 @@ export const SearchSessionItem = GObject.registerClass(
                 style_class: 'search-preferences-button',
                 can_focus: true,
                 x_align: Clutter.ActorAlign.END,
+                y_align: Clutter.ActorAlign.CENTER,
+                y_expand: true,
                 reactive: true,
                 child: icon,
                 track_hover: true,

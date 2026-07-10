@@ -89,7 +89,9 @@ class PopupMenuButtonItem extends PopupMenu.PopupMenuItem {
     // Add the icon description
     addIconDescription(iconDescription) {
         this.iconDescriptionLabel = new St.Label({
-            text: iconDescription
+            text: iconDescription,
+            y_align: Clutter.ActorAlign.CENTER,
+            y_expand: true,
         });
         this.actor.add_child(this.iconDescriptionLabel);
     }
@@ -102,6 +104,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
 
     _init(iconSymbolic) {
         super._init();
+        this.add_style_class_name('popup-close-menu-item');
         this.confirmLabel;
         
         this.closingLabel;
@@ -127,10 +130,12 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
         this._onClicked();
     }
 
-    _hideConfirm() {
+    _hideConfirm(restoreDescription = true) {
         this.confirmLabel.hide();
         this.hideYesAndNoButtons();
         this.closingLabel.hide();
+        if (restoreDescription)
+            this.iconDescriptionLabel.show();
     }
 
     _addYesAndNoButtons() {
@@ -145,7 +150,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
 
             RestoreSession.restoreSessionObject.restoringApps.clear();
             this.closeSession.closeWindows();
-            this._hideConfirm();
+            this._hideConfirm(false);
 
             // Set the actor the timeline is associated with to make sure Clutter.Timeline works normally.
             // Set the actor in new Clutter.Timeline don't work
@@ -157,6 +162,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
             this._timeline.connect('completed', () => {
                 this._timeline.stop();
                 this.closingLabel.hide();
+                this.iconDescriptionLabel.show();
             });
 
         });
@@ -176,6 +182,8 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
             text: 'Closing open windows ...',
             x_expand: false,
             x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            y_expand: true,
         });
         this.actor.add_child(this.closingLabel);
     }
@@ -191,6 +199,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
         this._timeline.stop();
         this.closingLabel.hide();
 
+        this.iconDescriptionLabel.hide();
         this.confirmLabel.show();
         this.showYesAndNoButtons();
     }
@@ -201,6 +210,8 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
             text: 'Confirm?',
             x_expand: false,
             x_align: Clutter.ActorAlign.START,
+            y_align: Clutter.ActorAlign.CENTER,
+            y_expand: true,
         });
         this.actor.add_child(this.confirmLabel);
     }
@@ -255,6 +266,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
             // clear entry
             this.saveCurrentSessionEntry.set_text('');
             this.saveCurrentSessionEntry.hide();
+            this.iconDescriptionLabel.show();
             super.hideYesAndNoButtons();
         });
 
@@ -276,6 +288,8 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
             style_class: 'confirm-before-operate',
             x_expand: false,
             x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            y_expand: true,
         });
         this.actor.add_child(this.savingLabel);
     }
@@ -290,6 +304,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
         this._timeline.stop();
         this.savingLabel.hide();
 
+        this.iconDescriptionLabel.hide();
         this.saveCurrentSessionEntry.show();
         this.saveCurrentSessionEntry.grab_key_focus();
         super.showYesAndNoButtons();
@@ -300,7 +315,10 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
             name: 'saveCurrentSession',
             hint_text: "Type a session name, default is defaultSession",
             track_hover: true,
-            can_focus: true
+            can_focus: true,
+            x_expand: true,
+            y_expand: true,
+            y_align: Clutter.ActorAlign.CENTER,
         });
         const clutterText = this.saveCurrentSessionEntry.clutter_text;
         clutterText.connect('activate', this._onTextActivate.bind(this));
@@ -340,6 +358,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
 
         this._saveSession.saveSessionAsync(sessionName).then(() => {
             this.savingLabel.hide();
+            this.iconDescriptionLabel.show();
         }).catch(e => {
             let message = `Failed to save session`;
             this._log.error(e, e.desc ?? message);
@@ -352,6 +371,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
     _displayMessage(message) {
         // To prevent saving session many times by holding and not releasing Enter
         this.saveCurrentSessionEntry.hide();
+        this.iconDescriptionLabel.hide();
         this.savingLabel.set_text(message);
         this._timeline.set_actor(this.savingLabel);
         const newFrameId = this._timeline.connect('new-frame', (_timeline, _frame) => {
