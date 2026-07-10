@@ -61,7 +61,6 @@ export const SearchSessionItem = GObject.registerClass(
         
         _filterAutoRestore() {
             this._filterAutoRestoreSwitch = new PopupMenu.Switch(false);
-            this._filterAutoRestoreSwitch.set_style_class_name('toggle-switch yawsm-toggle-switch');
             let button = new St.Button({
                 style_class: 'dnd-button',
                 can_focus: true,

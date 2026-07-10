@@ -169,7 +169,6 @@ class SessionItemButtons extends GObject.Object {
 
         const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
         this._autostartSwitch = new PopupMenu.Switch(toggled);
-        this._autostartSwitch.set_style_class_name('toggle-switch yawsm-toggle-switch');
         let button = new St.Button({
             style_class: 'dnd-button',
             can_focus: true,

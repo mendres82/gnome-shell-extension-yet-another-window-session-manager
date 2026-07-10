@@ -1,11 +1,3 @@
-.yawsm-toggle-switch {
-    background-image: url("./icons/toggle-off-autorestore-symbolic.svg");
-}
-
-.yawsm-toggle-switch:checked {
-    background-image: url("./icons/toggle-on-autorestore-symbolic.svg");
-}
-
 /* Restore Session Dialog */
 .restore-session-dialog {
     width: 30em;
