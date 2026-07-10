@@ -280,6 +280,6 @@ Note that I've marked `backups` as a reserved word, so you can't use it as a ses
 1. - [ ] Translation?
 1. - [ ] A client tool called `yawsm-client` (See: [issue 34](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/34))
 1. - [ ] Fix any typo or grammar errors.
-1. - [ ] Open the Preferences on the popup menu 
+1. - [x] Open the Preferences on the popup menu 
 1. - [x] Open the session file from the popup menu
 

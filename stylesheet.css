@@ -88,3 +88,22 @@ Based on https://gitlab.com/bartl/todo-txt-gnome-shell-extension/-/blob/master/s
 .aws-item-button > StIcon {
     icon-size: 14px;
 }
+
+.search-preferences-button {
+    border: none;
+    padding: 0;
+    margin-left: 10px;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.search-preferences-button > StIcon {
+    icon-size: 18px;
+}
+
+.search-preferences-button:hover,
+.search-preferences-button:focus {
+    background-color: transparent;
+    box-shadow: none;
+}

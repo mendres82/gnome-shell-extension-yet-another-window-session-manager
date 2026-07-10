@@ -7,6 +7,7 @@ import Clutter from 'gi://Clutter';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Tooltip from '../utils/tooltip.js';
+import {PrefsUtils} from '../utils/prefsUtils.js';
 
 
 export const SearchSessionItem = GObject.registerClass(
@@ -56,7 +57,7 @@ export const SearchSessionItem = GObject.registerClass(
             });
             this.add_child(filterLabel);
             this._filterAutoRestore();
-            
+            this._addPreferencesButton();
         }
         
         _filterAutoRestore() {
@@ -75,6 +76,32 @@ export const SearchSessionItem = GObject.registerClass(
             new Tooltip.Tooltip({
                 parent: button,
                 markup: 'Show only the default session',
+            });
+
+            this.add_child(button);
+        }
+
+        _addPreferencesButton() {
+            const icon = new St.Icon({
+                icon_name: 'preferences-system-symbolic',
+                style_class: 'search-entry-icon',
+            });
+            const button = new St.Button({
+                style_class: 'search-preferences-button',
+                can_focus: true,
+                x_align: Clutter.ActorAlign.END,
+                reactive: true,
+                child: icon,
+                track_hover: true,
+            });
+
+            new Tooltip.Tooltip({
+                parent: button,
+                markup: 'Open preferences',
+            });
+
+            button.connect('clicked', () => {
+                PrefsUtils.extensionObject.openPreferences();
             });
 
             this.add_child(button);
