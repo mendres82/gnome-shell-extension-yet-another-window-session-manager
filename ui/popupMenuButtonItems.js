@@ -51,7 +51,7 @@ class PopupMenuButtonItem extends PopupMenu.PopupMenuItem {
      * Hide both Yes and No buttons by default
      */
     createYesAndNoButtons() {
-        this.yesButton = this.createButton('emblem-ok-symbolic');
+        this.yesButton = this.createButton('object-select-symbolic');
         this.noButton = this.createButton('edit-undo-symbolic');
         this.yesButton.add_style_class_name('confirm-before-operate');
         this.noButton.add_style_class_name('confirm-before-operate');
