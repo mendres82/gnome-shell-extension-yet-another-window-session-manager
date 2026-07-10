@@ -18,40 +18,40 @@ Based on [Another Window Session Manager](https://github.com/nlpsuge/gnome-shell
 
 ## Overview
 
-<img width="588" height="312" src="https://github.com/user-attachments/assets/c12ebc1a-dead-4540-82d7-42e16437c8c7" />
+<img width="601" height="292" src="https://github.com/user-attachments/assets/31338791-f528-41a2-9e1a-09518bccda57" />
 
 
 ## Close open windows
 Click item to close open windows:
 
-<img width="588" height="312" src="https://github.com/user-attachments/assets/aefd31fc-43af-4c1d-a901-604cd0e2c3d2" />
+<img width="601" height="292" src="https://github.com/user-attachments/assets/f84d86fe-6995-402c-ad3d-d637d55f9b5b" />
 
 After confirm to close:
 
-<img width="588" height="312" src="https://github.com/user-attachments/assets/dd671299-3dc4-4db4-b397-4a90b303384a" />
+<img width="601" height="292" src="https://github.com/user-attachments/assets/8c091809-eea2-488e-9acd-6b3f1910922d" />
 
 
 ## Save open windows
 Click item to save open windows as a session:
 
-<img width="623" height="342" src="https://github.com/user-attachments/assets/dc6866d9-c12d-42d0-95f8-afc6920c3c95" />
+<img width="601" height="292" src="https://github.com/user-attachments/assets/dc2581a4-dd37-4d6b-9448-46e73f12f2f0" />
 
 
 ## Set the default session
 
-<img width="596" height="316" alt="Bildschirmfoto vom 2026-06-29 21-29-05" src="https://github.com/user-attachments/assets/3dd0f2aa-0e5c-4afe-879b-7c58085fb67d" />
+<img width="601" height="292" src="https://github.com/user-attachments/assets/c68d1628-5aeb-4de3-8959-843305c78266" />
 
 
 ## Preferences
 
 ### Restore sessions
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/4dea3c84-6def-43a9-bb95-8a67d6e8ea59" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/f0abb7b1-f938-4e82-87cb-e3cdb28c8d49" />
 
 ### Close windows
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/ad561c39-3fe5-422b-a864-00f555da30ce" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/eab006a8-30d3-4e86-b830-d26ba6c7bb67" />
 
 ### Keyboard shortcuts
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/7a685e99-fa75-40b7-90fb-755a1d3aa5a9" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/89d1015e-d153-4c6d-b52f-c9d096a4dd77" />
 
 
 # Main features
@@ -79,7 +79,7 @@ Click item to save open windows as a session:
 ### Auto close session
 Enable this feature through `Auto close session` under `Close windows`:
 
-<img width="1223" height="280" src="https://github.com/user-attachments/assets/382c00a6-357d-42b8-8d79-6bf20d1f59a6" />
+<img width="1237" height="282" src="https://github.com/user-attachments/assets/79beaefb-1105-4050-9184-e55eb43fabc7" />
 
 After you click the `Log Out/Restart/Power Off` button and confirm GNOME's session dialog, YAWSM closes running apps and windows automatically. If everything closes successfully, logout, reboot, or shutdown continues without an extra prompt.
 
@@ -138,7 +138,7 @@ Feel free to fill an issue if `ydotool` does not work under normal user, you may
 ## Restore sessions
 
 ### Restore previous apps and windows at startup
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/463c7694-4f18-4a85-86a6-203d6d368e92" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/21fc53cf-6f4b-442b-b5d4-3b1eb846561c" />
 
 Activate `Restore previous apps and windows at startup` to enable this feature. This option and `Restore selected session at startup` are exclusive. And this option works for shutting down the system normally (via Log Out/Restart/Power Off buttons) and other ways (like pressing the physical power-off button).
 
@@ -168,7 +168,7 @@ Please do not modify `_gnome-shell-extension-yet-another-window-session-manager.
 
 Configure keyboard shortcuts under `More -> Keyboard shortcuts` in the Preferences:
 
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/7a685e99-fa75-40b7-90fb-755a1d3aa5a9" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/89d1015e-d153-4c6d-b52f-c9d096a4dd77" />
 
 YAWSM provides three global shortcuts that work with the **default session**. Set a default session in the panel menu first (See also: [Set the default session](#set-the-default-session)).
 
@@ -192,9 +192,6 @@ The configured shortcuts are also shown as tooltips on the save, restore, and mo
 | <img src=icons/restore-symbolic.svg width="14" height="14">  | Restore the saved session using the item's name               |
 | <img src=icons/move-symbolic.svg width="14" height="14">     | Move the open windows using the item's name                  |
 | <img src=icons/close-symbolic.svg width="14" height="14">    | Close the current open windows                               |
-| <img src=icons/toggle-on-autorestore-symbolic.svg width="24" height="13">    | Set the current session as the default session |
-| <img src=https://user-images.githubusercontent.com/2271720/162792222-0fc7e6ca-1382-49cf-975a-f53d878d0479.png width="24" height="13">    | Unset the current session as the default session |
-| <img src=icons/autorestore-symbolic.svg width="13" height="13">    | Indicate the default session toggle       |
 
 
 # Dependencies
