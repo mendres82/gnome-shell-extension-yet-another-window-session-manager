@@ -15,12 +15,15 @@ export const boxProperties = {
     margin_bottom: 0,
 };
 
-export const newColumnViewColumn = function(title, factorySetupFunc, factoryBindFunc) {
+export const newColumnViewColumn = function(title, factorySetupFunc, factoryBindFunc, options = {}) {
     const factory = new Gtk.SignalListItemFactory();
     const columnViewColumn = new Gtk.ColumnViewColumn({
         title,
         factory
     });
+
+    if (options.fixedWidth >= 0)
+        columnViewColumn.set_fixed_width(options.fixedWidth);
 
     if (factorySetupFunc) {
         factory.connect('setup', (factory, listItem) => {

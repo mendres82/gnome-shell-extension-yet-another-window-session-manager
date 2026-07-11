@@ -122,6 +122,9 @@ export const WhitelistColumnView = GObject.registerClass({
             nameEntry.connect('entry-edit-complete', (source, entry) => {
                 this.updateRow(settingKey, 'id', item.id, 'name', entry.get_text());
             });
+        }, {
+            // Match WindowPickableEntry width_chars (20) plus the pick button
+            fixedWidth: 260,
         });
 
         const closeWindowsColumn = PrefsWidgets.newColumnViewColumn(_('Close windows'),
