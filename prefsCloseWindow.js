@@ -876,7 +876,7 @@ const RuleRowByKeyword = GObject.registerClass({
     }, 
     Properties: {
         'id': GObject.ParamSpec.int(
-            'id', 'id', 'just like the id in MySQL. Used to update or delete rows.',
+            'id', 'id', 'Internal row id used to update or delete rules.',
             GObject.ParamFlags.READABLE,
             ''
         ),
@@ -887,15 +887,15 @@ const RuleRowByKeyword = GObject.registerClass({
         ),
         'compare-with': GObject.ParamSpec.string(
             'compare-with',
-            'compare with',
-            'Use keyword to compared with title, wm_class, wm_class_instance, app name etc',
+            'Compare with',
+            'Field to compare the keyword with, such as title, wm_class, wm_class_instance, or app name',
             GObject.ParamFlags.READABLE,
             ''
         ),
         'method': GObject.ParamSpec.string(
             'method',
             'method',
-            'The way to compare the keyword with title etc',
+            'The way to compare the keyword with the selected field',
             GObject.ParamFlags.READABLE,
             ''
         ),
@@ -911,7 +911,7 @@ const RuleRowByKeyword = GObject.registerClass({
             text: ruleDetail.keyword ? ruleDetail.keyword : '',
             tooltip_text: ruleDetail.keyword ? ruleDetail.keyword : _('A string that is used to match windows or apps'),
             pickConditionFunc: (() => {
-                return this._compareWithDropDown.get_selected_item().get_string();
+                return PrefsWidgets.getDropDownValue(this._compareWithDropDown);
             }).bind(this)
         });
 
@@ -927,12 +927,12 @@ const RuleRowByKeyword = GObject.registerClass({
             this.updateRule('close-windows-rules-by-keyword', 'id', 'keyword', keywordEntry.get_text());
         });
         compareWithDropDown.connect('notify::selected-item', (source) => {
-            const selectedItem = source.get_selected_item().get_string();
+            const selectedItem = PrefsWidgets.getDropDownValue(source);
             this.updateRule('close-windows-rules-by-keyword', 'id', 'compareWith', selectedItem);
         });
 
         methodDropDown.connect('notify::selected-item', (source) => {
-            const selectedItem = source.get_selected_item().get_string();
+            const selectedItem = PrefsWidgets.getDropDownValue(source);
             this.updateRule('close-windows-rules-by-keyword', 'id', 'method', selectedItem);
         });
 
@@ -998,11 +998,11 @@ const RuleRowByKeyword = GObject.registerClass({
     }
 
     get compareWith() {
-        return this._compareWithDropDown.get_selected_item().get_string();
+        return PrefsWidgets.getDropDownValue(this._compareWithDropDown);
     }
 
     get method() {
-        return this._methodDropDown.get_selected_item().get_string();
+        return PrefsWidgets.getDropDownValue(this._methodDropDown);
     }
 
 });

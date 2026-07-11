@@ -103,7 +103,7 @@ export const SearchSessionItem = GObject.registerClass(
 
             new Tooltip.Tooltip({
                 parent: button,
-                markup: 'Open preferences',
+                markup: _('Open preferences'),
             });
 
             button.connect('clicked', () => {

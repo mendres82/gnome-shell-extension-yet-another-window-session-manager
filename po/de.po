@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 57\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-11 22:01+0200\n"
+"POT-Creation-Date: 2026-07-11 22:53+0200\n"
 "PO-Revision-Date: 2026-07-11 20:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -15,6 +15,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: closeSession.js
+#, javascript-format
+msgid "Failed to send keys to close %s via ydotool"
+msgstr "Tasten zum Schließen von %s konnten nicht über ydotool gesendet werden"
+
+#: closeSession.js
+#, javascript-format
+msgid "Please make sure `ydotool` is installed and set up properly, see %s for more instructions."
+msgstr "Bitte stellen Sie sicher, dass `ydotool` installiert und eingerichtet ist. Weitere Anleitung: %s"
+
+#: closeSession.js
+msgid "Failed to start ydotool.service"
+msgstr "ydotool.service konnte nicht gestartet werden"
 
 #: ui/sessionItemButtons.js
 msgid "Save open windows using the current session name"
@@ -63,6 +77,10 @@ msgstr "Filter: "
 #: ui/searchSessionItem.js
 msgid "Show only the default session"
 msgstr "Nur die Standardsitzung anzeigen"
+
+#: ui/searchSessionItem.js
+msgid "Open preferences"
+msgstr "Einstellungen öffnen"
 
 #: ui/autoclose.js
 msgid "Continue"
@@ -151,6 +169,18 @@ msgstr "Wird geschlossen"
 msgid "It might have multiple windows"
 msgstr "Möglicherweise sind mehrere Fenster geöffnet"
 
+#: ui/sessionItem.js
+msgid "(Unknown)"
+msgstr "(Unbekannt)"
+
+#: ui/sessionItem.js
+msgid "(Please save this session before using it)"
+msgstr "(Bitte speichern Sie diese Sitzung, bevor Sie sie verwenden)"
+
+#: ui/sessionItem.js
+msgid "(Empty, please save open windows first)"
+msgstr "(Leer, bitte zuerst offene Fenster speichern)"
+
 #: ui/popupMenuButtonItems.js
 msgid "Close open windows"
 msgstr "Offene Fenster schließen"
@@ -191,12 +221,12 @@ msgid "ERROR: Session names cannot contain '/'"
 msgstr "FEHLER: Sitzungsnamen dürfen kein „/“ enthalten"
 
 #: ui/autostart.js
-msgid ""
-"ERROR: RestoreSession is disabled, please enable it through 'Preferences → "
-"Restore sessions → Restore selected session at startup'"
-msgstr ""
-"FEHLER: RestoreSession ist deaktiviert. Bitte aktivieren unter „Einstellungen → "
-"Sitzungen wiederherstellen → Ausgewählte Sitzung beim Start wiederherstellen“"
+msgid "Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled"
+msgstr "Vorgang wird ignoriert. RestoreSession ist deaktiviert, aber RestorePreviousSession ist aktiv."
+
+#: ui/autostart.js
+msgid "ERROR: RestoreSession is disabled, please enable it through 'Preferences → Restore sessions → Restore selected session at startup'"
+msgstr "FEHLER: RestoreSession ist deaktiviert. Bitte aktivieren unter „Einstellungen → Sitzungen wiederherstellen → Ausgewählte Sitzung beim Start wiederherstellen“"
 
 #: ui/autostart.js indicator.js keyboardShortcuts.js saveSession.js
 msgid "Yet Another Window Session Manager"
@@ -204,18 +234,30 @@ msgstr "Yet Another Window Session Manager"
 
 #: ui/autostart.js
 #, javascript-format
+msgid "Waiting for startup to restore session '%s' …"
+msgstr "Warte auf den Startvorgang, um Sitzung „%s“ wiederherzustellen …"
+
+#: ui/autostart.js
+#, javascript-format
 msgid "Restoring selected session '%s'"
 msgstr "Ausgewählte Sitzung „%s“ wird wiederhergestellt"
 
 #: ui/autostart.js
-msgid ""
-"ERROR: RestorePreviousSession is disabled, please enable it through "
-"'Preferences → Restore sessions → Restore previous apps and windows at "
-"startup'"
-msgstr ""
-"FEHLER: RestorePreviousSession ist deaktiviert. Bitte aktivieren unter "
-"„Einstellungen → Sitzungen wiederherstellen → Vorherige Anwendungen und Fenster "
-"beim Start wiederherstellen“"
+#, javascript-format
+msgid "Restore session '%s' without asking …"
+msgstr "Sitzung „%s“ ohne Nachfrage wiederherstellen …"
+
+#: ui/autostart.js
+msgid "Opening dialog to restore …"
+msgstr "Dialog zum Wiederherstellen wird geöffnet …"
+
+#: ui/autostart.js
+msgid "Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled"
+msgstr "Vorgang wird ignoriert. RestorePreviousSession ist deaktiviert, aber RestoreSession ist aktiv."
+
+#: ui/autostart.js
+msgid "ERROR: RestorePreviousSession is disabled, please enable it through 'Preferences → Restore sessions → Restore previous apps and windows at startup'"
+msgstr "FEHLER: RestorePreviousSession ist deaktiviert. Bitte aktivieren unter „Einstellungen → Sitzungen wiederherstellen → Vorherige Anwendungen und Fenster beim Start wiederherstellen“"
 
 #: ui/autostart.js
 msgid "Restoring the previous apps and windows"
@@ -367,6 +409,40 @@ msgstr "Fenstertitel"
 msgid "Add Rule"
 msgstr "Regel hinzufügen"
 
+#: restoreSession.js
+#, javascript-format
+msgid "No session to restore from %s"
+msgstr "Keine Sitzung zum Wiederherstellen in %s"
+
+#: restoreSession.js
+msgid "Session config is empty."
+msgstr "Sitzungskonfiguration ist leer."
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s"
+msgstr "%s konnte nicht gestartet werden"
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s via command line"
+msgstr "%s konnte über die Befehlszeile nicht gestartet werden"
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: %s."
+msgstr "Diese Anwendung kann nicht aus %s wiederhergestellt werden: %s."
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: Invalid command line: %s."
+msgstr "Diese Anwendung kann nicht aus %s wiederhergestellt werden: Ungültige Befehlszeile: %s."
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to restore %s"
+msgstr "%s konnte nicht wiederhergestellt werden"
+
 #: prefsColumnView.js
 msgid "Enabled"
 msgstr "Aktiviert"
@@ -400,11 +476,8 @@ msgid "Choose a window to fill the entry based on the current setting"
 msgstr "Fenster wählen, um den Eintrag anhand der aktuellen Einstellung auszufüllen"
 
 #: keyboardShortcuts.js
-msgid ""
-"No default session selected. Set a default session in the panel menu first."
-msgstr ""
-"Keine Standardsitzung ausgewählt. Legen Sie zuerst im Panelmenü eine "
-"Standardsitzung fest."
+msgid "No default session selected. Set a default session in the panel menu first."
+msgstr "Keine Standardsitzung ausgewählt. Legen Sie zuerst im Panelmenü eine Standardsitzung fest."
 
 #: keyboardShortcuts.js
 #, javascript-format
@@ -418,8 +491,33 @@ msgstr "Sitzung %s konnte nicht erstellt werden"
 
 #: saveSession.js
 #, javascript-format
+msgid "Cannot save session: %s"
+msgstr "Sitzung kann nicht gespeichert werden: %s"
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create backups folder: %s"
+msgstr "Sicherungsordner konnte nicht erstellt werden: %s"
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to backup %s to %s"
+msgstr "Sicherung von %s nach %s fehlgeschlagen"
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create session folder: %s"
+msgstr "Sitzungsordner konnte nicht erstellt werden: %s"
+
+#: saveSession.js
+#, javascript-format
 msgid "Session %s saved to %s!"
 msgstr "Sitzung %s gespeichert unter %s!"
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to save session to %s!"
+msgstr "Sitzung konnte nicht unter %s gespeichert werden!"
 
 #: ui/prefs-gtk4.ui
 msgid "General"
@@ -442,25 +540,16 @@ msgid "Auto close session"
 msgstr "Sitzung automatisch schließen"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Close running apps and windows when logging out, rebooting, or shutting down."
-msgstr ""
-"Laufende Anwendungen und Fenster beim Abmelden, Neustart oder Herunterfahren "
-"schließen."
+msgid "Close running apps and windows when logging out, rebooting, or shutting down."
+msgstr "Laufende Anwendungen und Fenster beim Abmelden, Neustart oder Herunterfahren schließen."
 
 #: ui/prefs-gtk4.ui
 msgid "Close by rules"
 msgstr "Nach Regeln schließen"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"To make this feature work, see: <a href='https://github.com/mendres82/gnome-"
-"shell-extension-yet-another-window-session-manager#how-to-make-close-by-"
-"rules-work'>How to make `Close by rules` work</a>."
-msgstr ""
-"Damit diese Funktion funktioniert, siehe: <a href='https://github.com/mendres82/gnome-"
-"shell-extension-yet-another-window-session-manager#how-to-make-close-by-"
-"rules-work'>So funktioniert „Nach Regeln schließen“</a>."
+msgid "To make this feature work, see: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>How to make `Close by rules` work</a>."
+msgstr "Damit diese Funktion funktioniert, siehe: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>So funktioniert „Nach Regeln schließen“</a>."
 
 #: ui/prefs-gtk4.ui
 msgid "Save windows"
@@ -471,11 +560,8 @@ msgid "Session is saved notification"
 msgstr "Benachrichtigung bei gespeicherter Sitzung"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Show a notification when users click buttons on the popup menu to save a "
-"session."
-msgstr ""
-"Benachrichtigung anzeigen, wenn im Popup-Menü eine Sitzung gespeichert wird."
+msgid "Show a notification when users click buttons on the popup menu to save a session."
+msgstr "Benachrichtigung anzeigen, wenn im Popup-Menü eine Sitzung gespeichert wird."
 
 #: ui/prefs-gtk4.ui
 msgid "Restore sessions"
@@ -486,12 +572,8 @@ msgid "Restore previous apps and windows at startup"
 msgstr "Vorherige Anwendungen und Fenster beim Start wiederherstellen"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if "
-"enabled."
-msgstr ""
-"Bei Aktivierung ~/.config/autostart/_yawsm-restore-previous-session.desktop "
-"installieren."
+msgid "Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if enabled."
+msgstr "Bei Aktivierung ~/.config/autostart/_yawsm-restore-previous-session.desktop installieren."
 
 #: ui/prefs-gtk4.ui
 msgid "Restore delay([0, 3600]s)"
@@ -506,12 +588,8 @@ msgid "Restore selected session at startup"
 msgstr "Ausgewählte Sitzung beim Start wiederherstellen"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-"
-"session-manager.desktop if enabled."
-msgstr ""
-"Bei Aktivierung ~/.config/autostart/_gnome-shell-extension-yet-another-window-"
-"session-manager.desktop installieren."
+msgid "Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-session-manager.desktop if enabled."
+msgstr "Bei Aktivierung ~/.config/autostart/_gnome-shell-extension-yet-another-window-session-manager.desktop installieren."
 
 #: ui/prefs-gtk4.ui
 msgid "Restore at startup without asking"
@@ -530,25 +608,16 @@ msgid "Restore applications interval([0, 300000]ms)"
 msgstr "Intervall beim Wiederherstellen von Anwendungen ([0, 300000] ms)"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"0 by default. There's no need to set this option normally, unless the "
-"process of restoring session is too fast to freeze the system, for example."
-msgstr ""
-"Standardmäßig 0. Diese Option muss normalerweise nicht gesetzt werden, es sei "
-"denn, der Wiederherstellungsvorgang ist so schnell, dass das System einfriert."
+msgid "0 by default. There's no need to set this option normally, unless the process of restoring session is too fast to freeze the system, for example."
+msgstr "Standardmäßig 0. Diese Option muss normalerweise nicht gesetzt werden, es sei denn, der Wiederherstellungsvorgang ist so schnell, dass das System einfriert."
 
 #: ui/prefs-gtk4.ui
 msgid "Autostart delay([0, 3600]s)"
 msgstr "Autostart-Verzögerung ([0, 3600] s)"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"5 by default. Delay before restoring session at startup or the previous "
-"session. If the delay is too short, the computer might freeze."
-msgstr ""
-"Standardmäßig 5. Verzögerung vor dem Wiederherstellen der Sitzung beim Start "
-"oder der vorherigen Sitzung. Ist die Verzögerung zu kurz, kann der Computer "
-"einfrieren."
+msgid "5 by default. Delay before restoring session at startup or the previous session. If the delay is too short, the computer might freeze."
+msgstr "Standardmäßig 5. Verzögerung vor dem Wiederherstellen der Sitzung beim Start oder der vorherigen Sitzung. Ist die Verzögerung zu kurz, kann der Computer einfrieren."
 
 #: ui/prefs-gtk4.ui
 msgid "Restore window tiling"
@@ -563,12 +632,8 @@ msgid "Restore windows states after Gnome Shell restarts"
 msgstr "Fensterzustände nach GNOME-Shell-Neustart wiederherstellen"
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Only enabled on X11, since Wayland doesn't support restart Gnome Shell via "
-"`Alt+F2 then type r` or `killall -3 gnome-shell`."
-msgstr ""
-"Nur unter X11 verfügbar, da Wayland keinen GNOME-Shell-Neustart über "
-"Alt+F2, dann r oder killall -3 gnome-shell unterstützt."
+msgid "Only enabled on X11, since Wayland doesn't support restart Gnome Shell via `Alt+F2 then type r` or `killall -3 gnome-shell`."
+msgstr "Nur unter X11 verfügbar, da Wayland keinen GNOME-Shell-Neustart über Alt+F2, dann r oder killall -3 gnome-shell unterstützt."
 
 #: ui/prefs-gtk4.ui
 msgid "Advanced"
@@ -585,3 +650,30 @@ msgstr "Debug-Modus"
 #: ui/prefs-gtk4.ui
 msgid "Verbose logging"
 msgstr "Ausführliche Protokollierung"
+
+#~ msgid "The rules"
+#~ msgstr "Die Regeln"
+
+#~ msgid "The application name"
+#~ msgstr "Anwendungsname"
+
+#~ msgid "The application id"
+#~ msgstr "Anwendungs-ID"
+
+#~ msgid "The .desktop file name of an app"
+#~ msgstr "Dateiname der .desktop-Datei einer Anwendung"
+
+#~ msgid "The app desktop file path"
+#~ msgstr "Pfad zur .desktop-Datei einer Anwendung"
+
+#~ msgid "Internal row id used to update or delete rules."
+#~ msgstr "Interne Zeilen-ID zum Aktualisieren oder Löschen von Regeln."
+
+#~ msgid "Compare with"
+#~ msgstr "Vergleichen mit"
+
+#~ msgid "Field to compare the keyword with, such as title, wm_class, wm_class_instance, or app name"
+#~ msgstr "Feld für den Abgleich mit dem Schlüsselwort, z. B. Titel, wm_class, wm_class_instance oder Anwendungsname"
+
+#~ msgid "The way to compare the keyword with the selected field"
+#~ msgstr "Art des Abgleichs des Schlüsselworts mit dem ausgewählten Feld"

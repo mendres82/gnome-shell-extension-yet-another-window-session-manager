@@ -3,6 +3,7 @@
 import GObject from 'gi://GObject';
 
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as SessionItemButtons from '../ui/sessionItemButtons.js';
 
@@ -25,12 +26,12 @@ class SessionItem extends PopupMenu.PopupMenuItem {
             if (modification_date_time) {
                 this._modification_time = modification_date_time.to_local().format('%Y-%m-%d %T');
             } else {
-                this._modification_time = '( Unknown )';
+                this._modification_time = _('(Unknown)');
                 this._available = false;
             }
         } else {
             this._filename = file.get_basename();
-            this._modification_time = '( Please save this session before using it )';
+            this._modification_time = _('(Please save this session before using it)');
             
             this._available = false;
         }
@@ -51,7 +52,7 @@ const EmptySessionItem = GObject.registerClass(
 class EmptySessionItem extends PopupMenu.PopupMenuItem {
     
     _init() {
-        super._init("(Empty, please save open windows first)");
+        super._init(_('(Empty, please save open windows first)'));
         this.setSensitive(false);
     }
 

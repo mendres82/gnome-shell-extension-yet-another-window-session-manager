@@ -285,8 +285,10 @@ Please submit **only** the updated or new `po/*.po` files. Do not include the co
 If the template has changed on the main branch since you started, sync your `.po` file before submitting:
 
 ```bash
-msgmerge --update po/de.po po/yet-another-window-session-manager@github.com.pot
+msgmerge --update --no-wrap po/de.po po/yet-another-window-session-manager@github.com.pot
 ```
+
+Or use `make sync-po`, which passes `--no-wrap` so existing translations are not re-wrapped to match the template line breaks.
 
 Resolve any new or fuzzy entries, then commit the updated `.po` file.
 

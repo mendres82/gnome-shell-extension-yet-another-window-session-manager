@@ -62,19 +62,25 @@ export const _newBox = function(properties) {
     return box;
 }
 
+export const getDropDownValue = function(dropDown) {
+    return dropDown._internalValues[dropDown.get_selected()];
+};
+
 export const _newDropDown = function(values, activeValue) {
-    const dropDownValues = values.map(cv => cv[1]);
-    const dropDown = Gtk.DropDown.new_from_strings(dropDownValues);
+    const labels = values.map(cv => cv[0]);
+    const internalValues = values.map(cv => cv[1]);
+    const dropDown = Gtk.DropDown.new_from_strings(labels);
+    dropDown._internalValues = internalValues;
     dropDown.set_valign(Gtk.Align.BASELINE);
-    for (let i = 0; i < dropDownValues.length; i++) {
-        if (dropDownValues[i] === activeValue)
+    for (let i = 0; i < internalValues.length; i++) {
+        if (internalValues[i] === activeValue)
             dropDown.set_selected(i);
     }
     const factory = dropDown.get_factory();
     factory.connect('bind', (factory, listItem) => {
         const box = listItem.get_child();
         const label = box.get_first_child();
-        const widthChars = Math.max(...dropDownValues.map(
+        const widthChars = Math.max(...labels.map(
             // GLib.utf8_strlen(v, -1) causes right margin between the label and box is too large, so -2 to reduce this margin
             v => GLib.utf8_strlen(v, -1) - 2));
         label.set_width_chars(widthChars);

@@ -394,8 +394,8 @@ export const SaveSession = class {
             const session_file_backup_path = FileUtils.get_sessions_backups_path();
             const session_file_backup = GLib.build_filenamev([session_file_backup_path, sessionName + '.backup-' + new Date().getTime()]);
             if (GLib.mkdir_with_parents(session_file_backup_path, 0o744) !== 0) {
-                const errMsg = `Cannot save session: ${session_file_path}`;
-                const reason = `Failed to create backups folder: ${session_file_backup_path}`;
+                const errMsg = _('Cannot save session: %s').format(session_file_path);
+                const reason = _('Failed to create backups folder: %s').format(session_file_backup_path);
                 return Promise.reject(new CommonError.CommonError(errMsg, {desc: reason}));
             }
             
@@ -418,8 +418,8 @@ export const SaveSession = class {
                         } catch (e) {
                             causedBy = e;
                         }
-                        const errMsg = `Cannot save session: ${session_file_path}`;
-                        const reason = `Failed to backup ${session_file_path} to ${session_file_backup}`;
+                        const errMsg = _('Cannot save session: %s').format(session_file_path);
+                        const reason = _('Failed to backup %s to %s').format(session_file_path, session_file_backup);
                         reject(new CommonError.CommonError(errMsg, {desc: reason, cause: causedBy}));
                     }
                 );
@@ -443,8 +443,8 @@ export const SaveSession = class {
         // 0o744 => rwx r-- r--
         const sessionFolder = sessionFile.get_parent().get_path();
         if (GLib.mkdir_with_parents(sessionFolder, 0o744) !== 0) {
-            const errMsg = `Cannot save session: ${sessionFile.get_path()}`;
-            const reason = `Failed to create session folder: ${sessionFolder}`;
+            const errMsg = _('Cannot save session: %s').format(sessionFile.get_path());
+            const reason = _('Failed to create session folder: %s').format(sessionFolder);
             return Promise.reject(new CommonError.CommonError(errMsg, {desc: reason}));
         }
 
@@ -481,8 +481,8 @@ export const SaveSession = class {
                         } catch (e) {
                             causedBy = e;
                         }
-                        const errMsg = `Cannot save session: ${sessionFile.get_path()}`;
-                        const reason = `Failed to save session to ${sessionFile.get_path()}!`;
+                        const errMsg = _('Cannot save session: %s').format(sessionFile.get_path());
+                        const reason = _('Failed to save session to %s!').format(sessionFile.get_path());
                         reject(new CommonError.CommonError(errMsg, {desc: reason, cause: causedBy}));
                     });
                 });

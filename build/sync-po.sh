@@ -20,7 +20,7 @@ if [ ${#po_files[@]} -eq 0 ]; then
 fi
 
 for po in "${po_files[@]}"; do
-    msgmerge --update --backup=none "$po" "$POT"
+    msgmerge --update --backup=none --no-wrap "$po" "$POT"
     echo "Synced $po with ${POT}"
 done
 

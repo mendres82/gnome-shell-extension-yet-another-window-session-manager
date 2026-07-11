@@ -122,7 +122,7 @@ const AutostartService = GObject.registerClass(
             if (!enableRestoreSelectedSession) {
                 const enableRestorePreviousSession = this._settings.get_boolean('enable-restore-previous-session');
                 if (enableRestorePreviousSession) {
-                    return "Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled";
+                    return _('Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled');
                 } 
                 const disabledFeatureMsg = _('ERROR: RestoreSession is disabled, please enable it through \'Preferences → Restore sessions → Restore selected session at startup\'');
                 Main.notify(_('Yet Another Window Session Manager'), disabledFeatureMsg);
@@ -136,7 +136,7 @@ const AutostartService = GObject.registerClass(
             Main.layoutManager.connect('startup-complete', () => {
                 this._startRestoreSelectedSession();
             });
-            return `Waiting for startup to restore session '${this._sessionName}' ...`;
+            return _('Waiting for startup to restore session \'%s\' …').format(this._sessionName);
         }
 
         _startRestoreSelectedSession() {
@@ -147,7 +147,7 @@ const AutostartService = GObject.registerClass(
             this._autostartDialog = new AutostartDialog();
             if (this._settings.get_boolean('restore-at-startup-without-asking')) {
                 this._autostartDialog._confirm();
-                return `Restore session '${this._sessionName}' without asking ...`;
+                return _('Restore session \'%s\' without asking …').format(this._sessionName);
             }
 
             this._idleIdOpenRestoreSessionDialog = GLib.idle_add(GLib.PRIORITY_LOW, () => {
@@ -155,7 +155,7 @@ const AutostartService = GObject.registerClass(
                 this._idleIdOpenRestoreSessionDialog = null;
                 return GLib.SOURCE_REMOVE;
             });
-            return 'Opening dialog to restore ...';
+            return _('Opening dialog to restore …');
         }
 
         // TODO Press some hotkey (like Ctrl) so this time will not restore the previous session?
@@ -177,7 +177,7 @@ const AutostartService = GObject.registerClass(
             if (!enableRestorePreviousSession) {
                 const enableRestoreSelectedSession = this._settings.get_boolean('enable-autorestore-sessions');
                 if (enableRestoreSelectedSession) {
-                    return "Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled";
+                    return _('Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled');
                 }
                 const disabledFeatureMsg = _('ERROR: RestorePreviousSession is disabled, please enable it through \'Preferences → Restore sessions → Restore previous apps and windows at startup\'');
                 Main.notify(_('Yet Another Window Session Manager'), disabledFeatureMsg);

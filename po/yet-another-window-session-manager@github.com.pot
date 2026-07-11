@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 57\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-11 22:01+0200\n"
+"POT-Creation-Date: 2026-07-11 22:53+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -15,6 +15,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: closeSession.js
+#, javascript-format
+msgid "Failed to send keys to close %s via ydotool"
+msgstr ""
+
+#: closeSession.js
+#, javascript-format
+msgid "Please make sure `ydotool` is installed and set up properly, see %s for more instructions."
+msgstr ""
+
+#: closeSession.js
+msgid "Failed to start ydotool.service"
+msgstr ""
 
 #: ui/sessionItemButtons.js
 msgid "Save open windows using the current session name"
@@ -62,6 +76,10 @@ msgstr ""
 
 #: ui/searchSessionItem.js
 msgid "Show only the default session"
+msgstr ""
+
+#: ui/searchSessionItem.js
+msgid "Open preferences"
 msgstr ""
 
 #: ui/autoclose.js
@@ -151,6 +169,18 @@ msgstr ""
 msgid "It might have multiple windows"
 msgstr ""
 
+#: ui/sessionItem.js
+msgid "(Unknown)"
+msgstr ""
+
+#: ui/sessionItem.js
+msgid "(Please save this session before using it)"
+msgstr ""
+
+#: ui/sessionItem.js
+msgid "(Empty, please save open windows first)"
+msgstr ""
+
 #: ui/popupMenuButtonItems.js
 msgid "Close open windows"
 msgstr ""
@@ -191,9 +221,11 @@ msgid "ERROR: Session names cannot contain '/'"
 msgstr ""
 
 #: ui/autostart.js
-msgid ""
-"ERROR: RestoreSession is disabled, please enable it through 'Preferences → "
-"Restore sessions → Restore selected session at startup'"
+msgid "Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled"
+msgstr ""
+
+#: ui/autostart.js
+msgid "ERROR: RestoreSession is disabled, please enable it through 'Preferences → Restore sessions → Restore selected session at startup'"
 msgstr ""
 
 #: ui/autostart.js indicator.js keyboardShortcuts.js saveSession.js
@@ -202,14 +234,29 @@ msgstr ""
 
 #: ui/autostart.js
 #, javascript-format
+msgid "Waiting for startup to restore session '%s' …"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
 msgid "Restoring selected session '%s'"
 msgstr ""
 
 #: ui/autostart.js
-msgid ""
-"ERROR: RestorePreviousSession is disabled, please enable it through "
-"'Preferences → Restore sessions → Restore previous apps and windows at "
-"startup'"
+#, javascript-format
+msgid "Restore session '%s' without asking …"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Opening dialog to restore …"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled"
+msgstr ""
+
+#: ui/autostart.js
+msgid "ERROR: RestorePreviousSession is disabled, please enable it through 'Preferences → Restore sessions → Restore previous apps and windows at startup'"
 msgstr ""
 
 #: ui/autostart.js
@@ -362,6 +409,40 @@ msgstr ""
 msgid "Add Rule"
 msgstr ""
 
+#: restoreSession.js
+#, javascript-format
+msgid "No session to restore from %s"
+msgstr ""
+
+#: restoreSession.js
+msgid "Session config is empty."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s via command line"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: %s."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: Invalid command line: %s."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to restore %s"
+msgstr ""
+
 #: prefsColumnView.js
 msgid "Enabled"
 msgstr ""
@@ -395,8 +476,7 @@ msgid "Choose a window to fill the entry based on the current setting"
 msgstr ""
 
 #: keyboardShortcuts.js
-msgid ""
-"No default session selected. Set a default session in the panel menu first."
+msgid "No default session selected. Set a default session in the panel menu first."
 msgstr ""
 
 #: keyboardShortcuts.js
@@ -411,7 +491,32 @@ msgstr ""
 
 #: saveSession.js
 #, javascript-format
+msgid "Cannot save session: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create backups folder: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to backup %s to %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create session folder: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
 msgid "Session %s saved to %s!"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to save session to %s!"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -435,8 +540,7 @@ msgid "Auto close session"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Close running apps and windows when logging out, rebooting, or shutting down."
+msgid "Close running apps and windows when logging out, rebooting, or shutting down."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -444,10 +548,7 @@ msgid "Close by rules"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"To make this feature work, see: <a href='https://github.com/mendres82/gnome-"
-"shell-extension-yet-another-window-session-manager#how-to-make-close-by-"
-"rules-work'>How to make `Close by rules` work</a>."
+msgid "To make this feature work, see: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>How to make `Close by rules` work</a>."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -459,9 +560,7 @@ msgid "Session is saved notification"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Show a notification when users click buttons on the popup menu to save a "
-"session."
+msgid "Show a notification when users click buttons on the popup menu to save a session."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -473,9 +572,7 @@ msgid "Restore previous apps and windows at startup"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if "
-"enabled."
+msgid "Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if enabled."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -491,9 +588,7 @@ msgid "Restore selected session at startup"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-"
-"session-manager.desktop if enabled."
+msgid "Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-session-manager.desktop if enabled."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -513,9 +608,7 @@ msgid "Restore applications interval([0, 300000]ms)"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"0 by default. There's no need to set this option normally, unless the "
-"process of restoring session is too fast to freeze the system, for example."
+msgid "0 by default. There's no need to set this option normally, unless the process of restoring session is too fast to freeze the system, for example."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -523,9 +616,7 @@ msgid "Autostart delay([0, 3600]s)"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"5 by default. Delay before restoring session at startup or the previous "
-"session. If the delay is too short, the computer might freeze."
+msgid "5 by default. Delay before restoring session at startup or the previous session. If the delay is too short, the computer might freeze."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
@@ -541,9 +632,7 @@ msgid "Restore windows states after Gnome Shell restarts"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid ""
-"Only enabled on X11, since Wayland doesn't support restart Gnome Shell via "
-"`Alt+F2 then type r` or `killall -3 gnome-shell`."
+msgid "Only enabled on X11, since Wayland doesn't support restart Gnome Shell via `Alt+F2 then type r` or `killall -3 gnome-shell`."
 msgstr ""
 
 #: ui/prefs-gtk4.ui
