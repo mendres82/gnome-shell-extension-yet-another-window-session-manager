@@ -891,12 +891,12 @@ const WhitelistRow = GObject.registerClass({
             pickConditionFunc: (() => 'wm_class').bind(this),
         });
         const closeWindowsSwitch = PrefsWidgets.newLabelSwitch(
-            'Close windows',
-            'Apply this whitelist entry when closing windows',
+            _('Close windows'),
+            _('Apply this whitelist entry when closing windows'),
             ruleDetail.enableWhenCloseWindows);
         const logoutSwitch = PrefsWidgets.newLabelSwitch(
-            'Log Out, Reboot, Power Off',
-            'Apply this whitelist entry when logging out, rebooting, or shutting down',
+            _('Log Out, Reboot, Power Off'),
+            _('Apply this whitelist entry when logging out, rebooting, or shutting down'),
             ruleDetail.enableWhenLogout);
 
         rowBox.append(this._enabledCheckButton);

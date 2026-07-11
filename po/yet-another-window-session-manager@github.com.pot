@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 57\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-11 22:53+0200\n"
+"POT-Creation-Date: 2026-07-12 00:16+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -365,6 +365,22 @@ msgstr ""
 msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
 msgstr ""
 
+#: prefsCloseWindow.js prefsColumnView.js ui/prefs-gtk4.ui
+msgid "Close windows"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Apply this whitelist entry when closing windows"
+msgstr ""
+
+#: prefsCloseWindow.js prefsColumnView.js
+msgid "Log Out, Reboot, Power Off"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Apply this whitelist entry when logging out, rebooting, or shutting down"
+msgstr ""
+
 #: prefsCloseWindow.js
 msgid "A string that is used to match windows or apps"
 msgstr ""
@@ -453,14 +469,6 @@ msgstr ""
 
 #: prefsColumnView.js
 msgid "Name"
-msgstr ""
-
-#: prefsColumnView.js ui/prefs-gtk4.ui
-msgid "Close windows"
-msgstr ""
-
-#: prefsColumnView.js
-msgid "Log Out, Reboot, Power Off"
 msgstr ""
 
 #: prefsWindowPickableEntry.js

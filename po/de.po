@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 57\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-11 22:53+0200\n"
+"POT-Creation-Date: 2026-07-12 00:16+0200\n"
 "PO-Revision-Date: 2026-07-11 20:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -24,7 +24,7 @@ msgstr "Tasten zum Schließen von %s konnten nicht über ydotool gesendet werden
 #: closeSession.js
 #, javascript-format
 msgid "Please make sure `ydotool` is installed and set up properly, see %s for more instructions."
-msgstr "Bitte stellen Sie sicher, dass `ydotool` installiert und eingerichtet ist. Weitere Anleitung: %s"
+msgstr "Bitte stellen Sie sicher, dass `ydotool` installiert und eingerichtet ist. Anleitung: %s."
 
 #: closeSession.js
 msgid "Failed to start ydotool.service"
@@ -222,7 +222,7 @@ msgstr "FEHLER: Sitzungsnamen dürfen kein „/“ enthalten"
 
 #: ui/autostart.js
 msgid "Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled"
-msgstr "Vorgang wird ignoriert. RestoreSession ist deaktiviert, aber RestorePreviousSession ist aktiv."
+msgstr "Vorgang wird ignoriert. RestoreSession ist deaktiviert, aber RestorePreviousSession ist aktiv"
 
 #: ui/autostart.js
 msgid "ERROR: RestoreSession is disabled, please enable it through 'Preferences → Restore sessions → Restore selected session at startup'"
@@ -253,7 +253,7 @@ msgstr "Dialog zum Wiederherstellen wird geöffnet …"
 
 #: ui/autostart.js
 msgid "Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled"
-msgstr "Vorgang wird ignoriert. RestorePreviousSession ist deaktiviert, aber RestoreSession ist aktiv."
+msgstr "Vorgang wird ignoriert. RestorePreviousSession ist deaktiviert, aber RestoreSession ist aktiv"
 
 #: ui/autostart.js
 msgid "ERROR: RestorePreviousSession is disabled, please enable it through 'Preferences → Restore sessions → Restore previous apps and windows at startup'"
@@ -365,6 +365,23 @@ msgstr "Neues Tastenkürzel …"
 msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
 msgstr "%s hat keine Anwendungsinformationen. Möglicherweise sollten Sie diese Regel unter „Schlüsselwörter“ hinzufügen."
 
+#: prefsCloseWindow.js prefsColumnView.js ui/prefs-gtk4.ui
+msgid "Close windows"
+msgstr "Fenster schließen"
+
+#: prefsCloseWindow.js
+msgid "Apply this whitelist entry when closing windows"
+msgstr "Diesen Whitelist-Eintrag beim Schließen von Fenstern anwenden"
+
+#: prefsCloseWindow.js prefsColumnView.js
+msgid "Log Out, Reboot, Power Off"
+msgstr "Abmelden, neu starten, ausschalten"
+
+#: prefsCloseWindow.js
+#, fuzzy
+msgid "Apply this whitelist entry when logging out, rebooting, or shutting down"
+msgstr "Laufende Anwendungen und Fenster beim Abmelden, Neustart oder Herunterfahren schließen"
+
 #: prefsCloseWindow.js
 msgid "A string that is used to match windows or apps"
 msgstr "Zeichenkette zum Abgleich von Fenstern oder Anwendungen"
@@ -454,14 +471,6 @@ msgstr "Aktion"
 #: prefsColumnView.js
 msgid "Name"
 msgstr "Name"
-
-#: prefsColumnView.js ui/prefs-gtk4.ui
-msgid "Close windows"
-msgstr "Fenster schließen"
-
-#: prefsColumnView.js
-msgid "Log Out, Reboot, Power Off"
-msgstr "Abmelden, neu starten, ausschalten"
 
 #: prefsWindowPickableEntry.js
 msgid "Edit the entry"
