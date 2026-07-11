@@ -40,9 +40,12 @@
             <child>
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="margin-top">12</property>
                     <property name="margin-bottom">12</property>
                     <property name="margin-start">6</property>
@@ -82,6 +85,7 @@
             <child>
               <object class="GtkListBox" id="keyboard_shortcuts_listbox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
               </object>
             </child>
           </object>
@@ -101,9 +105,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow" id="auto_close_session_multi_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="auto_close_session_multi_grid1">
                         <property name="margin-top">12</property>
@@ -161,7 +168,9 @@
                 </child>
                 <child>
                   <object class="GtkListBoxRow" id="close_by_rules_multi_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="close_by_rules_multi_grid1">
                         <property name="margin-top">12</property>
@@ -227,6 +236,7 @@
             <property name="child">
               <object class="GtkListBox" id="close_by_rules_applications_list_box">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="show-separators">true</property>
@@ -240,6 +250,7 @@
             <property name="child">
               <object class="GtkListBox" id="close_by_rules_keywords_list_box">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="show-separators">true</property>
@@ -253,6 +264,7 @@
             <property name="child">
               <object class="GtkListBox" id="close_windows_whitelist_listbox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="show-separators">true</property>
@@ -275,9 +287,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid">
                         <property name="margin-bottom">12</property>
@@ -351,9 +366,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow" id="restore_previous_multi_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid">
                         <property name="margin-top">12</property>
@@ -407,7 +425,9 @@
                 </child>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="restore_previous_delay_multi_grid">
                         <property name="margin-bottom">12</property>
@@ -473,9 +493,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow" id="restore_at_startup_multi_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="restore_at_startup_multi_grid">
                         <property name="margin-top">12</property>
@@ -603,9 +626,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid">
                         <property name="margin-top">12</property>
@@ -662,7 +688,9 @@
                 </child>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid">
                         <property name="margin-bottom">12</property>
@@ -728,9 +756,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkBox">
                         <property name="margin-start">6</property>
@@ -757,7 +788,9 @@
                 </child>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkBox">
                         <property name="margin-start">6</property>
@@ -792,9 +825,12 @@
             <property name="child">
               <object class="GtkListBox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid">
                         <property name="margin-bottom">12</property>
@@ -869,9 +905,12 @@
             <child>
               <object class="GtkListBox" id="debugging_mode_listbox">
                 <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
                 <child>
                   <object class="GtkListBoxRow" id="debugging_mode_multi_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="debugging_mode_multi_grid">
                         <property name="margin-top">12</property>
@@ -909,7 +948,9 @@
                 </child>
                 <child>
                   <object class="GtkListBoxRow" id="verbose_logging_row">
-                    <property name="focusable">true</property>
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
                     <property name="child">
                       <object class="GtkGrid" id="verbose_logging_grid">
                         <property name="margin-bottom">12</property>
