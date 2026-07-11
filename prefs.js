@@ -18,6 +18,11 @@ import {initShortcutRows} from './prefsShortcuts.js';
 
 
 export default class AnotherWindowSessionManagerPreferences extends ExtensionPreferences {
+    constructor(metadata) {
+        super(metadata);
+        this.initTranslations(this.metadata['gettext-domain'] ?? this.metadata.uuid);
+    }
+
     fillPreferencesWindow(window) {
         window.set_default_size(1200, 800);
         window.set_size_request(1200, 800);
@@ -50,10 +55,11 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
 
     _addPages(window) {
         const pages = [
+            this._builder.get_object('general_page'),
             this._builder.get_object('close_windows_page'),
             this._builder.get_object('save_windows_page'),
             this._builder.get_object('restore_sessions_page'),
-            this._builder.get_object('general_page'),
+            this._builder.get_object('advanced_page'),
         ];
         pages.forEach(page => window.add(page));
     }
@@ -227,6 +233,7 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
 
     render_ui() {
         this._builder = new Gtk.Builder();
+        this._builder.set_translation_domain(this.metadata['gettext-domain'] ?? this.metadata.uuid);
         this._builder.set_scope(new BuilderScope(this));
         this._builder.add_from_file(this.path + '/ui/prefs-gtk4.ui');
 

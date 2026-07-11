@@ -1,0 +1,660 @@
+# Yet Another Window Session Manager.
+# Copyright (C) 2026 mendres82
+# This file is distributed under the same license as the Yet Another Window Session Manager package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Yet Another Window Session Manager 57\n"
+"Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
+"POT-Creation-Date: 2026-07-12 00:16+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: closeSession.js
+#, javascript-format
+msgid "Failed to send keys to close %s via ydotool"
+msgstr ""
+
+#: closeSession.js
+#, javascript-format
+msgid "Please make sure `ydotool` is installed and set up properly, see %s for more instructions."
+msgstr ""
+
+#: closeSession.js
+msgid "Failed to start ydotool.service"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Save open windows using the current session name"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Restore windows from the saved session"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Move windows to their workspace and position by the saved session"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Set as default session"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Open session file using an external editor"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Move to Trash"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "View"
+msgstr ""
+
+#: ui/sessionItemButtons.js
+msgid "Delete"
+msgstr ""
+
+#: ui/sessionItemButtons.js ui/popupMenuButtonItems.js keyboardShortcuts.js
+msgid "Failed to save session"
+msgstr ""
+
+#: ui/searchSessionItem.js
+msgid "Type to search"
+msgstr ""
+
+#: ui/searchSessionItem.js
+msgid "Filter: "
+msgstr ""
+
+#: ui/searchSessionItem.js
+msgid "Show only the default session"
+msgstr ""
+
+#: ui/searchSessionItem.js
+msgid "Open preferences"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Continue"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Log out"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Power off"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Restart"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "These apps can't be closed, please close them manually"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Running applications"
+msgstr ""
+
+#: ui/autoclose.js ui/autostart.js
+msgid "Cancel"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Retry"
+msgstr ""
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "%s now"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Closing running apps, please wait a moment…"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Waiting below processes to exit, this may take a while…"
+msgstr ""
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "%s now, this may take a while, please wait…"
+msgstr ""
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "pid: %d | status: %s"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Exited"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Running"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Stopped"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Zombie"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Uninterruptible"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Sleeping"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "Closing"
+msgstr ""
+
+#: ui/autoclose.js
+msgid "It might have multiple windows"
+msgstr ""
+
+#: ui/sessionItem.js
+msgid "(Unknown)"
+msgstr ""
+
+#: ui/sessionItem.js
+msgid "(Please save this session before using it)"
+msgstr ""
+
+#: ui/sessionItem.js
+msgid "(Empty, please save open windows first)"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "Close open windows"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "Closing open windows …"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "Confirm?"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "Save open windows"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "Type a session name, default is Default Session"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "Saving open windows as '%s' …"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "ERROR: %s is a reserved word, can't be used."
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "ERROR: Can't save windows using '%s', it's an existing directory!"
+msgstr ""
+
+#: ui/popupMenuButtonItems.js
+msgid "ERROR: Session names cannot contain '/'"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Ignoring this operation. RestoreSession is disabled, but RestorePreviousSession is enabled"
+msgstr ""
+
+#: ui/autostart.js
+msgid "ERROR: RestoreSession is disabled, please enable it through 'Preferences → Restore sessions → Restore selected session at startup'"
+msgstr ""
+
+#: ui/autostart.js indicator.js keyboardShortcuts.js saveSession.js
+msgid "Yet Another Window Session Manager"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Waiting for startup to restore session '%s' …"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Restoring selected session '%s'"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Restore session '%s' without asking …"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Opening dialog to restore …"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Ignoring this operation. RestorePreviousSession is disabled, but RestoreSession is enabled"
+msgstr ""
+
+#: ui/autostart.js
+msgid "ERROR: RestorePreviousSession is disabled, please enable it through 'Preferences → Restore sessions → Restore previous apps and windows at startup'"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Restoring the previous apps and windows"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Required to restore the previous apps and windows"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Restore session '%s'"
+msgstr ""
+
+#: ui/autostart.js
+msgid "Confirm"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "ERROR: Session '%s' does not exist"
+msgstr ""
+
+#: ui/autostart.js
+msgid "ERROR: You don't select any session to restore"
+msgstr ""
+
+#: ui/autostart.js
+#, javascript-format
+msgid "'%s' will be restored in %d second"
+msgid_plural "'%s' will be restored in %d seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: prefsShortcuts.js
+msgid "Press shortcut…"
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Disabled"
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Save Session"
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Save open windows using the default session."
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Restore Session"
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Restore windows from the default session."
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Move Windows"
+msgstr ""
+
+#: prefsShortcuts.js
+msgid "Move windows to their workspace and position by the default session."
+msgstr ""
+
+#: utils/subprocessUtils.js
+msgid "Could not parse command:"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Whitelist"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Applications"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Keywords"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Apps in the whitelist will be closed even if they have multiple windows"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Shortcut"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Add accelerator"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Delete accelerator"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "New accelerator…"
+msgstr ""
+
+#: prefsCloseWindow.js
+#, javascript-format
+msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
+msgstr ""
+
+#: prefsCloseWindow.js prefsColumnView.js ui/prefs-gtk4.ui
+msgid "Close windows"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Apply this whitelist entry when closing windows"
+msgstr ""
+
+#: prefsCloseWindow.js prefsColumnView.js
+msgid "Log Out, Reboot, Power Off"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Apply this whitelist entry when logging out, rebooting, or shutting down"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "A string that is used to match windows or apps"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Equals"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Includes"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Starts with"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Ends with"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "RegExp"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "wm class"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "wm class instance"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Application name"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Window title"
+msgstr ""
+
+#: prefsCloseWindow.js
+msgid "Add Rule"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "No session to restore from %s"
+msgstr ""
+
+#: restoreSession.js
+msgid "Session config is empty."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to launch %s via command line"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: %s."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Can't restore this app from %s: Invalid command line: %s."
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
+msgid "Failed to restore %s"
+msgstr ""
+
+#: prefsColumnView.js
+msgid "Enabled"
+msgstr ""
+
+#: prefsColumnView.js
+msgid "Operation"
+msgstr ""
+
+#: prefsColumnView.js
+msgid "Name"
+msgstr ""
+
+#: prefsWindowPickableEntry.js
+msgid "Edit the entry"
+msgstr ""
+
+#: prefsWindowPickableEntry.js
+msgid "Complete editing"
+msgstr ""
+
+#: prefsWindowPickableEntry.js
+msgid "Choose a window to fill the entry based on the current setting"
+msgstr ""
+
+#: keyboardShortcuts.js
+msgid "No default session selected. Set a default session in the panel menu first."
+msgstr ""
+
+#: keyboardShortcuts.js
+#, javascript-format
+msgid "%s. %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to generate session %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Cannot save session: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create backups folder: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to backup %s to %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to create session folder: %s"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Session %s saved to %s!"
+msgstr ""
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to save session to %s!"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "General"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Panel indicator"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Show indicator on the panel"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Auto close session"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Close running apps and windows when logging out, rebooting, or shutting down."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Close by rules"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "To make this feature work, see: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>How to make `Close by rules` work</a>."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Save windows"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Session is saved notification"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Show a notification when users click buttons on the popup menu to save a session."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore sessions"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore previous apps and windows at startup"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if enabled."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore delay([0, 3600]s)"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "5 by default."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore selected session at startup"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-session-manager.desktop if enabled."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore at startup without asking"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Timer on the autostart dialog([0, 3600]s)"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "10 by default."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore applications interval([0, 300000]ms)"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "0 by default. There's no need to set this option normally, unless the process of restoring session is too fast to freeze the system, for example."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Autostart delay([0, 3600]s)"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "5 by default. Delay before restoring session at startup or the previous session. If the delay is too short, the computer might freeze."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore window tiling"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Raise windows together"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Restore windows states after Gnome Shell restarts"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Only enabled on X11, since Wayland doesn't support restart Gnome Shell via `Alt+F2 then type r` or `killall -3 gnome-shell`."
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Advanced"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Debug"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Debugging mode"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Verbose logging"
+msgstr ""

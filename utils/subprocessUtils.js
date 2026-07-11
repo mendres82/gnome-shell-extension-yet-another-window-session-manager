@@ -3,6 +3,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
 import * as Log from './log.js';
 
 

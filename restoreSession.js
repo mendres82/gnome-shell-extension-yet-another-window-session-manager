@@ -10,6 +10,7 @@ import {PrefsUtils} from './utils/prefsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
 import * as DateUtils from './utils/dateUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
 export const restoreSessionObject = {
@@ -95,7 +96,9 @@ export const RestoreSession = class {
         let session_config_objects = session_config.x_session_config_objects;
         if (!(session_config_objects && session_config_objects.length)) {
             this._log.error(new Error(`Session details not found: ${session_file_path}`));
-            global.notify_error(`No session to restore from ${session_file_path}`, `session config is empty.`);
+            global.notify_error(
+                _('No session to restore from %s').format(session_file_path),
+                _('Session config is empty.'));
             return;
         }
 
@@ -214,7 +217,9 @@ export const RestoreSession = class {
                         }
                     } else {
                         this._log.error(`Failed to launch ${app_name}`, `Failed to launch ${app_name}`);
-                        global.notify_error(`Failed to launch ${app_name}`, `Failed to launch ${app_name}`);
+                        global.notify_error(
+                            _('Failed to launch %s').format(app_name),
+                            _('Failed to launch %s').format(app_name));
                     }
                     resolve([launched, running]);
                 } else {
@@ -277,10 +282,11 @@ export const RestoreSession = class {
                                         running = true;
                                         this._log.info(`${app_name} is running, skipping`)
                                     } else {
-                                        const msg = `Failed to launch ${app_name} via command line`;
-                                        let errorDetail = `Can't restore this app from ${session_config_object._file_path}: ${stderr}.`;
+                                        const msg = _('Failed to launch %s via command line').format(app_name);
+                                        let errorDetail = _('Can\'t restore this app from %s: %s.').format(
+                                            session_config_object._file_path, stderr);
                                         this._log.error(`${msg}. output: ${errorDetail}`);
-                                        global.notify_error(`${msg}`, errorDetail);
+                                        global.notify_error(msg, errorDetail);
                                     }
                                     resolve([launched, running]);
                                 }
@@ -290,8 +296,9 @@ export const RestoreSession = class {
                             });
                     } else {
                         // TODO try to launch via app_info by searching the app name?
-                        let errorMsg = `Failed to launch ${app_name} via command line`;
-                        let errorDetail = `Can't restore this app from ${session_config_object._file_path}: Invalid command line: ${cmd}.`;
+                        let errorMsg = _('Failed to launch %s via command line').format(app_name);
+                        let errorDetail = _('Can\'t restore this app from %s: Invalid command line: %s.').format(
+                            session_config_object._file_path, cmd);
                         this._log.error(errorMsg, errorDetail);
                         global.notify_error(errorMsg, errorDetail);
                         resolve([launched, running]);
@@ -301,7 +308,9 @@ export const RestoreSession = class {
         } catch (e) {
             logError(e, `Failed to restore ${app_name}`);
             if (!launched) {
-                global.notify_error(`Failed to restore ${app_name}`, e.message);
+                global.notify_error(
+                    _('Failed to restore %s').format(app_name),
+                    e.message);
             }
             return [launched, running];
         }

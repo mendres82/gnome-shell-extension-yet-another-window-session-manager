@@ -27,6 +27,7 @@ try {
 
 import {PrefsUtils} from '../utils/prefsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let __confirm = null;
 let __init = null;
@@ -114,13 +115,13 @@ export const Autoclose = GObject.registerClass(
                         return;
                     }
 
-                    let confirmButtOnLabel = 'Continue';
+                    let confirmButtOnLabel = _('Continue');
                     if (signal === 'ConfirmedLogout') {
-                        confirmButtOnLabel = 'Log out';
+                        confirmButtOnLabel = _('Log out');
                     } else if (signal === 'ConfirmedShutdown') {
-                        confirmButtOnLabel = 'Power off';
+                        confirmButtOnLabel = _('Power off');
                     } else if (signal == 'ConfirmedReboot') {
-                        confirmButtOnLabel = 'Restart';
+                        confirmButtOnLabel = _('Restart');
                     }
 
                     if (!that._runningApplicationListWindow) {
@@ -171,7 +172,7 @@ export const Autoclose = GObject.registerClass(
                                 const { hasRunningApps } = result;
                                 if (hasRunningApps) {
                                     that._log.debug('One or more apps cannot be closed, please close them manually.');
-                                    that._runningApplicationListWindow._applicationSection.title = `These apps can't be closed, please close them manually`;
+                                    that._runningApplicationListWindow._applicationSection.title = _('These apps can\'t be closed, please close them manually');
                                     that._runningApplicationListWindow.showRunningApps();
                                     that._runningApplicationListWindow.showToUser();
                                     that._runningApplicationListWindow._retryButton.reactive = true;
@@ -269,7 +270,7 @@ const RunningApplicationListWindow = GObject.registerClass({
             Main.layoutManager.addChrome(this);
 
             this._confirmDialogContent = new Dialog.MessageDialogContent();
-            this._confirmDialogContent.title = `Running applications`;
+            this._confirmDialogContent.title = _('Running applications');
 
             this.contentLayout = new St.BoxLayout({
                 vertical: true,
@@ -304,7 +305,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 action: () => {
                     this._confirmNow();
                 },
-                label: _(`${this._confirmButtOnLabel} now`),
+                label: _('%s now').format(this._confirmButtOnLabel),
             });
 
             this.contentLayout.add_child(this._confirmDialogContent);
@@ -491,7 +492,7 @@ const RunningApplicationListWindow = GObject.registerClass({
 
             if (this._checkProcessStateId) return;
 
-            this._applicationSection.title = `Waiting below processes to exit, this may take a while…`;
+            this._applicationSection.title = _('Waiting below processes to exit, this may take a while…');
             this._log.info(`Waiting processes to exit`);
             this._checkProcessStateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
                 this.updateRunningPids();
@@ -505,7 +506,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                         this._applicationSection.list.remove_all_children();
                     }
 
-                    this._applicationSection.title = `${this._confirmButtOnLabel} now, this may take a while, please wait…`;
+                    this._applicationSection.title = _('%s now, this may take a while, please wait…').format(this._confirmButtOnLabel);
                     this._confirmIdleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
                         this._confirm();
                         this._confirmIdleId = null;
@@ -561,7 +562,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 let listItem = new Dialog.ListSectionItem({
                     icon_actor: app.create_icon_texture(64),
                     title: app.get_name(),
-                    description: `pid: ${pid} | status: ${this._formatProcessState(pidStateMap.get(pid))}`,
+                    description: _('pid: %d | status: %s').format(pid, this._formatProcessState(pidStateMap.get(pid))),
                 });
                 this._applicationSection.list.add_child(listItem);
             });
@@ -613,7 +614,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                     title: app.get_name(),
                     description: app._cannot_close_reason
                         ? app._cannot_close_reason[0].toUpperCase() + app._cannot_close_reason.substring(1)
-                        : (app._is_closing ? 'Closing' : 'It might have multiple windows'),
+                        : (app._is_closing ? _('Closing') : _('It might have multiple windows')),
                 });
                 // Set both line_wrap and ellipsize to wrap the description
                 listItem._description.clutter_text.line_wrap = true;

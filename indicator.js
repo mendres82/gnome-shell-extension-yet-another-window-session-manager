@@ -10,6 +10,7 @@ import Clutter from 'gi://Clutter';
 
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as Constants from './constants.js';
 
@@ -26,7 +27,7 @@ export const AwsIndicator = GObject.registerClass(
 class AwsIndicator extends PanelMenu.Button {
 
     _init() {
-        super._init(0.0, "Yet Another Window Session Manager");
+        super._init(0.0, _('Yet Another Window Session Manager'));
 
         this._windowTracker = Shell.WindowTracker.get_default();
 

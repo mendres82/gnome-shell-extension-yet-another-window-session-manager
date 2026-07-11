@@ -9,7 +9,7 @@ import * as Log from './log.js';
 export let current_extension_path = null;
 export let current_extension_dir = null;
 
-export const default_sessionName = 'defaultSession';
+export const default_sessionName = 'Default Session';
 export const data_dir = GLib.get_user_data_dir();
 export const user_config = GLib.get_user_config_dir();
 // This extension can restore `xsm`'s session file,
