@@ -166,7 +166,7 @@ Please do not modify `_gnome-shell-extension-yet-another-window-session-manager.
 
 ## Keyboard shortcuts
 
-Configure keyboard shortcuts under `More -> Keyboard shortcuts` in the Preferences:
+Configure keyboard shortcuts under `General -> Keyboard shortcuts` in the Preferences:
 
 <img width="1250" height="850" src="https://github.com/user-attachments/assets/89d1015e-d153-4c6d-b52f-c9d096a4dd77" />
 
