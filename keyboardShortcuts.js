@@ -11,6 +11,7 @@ import * as MoveSession from './moveSession.js';
 import {sessionEndState} from './openWindowsTracker.js';
 import * as Constants from './constants.js';
 import * as Log from './utils/log.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
 const BINDINGS = [
@@ -50,8 +51,8 @@ export class KeyboardShortcuts {
             return sessionName;
 
         global.notify_error(
-            'Yet Another Window Session Manager',
-            'No default session selected. Set a default session in the panel menu first.'
+            _('Yet Another Window Session Manager'),
+            _('No default session selected. Set a default session in the panel menu first.')
         );
         return null;
     }
@@ -62,11 +63,11 @@ export class KeyboardShortcuts {
             return;
 
         this._saveSession.saveSessionAsync(sessionName).catch(e => {
-            const message = 'Failed to save session';
+            const message = _('Failed to save session');
             this._log.error(e, e.desc ?? message);
             global.notify_error(
-                'Yet Another Window Session Manager',
-                `${message}. ${e.cause?.message ?? e.desc ?? message}`
+                _('Yet Another Window Session Manager'),
+                _('%s. %s').format(message, e.cause?.message ?? e.desc ?? message)
             );
         });
     }

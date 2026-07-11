@@ -15,24 +15,28 @@ export const boxProperties = {
     margin_bottom: 0,
 };
 
-export const newColumnViewColumn = function(title, factorySetupFunc, factoryBindFunc) {
+export const newColumnViewColumn = function(title, factorySetupFunc, factoryBindFunc, options = {}) {
     const factory = new Gtk.SignalListItemFactory();
     const columnViewColumn = new Gtk.ColumnViewColumn({
         title,
         factory
     });
 
+    if (options.fixedWidth >= 0)
+        columnViewColumn.set_fixed_width(options.fixedWidth);
+
     if (factorySetupFunc) {
         factory.connect('setup', (factory, listItem) => {
             factorySetupFunc(factory, listItem);
         });
     }
-    
-    if (factoryBindFunc) {
-        factory.connect('bind', (factory, listItem) => {
+
+    factory.connect('bind', (factory, listItem) => {
+        // Let Tab reach interactive widgets inside the cell, not the cell wrapper
+        listItem.set_focusable(false);
+        if (factoryBindFunc)
             factoryBindFunc(factory, listItem);
-        });
-    }
+    });
     return columnViewColumn;
 }
 
@@ -50,31 +54,47 @@ export const updateStyle = function(widget, css) {
     widget.get_style_context().add_provider(cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 }
 
-export const _newBox = function(properties) {
+export const _newBox = function(properties = {}) {
+    const {
+        orientation = Gtk.Orientation.HORIZONTAL,
+        spacing = 6,
+        margin_top = 6,
+        margin_bottom = 6,
+        margin_start = 6,
+        margin_end = 6,
+        ...rest
+    } = properties;
     const box = new Gtk.Box({
-        spacing: 6,
-        margin_top: 6,
-        margin_bottom: 6,
-        margin_start: 6,
-        margin_end: 6,
-    })
-    Object.assign(box, properties);
+        orientation,
+        spacing,
+        margin_top,
+        margin_bottom,
+        margin_start,
+        margin_end,
+    });
+    Object.assign(box, rest);
     return box;
 }
 
+export const getDropDownValue = function(dropDown) {
+    return dropDown._internalValues[dropDown.get_selected()];
+};
+
 export const _newDropDown = function(values, activeValue) {
-    const dropDownValues = values.map(cv => cv[1]);
-    const dropDown = Gtk.DropDown.new_from_strings(dropDownValues);
+    const labels = values.map(cv => cv[0]);
+    const internalValues = values.map(cv => cv[1]);
+    const dropDown = Gtk.DropDown.new_from_strings(labels);
+    dropDown._internalValues = internalValues;
     dropDown.set_valign(Gtk.Align.BASELINE);
-    for (let i = 0; i < dropDownValues.length; i++) {
-        if (dropDownValues[i] === activeValue)
+    for (let i = 0; i < internalValues.length; i++) {
+        if (internalValues[i] === activeValue)
             dropDown.set_selected(i);
     }
     const factory = dropDown.get_factory();
     factory.connect('bind', (factory, listItem) => {
         const box = listItem.get_child();
         const label = box.get_first_child();
-        const widthChars = Math.max(...dropDownValues.map(
+        const widthChars = Math.max(...labels.map(
             // GLib.utf8_strlen(v, -1) causes right margin between the label and box is too large, so -2 to reduce this margin
             v => GLib.utf8_strlen(v, -1) - 2));
         label.set_width_chars(widthChars);
@@ -108,12 +128,16 @@ export const LabelSwitch = GObject.registerClass({
     _initSwitch(text, tooltipText) {
         const button = new Gtk.Button({
             label: text,
-            can_target: false
+            can_target: false,
+            focusable: false,
         });
         // Imitate a button
         // Here we don't use Gtk.Button with a Gtk.Switch. Because I don't want to get into the trouble that
         // the click event can't be propagated down to the Gtk.Switch.
-        const switcherBox = new Gtk.Box({css_name: 'button'});
+        const switcherBox = new Gtk.Box({
+            css_name: 'button',
+            focusable: false,
+        });
         const switcher = new Gtk.Switch({valign: Gtk.Align.CENTER});
     
         updateStyle(button, 

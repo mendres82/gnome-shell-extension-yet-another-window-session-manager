@@ -11,5 +11,6 @@
     ],
     "url": "https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager",
     "uuid": "yet-another-window-session-manager@github.com",
-    "version": 56
+    "gettext-domain": "yet-another-window-session-manager@github.com",
+    "version": 57
   }

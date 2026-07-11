@@ -6,6 +6,7 @@ import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as SessionConfig from './model/sessionConfig.js';
 
@@ -212,7 +213,7 @@ export const SaveSession = class {
                     sessionConfig.x_session_config_objects.push(sessionConfigObject);    
                 } catch (e) {
                     this._log.error(e, `Failed to generate session ${sessionName}`);
-                    global.notify_error(`Failed to generate session ${sessionName}`, e.message);
+                    global.notify_error(_('Failed to generate session %s').format(sessionName), e.message);
                 }
             }
         }
@@ -393,8 +394,8 @@ export const SaveSession = class {
             const session_file_backup_path = FileUtils.get_sessions_backups_path();
             const session_file_backup = GLib.build_filenamev([session_file_backup_path, sessionName + '.backup-' + new Date().getTime()]);
             if (GLib.mkdir_with_parents(session_file_backup_path, 0o744) !== 0) {
-                const errMsg = `Cannot save session: ${session_file_path}`;
-                const reason = `Failed to create backups folder: ${session_file_backup_path}`;
+                const errMsg = _('Cannot save session: %s').format(session_file_path);
+                const reason = _('Failed to create backups folder: %s').format(session_file_backup_path);
                 return Promise.reject(new CommonError.CommonError(errMsg, {desc: reason}));
             }
             
@@ -417,8 +418,8 @@ export const SaveSession = class {
                         } catch (e) {
                             causedBy = e;
                         }
-                        const errMsg = `Cannot save session: ${session_file_path}`;
-                        const reason = `Failed to backup ${session_file_path} to ${session_file_backup}`;
+                        const errMsg = _('Cannot save session: %s').format(session_file_path);
+                        const reason = _('Failed to backup %s to %s').format(session_file_path, session_file_backup);
                         reject(new CommonError.CommonError(errMsg, {desc: reason, cause: causedBy}));
                     }
                 );
@@ -442,8 +443,8 @@ export const SaveSession = class {
         // 0o744 => rwx r-- r--
         const sessionFolder = sessionFile.get_parent().get_path();
         if (GLib.mkdir_with_parents(sessionFolder, 0o744) !== 0) {
-            const errMsg = `Cannot save session: ${sessionFile.get_path()}`;
-            const reason = `Failed to create session folder: ${sessionFolder}`;
+            const errMsg = _('Cannot save session: %s').format(sessionFile.get_path());
+            const reason = _('Failed to create session folder: %s').format(sessionFolder);
             return Promise.reject(new CommonError.CommonError(errMsg, {desc: reason}));
         }
 
@@ -468,10 +469,10 @@ export const SaveSession = class {
                         try {
                             success = sessionFile.replace_contents_finish(asyncResult);
                             if (success) {
-                                const savedMsg = `Session ${sessionConfig.session_name} saved to ${sessionFile.get_path()}!`;
+                                const savedMsg = _('Session %s saved to %s!').format(sessionConfig.session_name, sessionFile.get_path());
                                 Log.Log.getDefault().info(`${savedMsg}`);
                                 if (this._notifyUser && this._settings.get_boolean('enable-save-session-notification')) {
-                                    Main.notify(`Yet Another Window Session Manager`, savedMsg);
+                                    Main.notify(_('Yet Another Window Session Manager'), savedMsg);
                                 }
                                 resolve(success);
                                 // TODO Notification
@@ -480,8 +481,8 @@ export const SaveSession = class {
                         } catch (e) {
                             causedBy = e;
                         }
-                        const errMsg = `Cannot save session: ${sessionFile.get_path()}`;
-                        const reason = `Failed to save session to ${sessionFile.get_path()}!`;
+                        const errMsg = _('Cannot save session: %s').format(sessionFile.get_path());
+                        const reason = _('Failed to save session to %s!').format(sessionFile.get_path());
                         reject(new CommonError.CommonError(errMsg, {desc: reason, cause: causedBy}));
                     });
                 });

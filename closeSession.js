@@ -16,6 +16,7 @@ import * as Function from './utils/function.js';
 import * as Constants from './constants.js';
 
 import * as UiHelper from './ui/uiHelper.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 export const flags = {
     closeWindows: 1 << 0,
@@ -362,9 +363,9 @@ export const CloseSession = class {
                 (output) => {
                     this._log.info(`Succeed to send keys to close the windows of the previous app ${app.get_name()}. output: ${output}`);
                 }, (output) => {
-                    const msg = `Failed to send keys to close ${app.get_name()} via ydotool`;
+                    const msg = _('Failed to send keys to close %s via ydotool').format(app.get_name());
                     this._log.error(new Error(`${msg}. output: ${output}`));
-                    global.notify_error(`${msg}`, `${output}.`);
+                    global.notify_error(msg, `${output}.`);
                 }
             );
         } catch (e) {
@@ -389,10 +390,11 @@ export const CloseSession = class {
                         Log.Log.getDefault().debug(`Finished to start ydotool.service. Started: ${started}`);
                         resolve(started);
                     } catch (error) {
-                        const additionalInfo = 'Please make sure `ydotool` is installed and set up properly, see https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work for more instruction';
-                        const msg = 'Failed to start ydotool.service';
+                        const additionalInfo = _('Please make sure `ydotool` is installed and set up properly, see %s for more instructions.').format(
+                            'https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work');
+                        const msg = _('Failed to start ydotool.service');
                         Log.Log.getDefault().error(error, `${msg} ${additionalInfo}`);
-                        global.notify_error(`${msg}`, `${error ? error.message : ''} ${additionalInfo}`);
+                        global.notify_error(msg, `${error ? error.message : ''} ${additionalInfo}`);
                         // `ydotool` might not be available, which can't stop YAWSM continue to close the rest of apps
                         resolve(false);
                     }
