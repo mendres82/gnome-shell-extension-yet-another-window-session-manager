@@ -44,14 +44,20 @@ Click item to save open windows as a session:
 
 ## Preferences
 
-### Restore sessions
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/f0abb7b1-f938-4e82-87cb-e3cdb28c8d49" />
+### General
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/469b9c3c-c864-4a21-80c9-726dc4429cb3" />
 
 ### Close windows
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/eab006a8-30d3-4e86-b830-d26ba6c7bb67" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/50c8e01a-35f4-494a-8f22-94a72325e8c1" />
 
-### Keyboard shortcuts
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/89d1015e-d153-4c6d-b52f-c9d096a4dd77" />
+### Save windows
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/a2627692-f958-4068-b9eb-3387ecb356b6" />
+
+### Restore sessions
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/673a6c78-2ff1-45ef-b983-3e0fc73d28cc" />
+
+### Advanced
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/4b0a272c-e5f3-4b75-a82b-b22526d37621" />
 
 
 # Main features
@@ -79,7 +85,7 @@ Click item to save open windows as a session:
 ### Auto close session
 Enable this feature through `Auto close session` under `Close windows`:
 
-<img width="1237" height="282" src="https://github.com/user-attachments/assets/79beaefb-1105-4050-9184-e55eb43fabc7" />
+<img width="1238" height="283" src="https://github.com/user-attachments/assets/83144d4a-b26d-4016-b67c-1f711d13f184" />
 
 After you click the `Log Out/Restart/Power Off` button and confirm GNOME's session dialog, YAWSM closes running apps and windows automatically. If everything closes successfully, logout, reboot, or shutdown continues without an extra prompt.
 
@@ -138,7 +144,7 @@ Feel free to fill an issue if `ydotool` does not work under normal user, you may
 ## Restore sessions
 
 ### Restore previous apps and windows at startup
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/21fc53cf-6f4b-442b-b5d4-3b1eb846561c" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/b217917e-0014-4ecd-8d88-3b3a9fa8471e" />
 
 Activate `Restore previous apps and windows at startup` to enable this feature. This option and `Restore selected session at startup` are exclusive. And this option works for shutting down the system normally (via Log Out/Restart/Power Off buttons) and other ways (like pressing the physical power-off button).
 
@@ -168,7 +174,7 @@ Please do not modify `_gnome-shell-extension-yet-another-window-session-manager.
 
 Configure keyboard shortcuts under `General -> Keyboard shortcuts` in the Preferences:
 
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/89d1015e-d153-4c6d-b52f-c9d096a4dd77" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/469b9c3c-c864-4a21-80c9-726dc4429cb3" />
 
 YAWSM provides three global shortcuts that work with the **default session**. Set a default session in the panel menu first (See also: [Set the default session](#set-the-default-session)).
 
