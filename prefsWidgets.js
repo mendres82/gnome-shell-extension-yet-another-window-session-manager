@@ -30,12 +30,13 @@ export const newColumnViewColumn = function(title, factorySetupFunc, factoryBind
             factorySetupFunc(factory, listItem);
         });
     }
-    
-    if (factoryBindFunc) {
-        factory.connect('bind', (factory, listItem) => {
+
+    factory.connect('bind', (factory, listItem) => {
+        // Let Tab reach interactive widgets inside the cell, not the cell wrapper
+        listItem.set_focusable(false);
+        if (factoryBindFunc)
             factoryBindFunc(factory, listItem);
-        });
-    }
+    });
     return columnViewColumn;
 }
 
@@ -127,12 +128,16 @@ export const LabelSwitch = GObject.registerClass({
     _initSwitch(text, tooltipText) {
         const button = new Gtk.Button({
             label: text,
-            can_target: false
+            can_target: false,
+            focusable: false,
         });
         // Imitate a button
         // Here we don't use Gtk.Button with a Gtk.Switch. Because I don't want to get into the trouble that
         // the click event can't be propagated down to the Gtk.Switch.
-        const switcherBox = new Gtk.Box({css_name: 'button'});
+        const switcherBox = new Gtk.Box({
+            css_name: 'button',
+            focusable: false,
+        });
         const switcher = new Gtk.Switch({valign: Gtk.Align.CENTER});
     
         updateStyle(button, 

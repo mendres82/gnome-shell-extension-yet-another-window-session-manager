@@ -42,8 +42,25 @@ export const ColumnView = GObject.registerClass({
             css_classes: ['view'],
             // I feel it's ugly to set this to true
             // show_column_separators: true
+            focusable: true,
         });
         this.view.set_model(this.selectionModel);
+
+        const focusController = new Gtk.EventControllerFocus();
+        focusController.connect('enter', () => {
+            const focus = this.view.get_root()?.get_focus();
+            if (focus === this.view)
+                this.view.child_focus(Gtk.DirectionType.TAB_FORWARD);
+        });
+        this.view.add_controller(focusController);
+
+        const rowFactory = new Gtk.SignalListItemFactory();
+        rowFactory.connect('bind', (factory, listItem) => {
+            // Let Tab reach cell widgets instead of stopping on the row wrapper
+            listItem.set_focusable(false);
+            listItem.set_activatable(false);
+        });
+        this.view.set_row_factory(rowFactory);
 
         const enabledColumn = PrefsWidgets.newColumnViewColumn(_('Enabled'),
         (factory, listItem) => {

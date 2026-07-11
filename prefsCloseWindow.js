@@ -16,7 +16,6 @@ import * as IconFinder from './utils/iconFinder.js';
 
 import * as PrefsWindowPickableEntry from './prefsWindowPickableEntry.js';
 import * as PrefsWidgets from './prefsWidgets.js';
-import * as PrefsColumnView from './prefsColumnView.js';
 
 import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -70,19 +69,9 @@ export const UICloseWindows = GObject.registerClass(
                 this._setHeader(currentRow, beforeRow, data, _('Whitelist'));
             });
 
-            const whitelistColumnView = new PrefsColumnView.WhitelistColumnView();
             const addWhitelist = new YawsmNewRuleRow();
-            close_windows_whitelist_listbox.append(whitelistColumnView);
-            // Get the auto-created ListBoxRow and make it non-activatable
-            const whitelistRow = whitelistColumnView.get_parent();
-            if (whitelistRow instanceof Gtk.ListBoxRow) {
-                whitelistRow.set_focusable(false);
-                whitelistRow.set_activatable(false);
-                whitelistRow.set_selectable(false);
-            }
             close_windows_whitelist_listbox.append(addWhitelist);
-
-            addWhitelist.connect('clicked', (source) => {
+            addWhitelist.connect('clicked', () => {
                 let oldWhitelist = JSON.parse(this._settings.get_string(settingKey));
                 const ids = Object.keys(oldWhitelist).map(Number);
                 const newId = ids.length ? Math.max(...ids) + 1 : 1;
@@ -97,33 +86,20 @@ export const UICloseWindows = GObject.registerClass(
                 });
 
                 oldWhitelist[newId] = closeWindowsWhitelist;
-                const newWhitelist = JSON.stringify(oldWhitelist);
-                this._settings.set_string(settingKey, newWhitelist);
-                this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
+                this._settings.set_string(settingKey, JSON.stringify(oldWhitelist));
             });
 
-            whitelistColumnView.connect('row-deleted', () => {
-                const focus = whitelistColumnView.get_root()?.get_focus();
-                for (let w = focus; w; w = w.get_parent()) {
-                    if (w === whitelistColumnView) {
-                        this.close_by_rules_switch.grab_focus();
-                        break;
+            this._whitelistChangedId = this._settings.connect(
+                `changed::${settingKey}`,
+                () => {
+                    try {
+                        this._settings.block_signal_handler(this._whitelistChangedId);
+                        this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
+                    } finally {
+                        this._settings.unblock_signal_handler(this._whitelistChangedId);
                     }
-                }
-                this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
-            });
-
-            this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
-        }
-
-        _syncColumnView(columnView, obj, settingName) {
-            const newRules = JSON.parse(this._settings.get_string(settingName));
-            let datalist = [];
-            for (const key in newRules) {
-                const data = Object.assign(new obj(), newRules[key])
-                datalist.push(data);
-            }
-            columnView.updateView(datalist);
+                });
+            this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
         }
 
         _initAppRules() {
@@ -336,6 +312,10 @@ export const UICloseWindows = GObject.registerClass(
                 if (this._rulesChangedId) {
                     this._settings.disconnect(this._rulesChangedId);
                     this._rulesChangedId = null;
+                }
+                if (this._whitelistChangedId) {
+                    this._settings.disconnect(this._whitelistChangedId);
+                    this._whitelistChangedId = null;
                 }
             }
         }
@@ -886,6 +866,67 @@ const RuleRowByApp = GObject.registerClass({
 
     get appDesktopFilePath() {
         return this._ruleDetail.appDesktopFilePath;
+    }
+
+});
+
+const WhitelistRow = GObject.registerClass({
+}, class WhitelistRow extends Row {
+
+    _init(ruleDetail) {
+        this._settings = PrefsUtils.getSettings();
+
+        const rowBox = PrefsWidgets._newBox({
+            hexpand: false,
+            halign: Gtk.Align.START,
+            spacing: 12,
+        });
+
+        super._init(ruleDetail, {child: rowBox});
+        this._ruleDetail = ruleDetail;
+
+        const pickableEntry = new PrefsWindowPickableEntry.WindowPickableEntry({
+            text: ruleDetail.name ? ruleDetail.name : '',
+            tooltip_text: ruleDetail.name ? ruleDetail.name : '',
+            pickConditionFunc: (() => 'wm_class').bind(this),
+        });
+        const closeWindowsSwitch = PrefsWidgets.newLabelSwitch(
+            'Close windows',
+            'Apply this whitelist entry when closing windows',
+            ruleDetail.enableWhenCloseWindows);
+        const logoutSwitch = PrefsWidgets.newLabelSwitch(
+            'Log Out, Reboot, Power Off',
+            'Apply this whitelist entry when logging out, rebooting, or shutting down',
+            ruleDetail.enableWhenLogout);
+
+        rowBox.append(this._enabledCheckButton);
+        rowBox.append(pickableEntry);
+        rowBox.append(closeWindowsSwitch);
+        rowBox.append(logoutSwitch);
+        rowBox.append(this._newRemoveButton());
+
+        pickableEntry.connect('entry-edit-complete', (source, entry) => {
+            this.updateRow('close-windows-whitelist', 'id', 'name', entry.get_text());
+        });
+        closeWindowsSwitch.connect('active', (source, active) => {
+            this.updateRow('close-windows-whitelist', 'id', 'enableWhenCloseWindows', active);
+        });
+        logoutSwitch.connect('active', (source, active) => {
+            this.updateRow('close-windows-whitelist', 'id', 'enableWhenLogout', active);
+        });
+        this.connect('notify::enabled', source => {
+            this.updateRow('close-windows-whitelist', 'id', 'enabled',
+                source._enabledCheckButton.get_active());
+        });
+        this.connect('row-deleted', source => {
+            const oldWhitelist = JSON.parse(this._settings.get_string('close-windows-whitelist'));
+            delete oldWhitelist[source.id];
+            this._settings.set_string('close-windows-whitelist', JSON.stringify(oldWhitelist));
+        });
+    }
+
+    get id() {
+        return this._ruleDetail.id;
     }
 
 });

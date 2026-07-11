@@ -21,7 +21,7 @@ export const WindowPickableEntry = GObject.registerClass({
 
     _init(entryParams, boxParams) {
         
-        super._init(PrefsWidgets.gtkBoxProperties);
+        super._init(PrefsWidgets.boxProperties);
         Object.assign(this, boxParams);
 
         const entry = new Gtk.Entry({
