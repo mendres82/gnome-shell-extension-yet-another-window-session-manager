@@ -13,6 +13,7 @@ import * as RestoreSession from '../restoreSession.js';
 
 import * as FileUtils from '../utils/fileUtils.js';
 import * as Log from '../utils/log.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {Button} from './button.js';
 
@@ -109,7 +110,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
         this.closeSession = new CloseSession.CloseSession(CloseSession.flags.closeWindows);
 
         this._createButton(iconSymbolic);
-        this.addIconDescription('Close open windows');
+        this.addIconDescription(_('Close open windows'));
         this._addConfirm();
         this._addYesAndNoButtons();
         this._addClosingPrompt();
@@ -173,7 +174,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
     _addClosingPrompt() {
         this.closingLabel = new St.Label({
             style_class: 'confirm-before-operate',
-            text: 'Closing open windows ...',
+            text: _('Closing open windows …'),
             x_expand: false,
             x_align: Clutter.ActorAlign.CENTER,
         });
@@ -198,7 +199,7 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
     _addConfirm() {
         this.confirmLabel = new St.Label({
             style_class: 'confirm-before-operate',
-            text: 'Confirm?',
+            text: _('Confirm?'),
             x_expand: false,
             x_align: Clutter.ActorAlign.START,
         });
@@ -226,7 +227,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
         super._init();
         this.saveCurrentSessionEntry = null;
         this._createButton(iconSymbolic);
-        this.addIconDescription('Save open windows');
+        this.addIconDescription(_('Save open windows'));
         this._addEntry();
         // Hide this St.Entry, only shown when user click saveButton.
         this.saveCurrentSessionEntry.hide();
@@ -298,7 +299,7 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
     _addEntry() {
         this.saveCurrentSessionEntry = new St.Entry({
             name: 'saveCurrentSession',
-            hint_text: "Type a session name, default is defaultSession",
+            hint_text: _('Type a session name, default is defaultSession'),
             track_hover: true,
             can_focus: true
         });
@@ -335,13 +336,13 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
         this.saveCurrentSessionEntry.hide();
         super.hideYesAndNoButtons();
 
-        this.savingLabel.set_text(`Saving open windows as '${sessionName}' ...`);
+        this.savingLabel.set_text(_('Saving open windows as \'%s\' …').format(sessionName));
         this.savingLabel.show();
 
         this._saveSession.saveSessionAsync(sessionName).then(() => {
             this.savingLabel.hide();
         }).catch(e => {
-            let message = `Failed to save session`;
+            let message = _('Failed to save session');
             this._log.error(e, e.desc ?? message);
             global.notify_error(message, e.cause?.message ?? e.desc ?? message);
             this._displayMessage(e.cause?.message ?? e.message);
@@ -371,15 +372,15 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
 
     _canSave(sessionName) {
         if (sessionName === FileUtils.sessions_backup_folder_name) {
-            return [false, `ERROR: ${sessionName} is a reserved word, can't be used.`];
+            return [false, _('ERROR: %s is a reserved word, can\'t be used.').format(sessionName)];
         }
 
         if (FileUtils.isDirectory(sessionName)) {
-            return [false, `ERROR: Can't save windows using '${sessionName}', it's an existing directory!`];
+            return [false, _('ERROR: Can\'t save windows using \'%s\', it\'s an existing directory!').format(sessionName)];
         }
 
         if (sessionName.indexOf('/') != -1) {
-            return [false, `ERROR: Session names cannot contain '/'`];
+            return [false, _('ERROR: Session names cannot contain \'/\'')];
         }
         return [true, ''];
     }

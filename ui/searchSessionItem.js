@@ -5,6 +5,7 @@ import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as Tooltip from '../utils/tooltip.js';
 
@@ -50,7 +51,7 @@ export const SearchSessionItem = GObject.registerClass(
 
         _addFilters() {
             const filterLabel = new St.Label({
-                text: 'Filter: ',
+                text: _('Filter: '),
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             });
@@ -75,7 +76,7 @@ export const SearchSessionItem = GObject.registerClass(
 
             new Tooltip.Tooltip({
                 parent: button,
-                markup: 'Show only the default session',
+                markup: _('Show only the default session'),
             });
 
             this.add_child(button);

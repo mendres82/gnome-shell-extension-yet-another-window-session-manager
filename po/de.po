@@ -1,0 +1,579 @@
+# German translation for Yet Another Window Session Manager.
+# Copyright (C) 2026 Yet Another Window Session Manager contributors
+# This file is distributed under the same license as the Yet Another Window Session Manager package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Yet Another Window Session Manager 56\n"
+"Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
+"POT-Creation-Date: 2026-07-11 20:45+0200\n"
+"PO-Revision-Date: 2026-07-11 20:53+0200\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ui/sessionItemButtons.js
+msgid "Save open windows using the current session name"
+msgstr "Offene Fenster unter dem aktuellen Sitzungsnamen speichern"
+
+#: ui/sessionItemButtons.js
+msgid "Restore windows from the saved session"
+msgstr "Fenster aus der gespeicherten Sitzung wiederherstellen"
+
+#: ui/sessionItemButtons.js
+msgid "Move windows to their workspace and position by the saved session"
+msgstr "Fenster anhand der gespeicherten Sitzung auf Arbeitsfläche und Position verschieben"
+
+#: ui/sessionItemButtons.js
+msgid "Set as default session"
+msgstr "Als Standardsitzung festlegen"
+
+#: ui/sessionItemButtons.js
+msgid "Open session file using an external editor"
+msgstr "Sitzungsdatei mit externem Editor öffnen"
+
+#: ui/sessionItemButtons.js
+msgid "Move to Trash"
+msgstr "In den Papierkorb verschieben"
+
+#: ui/sessionItemButtons.js
+msgid "View"
+msgstr "Anzeigen"
+
+#: ui/sessionItemButtons.js
+msgid "Delete"
+msgstr "Löschen"
+
+#: ui/sessionItemButtons.js ui/popupMenuButtonItems.js keyboardShortcuts.js
+msgid "Failed to save session"
+msgstr "Sitzung konnte nicht gespeichert werden"
+
+#: ui/searchSessionItem.js
+msgid "Type to search"
+msgstr "Zum Suchen tippen"
+
+#: ui/searchSessionItem.js
+msgid "Filter: "
+msgstr "Filter: "
+
+#: ui/searchSessionItem.js
+msgid "Show only the default session"
+msgstr "Nur die Standardsitzung anzeigen"
+
+#: ui/autoclose.js
+msgid "Continue"
+msgstr "Fortfahren"
+
+#: ui/autoclose.js
+msgid "Log out"
+msgstr "Abmelden"
+
+#: ui/autoclose.js
+msgid "Power off"
+msgstr "Ausschalten"
+
+#: ui/autoclose.js
+msgid "Restart"
+msgstr "Neu starten"
+
+#: ui/autoclose.js
+msgid "These apps can't be closed, please close them manually"
+msgstr "Diese Anwendungen können nicht geschlossen werden, bitte schließen Sie sie manuell"
+
+#: ui/autoclose.js
+msgid "Running applications"
+msgstr "Laufende Anwendungen"
+
+#: ui/autoclose.js ui/autostart.js
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ui/autoclose.js
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "%s now"
+msgstr "%s jetzt"
+
+#: ui/autoclose.js
+msgid "Closing running apps, please wait a moment…"
+msgstr "Laufende Anwendungen werden geschlossen, bitte einen Moment warten …"
+
+#: ui/autoclose.js
+msgid "Waiting below processes to exit, this may take a while…"
+msgstr "Es wird gewartet, bis die unten aufgeführten Prozesse beendet sind, dies kann eine Weile dauern …"
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "%s now, this may take a while, please wait…"
+msgstr "%s jetzt, dies kann eine Weile dauern, bitte warten …"
+
+#: ui/autoclose.js
+#, javascript-format
+msgid "pid: %d | status: %s"
+msgstr "PID: %d | Status: %s"
+
+#: ui/autoclose.js
+msgid "Exited"
+msgstr "Beendet"
+
+#: ui/autoclose.js
+msgid "Running"
+msgstr "Läuft"
+
+#: ui/autoclose.js
+msgid "Stopped"
+msgstr "Angehalten"
+
+#: ui/autoclose.js
+msgid "Zombie"
+msgstr "Zombie"
+
+#: ui/autoclose.js
+msgid "Uninterruptible"
+msgstr "Ununterbrechbar"
+
+#: ui/autoclose.js
+msgid "Sleeping"
+msgstr "Schlafend"
+
+#: ui/autoclose.js
+msgid "Closing"
+msgstr "Wird geschlossen"
+
+#: ui/autoclose.js
+msgid "It might have multiple windows"
+msgstr "Möglicherweise sind mehrere Fenster geöffnet"
+
+#: ui/popupMenuButtonItems.js
+msgid "Close open windows"
+msgstr "Offene Fenster schließen"
+
+#: ui/popupMenuButtonItems.js
+msgid "Closing open windows …"
+msgstr "Offene Fenster werden geschlossen …"
+
+#: ui/popupMenuButtonItems.js
+msgid "Confirm?"
+msgstr "Bestätigen?"
+
+#: ui/popupMenuButtonItems.js
+msgid "Save open windows"
+msgstr "Offene Fenster speichern"
+
+#: ui/popupMenuButtonItems.js
+msgid "Type a session name, default is defaultSession"
+msgstr "Sitzungsnamen eingeben, Standard ist defaultSession"
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "Saving open windows as '%s' …"
+msgstr "Offene Fenster werden als „%s“ gespeichert …"
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "ERROR: %s is a reserved word, can't be used."
+msgstr "FEHLER: %s ist ein reserviertes Wort und kann nicht verwendet werden."
+
+#: ui/popupMenuButtonItems.js
+#, javascript-format
+msgid "ERROR: Can't save windows using '%s', it's an existing directory!"
+msgstr "FEHLER: Fenster können nicht unter „%s“ gespeichert werden, es ist ein vorhandenes Verzeichnis!"
+
+#: ui/popupMenuButtonItems.js
+msgid "ERROR: Session names cannot contain '/'"
+msgstr "FEHLER: Sitzungsnamen dürfen kein „/“ enthalten"
+
+#: ui/autostart.js
+msgid ""
+"ERROR: RestoreSession is disabled, please enable it through 'Preferences → "
+"Restore sessions → Restore selected session at startup'"
+msgstr ""
+"FEHLER: RestoreSession ist deaktiviert. Bitte aktivieren unter „Einstellungen → "
+"Sitzungen wiederherstellen → Ausgewählte Sitzung beim Start wiederherstellen“"
+
+#: ui/autostart.js indicator.js keyboardShortcuts.js saveSession.js
+msgid "Yet Another Window Session Manager"
+msgstr "Yet Another Window Session Manager"
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Restoring selected session '%s'"
+msgstr "Ausgewählte Sitzung „%s“ wird wiederhergestellt"
+
+#: ui/autostart.js
+msgid ""
+"ERROR: RestorePreviousSession is disabled, please enable it through "
+"'Preferences → Restore sessions → Restore previous apps and windows at "
+"startup'"
+msgstr ""
+"FEHLER: RestorePreviousSession ist deaktiviert. Bitte aktivieren unter "
+"„Einstellungen → Sitzungen wiederherstellen → Vorherige Anwendungen und Fenster "
+"beim Start wiederherstellen“"
+
+#: ui/autostart.js
+msgid "Restoring the previous apps and windows"
+msgstr "Vorherige Anwendungen und Fenster werden wiederhergestellt"
+
+#: ui/autostart.js
+msgid "Required to restore the previous apps and windows"
+msgstr "Vorherige Anwendungen und Fenster müssen wiederhergestellt werden"
+
+#: ui/autostart.js
+#, javascript-format
+msgid "Restore session '%s'"
+msgstr "Sitzung „%s“ wiederherstellen"
+
+#: ui/autostart.js
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: ui/autostart.js
+#, javascript-format
+msgid "ERROR: Session '%s' does not exist"
+msgstr "FEHLER: Sitzung „%s“ existiert nicht"
+
+#: ui/autostart.js
+msgid "ERROR: You don't select any session to restore"
+msgstr "FEHLER: Es wurde keine Sitzung zum Wiederherstellen ausgewählt"
+
+#: ui/autostart.js
+#, javascript-format
+msgid "'%s' will be restored in %d second"
+msgid_plural "'%s' will be restored in %d seconds"
+msgstr[0] "„%s“ wird in %d Sekunde wiederhergestellt"
+msgstr[1] "„%s“ wird in %d Sekunden wiederhergestellt"
+
+#: prefsShortcuts.js
+msgid "Press shortcut…"
+msgstr "Tastenkürzel drücken …"
+
+#: prefsShortcuts.js
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+#: prefsShortcuts.js
+msgid "Save Session"
+msgstr "Sitzung speichern"
+
+#: prefsShortcuts.js
+msgid "Save open windows using the default session."
+msgstr "Offene Fenster mit der Standardsitzung speichern."
+
+#: prefsShortcuts.js
+msgid "Restore Session"
+msgstr "Sitzung wiederherstellen"
+
+#: prefsShortcuts.js
+msgid "Restore windows from the default session."
+msgstr "Fenster aus der Standardsitzung wiederherstellen."
+
+#: prefsShortcuts.js
+msgid "Move Windows"
+msgstr "Fenster verschieben"
+
+#: prefsShortcuts.js
+msgid "Move windows to their workspace and position by the default session."
+msgstr "Fenster anhand der Standardsitzung auf Arbeitsfläche und Position verschieben."
+
+#: utils/subprocessUtils.js
+msgid "Could not parse command:"
+msgstr "Befehlszeile konnte nicht verarbeitet werden:"
+
+#: prefsCloseWindow.js
+msgid "Whitelist"
+msgstr "Whitelist"
+
+#: prefsCloseWindow.js
+msgid "Applications"
+msgstr "Anwendungen"
+
+#: prefsCloseWindow.js
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+#: prefsCloseWindow.js
+msgid "Apps in the whitelist will be closed even if they have multiple windows"
+msgstr "Anwendungen auf der Whitelist werden geschlossen, auch wenn sie mehrere Fenster haben"
+
+#: prefsCloseWindow.js
+msgid "Shortcut"
+msgstr "Tastenkürzel"
+
+#: prefsCloseWindow.js
+msgid "Add accelerator"
+msgstr "Tastenkürzel hinzufügen"
+
+#: prefsCloseWindow.js
+msgid "Delete accelerator"
+msgstr "Tastenkürzel löschen"
+
+#: prefsCloseWindow.js
+msgid "New accelerator…"
+msgstr "Neues Tastenkürzel …"
+
+#: prefsCloseWindow.js
+#, javascript-format
+msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
+msgstr "%s hat keine Anwendungsinformationen. Möglicherweise sollten Sie diese Regel unter „Schlüsselwörter“ hinzufügen."
+
+#: prefsCloseWindow.js
+msgid "A string that is used to match windows or apps"
+msgstr "Zeichenkette zum Abgleich von Fenstern oder Anwendungen"
+
+#: prefsCloseWindow.js
+msgid "Equals"
+msgstr "Gleich"
+
+#: prefsCloseWindow.js
+msgid "Includes"
+msgstr "Enthält"
+
+#: prefsCloseWindow.js
+msgid "Starts with"
+msgstr "Beginnt mit"
+
+#: prefsCloseWindow.js
+msgid "Ends with"
+msgstr "Endet mit"
+
+#: prefsCloseWindow.js
+msgid "RegExp"
+msgstr "Regulärer Ausdruck"
+
+#: prefsCloseWindow.js
+msgid "wm class"
+msgstr "wm class"
+
+#: prefsCloseWindow.js
+msgid "wm class instance"
+msgstr "wm class Instanz"
+
+#: prefsCloseWindow.js
+msgid "Application name"
+msgstr "Anwendungsname"
+
+#: prefsCloseWindow.js
+msgid "Window title"
+msgstr "Fenstertitel"
+
+#: prefsCloseWindow.js
+msgid "Add Rule"
+msgstr "Regel hinzufügen"
+
+#: prefsColumnView.js
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: prefsColumnView.js
+msgid "Operation"
+msgstr "Aktion"
+
+#: prefsColumnView.js
+msgid "Name"
+msgstr "Name"
+
+#: prefsColumnView.js ui/prefs-gtk4.ui
+msgid "Close windows"
+msgstr "Fenster schließen"
+
+#: prefsColumnView.js
+msgid "Log Out, Reboot, Power Off"
+msgstr "Abmelden, neu starten, ausschalten"
+
+#: prefsWindowPickableEntry.js
+msgid "Edit the entry"
+msgstr "Eintrag bearbeiten"
+
+#: prefsWindowPickableEntry.js
+msgid "Complete editing"
+msgstr "Bearbeitung abschließen"
+
+#: prefsWindowPickableEntry.js
+msgid "Choose a window to fill the entry based on the current setting"
+msgstr "Fenster wählen, um den Eintrag anhand der aktuellen Einstellung auszufüllen"
+
+#: keyboardShortcuts.js
+msgid ""
+"No default session selected. Set a default session in the panel menu first."
+msgstr ""
+"Keine Standardsitzung ausgewählt. Legen Sie zuerst im Panelmenü eine "
+"Standardsitzung fest."
+
+#: keyboardShortcuts.js
+#, javascript-format
+msgid "%s. %s"
+msgstr "%s. %s"
+
+#: saveSession.js
+#, javascript-format
+msgid "Failed to generate session %s"
+msgstr "Sitzung %s konnte nicht erstellt werden"
+
+#: saveSession.js
+#, javascript-format
+msgid "Session %s saved to %s!"
+msgstr "Sitzung %s gespeichert unter %s!"
+
+#: ui/prefs-gtk4.ui
+msgid "Auto close session"
+msgstr "Sitzung automatisch schließen"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"Close running apps and windows when logging out, rebooting, or shutting down."
+msgstr ""
+"Laufende Anwendungen und Fenster beim Abmelden, Neustart oder Herunterfahren "
+"schließen."
+
+#: ui/prefs-gtk4.ui
+msgid "Close by rules"
+msgstr "Nach Regeln schließen"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"To make this feature work, see: <a href='https://github.com/mendres82/gnome-"
+"shell-extension-yet-another-window-session-manager#how-to-make-close-by-"
+"rules-work'>How to make `Close by rules` work</a>."
+msgstr ""
+"Damit diese Funktion funktioniert, siehe: <a href='https://github.com/mendres82/gnome-"
+"shell-extension-yet-another-window-session-manager#how-to-make-close-by-"
+"rules-work'>So funktioniert „Nach Regeln schließen“</a>."
+
+#: ui/prefs-gtk4.ui
+msgid "Save windows"
+msgstr "Fenster speichern"
+
+#: ui/prefs-gtk4.ui
+msgid "Session is saved notification"
+msgstr "Benachrichtigung bei gespeicherter Sitzung"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"Show a notification when users click buttons on the popup menu to save a "
+"session."
+msgstr ""
+"Benachrichtigung anzeigen, wenn im Popup-Menü eine Sitzung gespeichert wird."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore sessions"
+msgstr "Sitzungen wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid "Restore previous apps and windows at startup"
+msgstr "Vorherige Anwendungen und Fenster beim Start wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"Install ~/.config/autostart/_yawsm-restore-previous-session.desktop if "
+"enabled."
+msgstr ""
+"Bei Aktivierung ~/.config/autostart/_yawsm-restore-previous-session.desktop "
+"installieren."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore delay([0, 3600]s)"
+msgstr "Verzögerung beim Wiederherstellen ([0, 3600] s)"
+
+#: ui/prefs-gtk4.ui
+msgid "5 by default."
+msgstr "Standardmäßig 5."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore selected session at startup"
+msgstr "Ausgewählte Sitzung beim Start wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"Install ~/.config/autostart/_gnome-shell-extension-yet-another-window-"
+"session-manager.desktop if enabled."
+msgstr ""
+"Bei Aktivierung ~/.config/autostart/_gnome-shell-extension-yet-another-window-"
+"session-manager.desktop installieren."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore at startup without asking"
+msgstr "Beim Start ohne Nachfrage wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid "Timer on the autostart dialog([0, 3600]s)"
+msgstr "Timer im Autostart-Dialog ([0, 3600] s)"
+
+#: ui/prefs-gtk4.ui
+msgid "10 by default."
+msgstr "Standardmäßig 10."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore applications interval([0, 300000]ms)"
+msgstr "Intervall beim Wiederherstellen von Anwendungen ([0, 300000] ms)"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"0 by default. There's no need to set this option normally, unless the "
+"process of restoring session is too fast to freeze the system, for example."
+msgstr ""
+"Standardmäßig 0. Diese Option muss normalerweise nicht gesetzt werden, es sei "
+"denn, der Wiederherstellungsvorgang ist so schnell, dass das System einfriert."
+
+#: ui/prefs-gtk4.ui
+msgid "Autostart delay([0, 3600]s)"
+msgstr "Autostart-Verzögerung ([0, 3600] s)"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"5 by default. Delay before restoring session at startup or the previous "
+"session. If the delay is too short, the computer might freeze."
+msgstr ""
+"Standardmäßig 5. Verzögerung vor dem Wiederherstellen der Sitzung beim Start "
+"oder der vorherigen Sitzung. Ist die Verzögerung zu kurz, kann der Computer "
+"einfrieren."
+
+#: ui/prefs-gtk4.ui
+msgid "Restore window tiling"
+msgstr "Fensterkacheln wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid "Raise windows together"
+msgstr "Fenster gemeinsam nach vorne holen"
+
+#: ui/prefs-gtk4.ui
+msgid "Restore windows states after Gnome Shell restarts"
+msgstr "Fensterzustände nach GNOME-Shell-Neustart wiederherstellen"
+
+#: ui/prefs-gtk4.ui
+msgid ""
+"Only enabled on X11, since Wayland doesn't support restart Gnome Shell via "
+"`Alt+F2 then type r` or `killall -3 gnome-shell`."
+msgstr ""
+"Nur unter X11 verfügbar, da Wayland keinen GNOME-Shell-Neustart über "
+"Alt+F2, dann r oder killall -3 gnome-shell unterstützt."
+
+#: ui/prefs-gtk4.ui
+msgid "General"
+msgstr "Allgemein"
+
+#: ui/prefs-gtk4.ui
+msgid "Show indicator on the panel"
+msgstr "Indikator in der Leiste anzeigen"
+
+#: ui/prefs-gtk4.ui
+msgid "Keyboard shortcuts"
+msgstr "Tastenkürzel"
+
+#: ui/prefs-gtk4.ui
+msgid "Debug"
+msgstr "Debug"
+
+#: ui/prefs-gtk4.ui
+msgid "Debugging mode"
+msgstr "Debug-Modus"
+
+#: ui/prefs-gtk4.ui
+msgid "Verbose logging"
+msgstr "Ausführliche Protokollierung"

@@ -29,6 +29,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
 
     constructor(metadata) {
         super(metadata);
+        this.initTranslations(this.metadata['gettext-domain'] ?? this.metadata.uuid);
     }
 
     enable() {

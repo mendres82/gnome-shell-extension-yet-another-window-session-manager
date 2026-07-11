@@ -7,6 +7,7 @@ import Gio from 'gi://Gio';
 import * as PrefsWindowPickableEntry from './prefsWindowPickableEntry.js';
 import * as PrefsWidgets from './prefsWidgets.js';
 
+import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {PrefsUtils} from './utils/prefsUtils.js';
 
 
@@ -44,7 +45,7 @@ export const ColumnView = GObject.registerClass({
         });
         this.view.set_model(this.selectionModel);
 
-        const enabledColumn = PrefsWidgets.newColumnViewColumn('Enabled',
+        const enabledColumn = PrefsWidgets.newColumnViewColumn(_('Enabled'),
         (factory, listItem) => {
             const checkButton = new Gtk.CheckButton()
             listItem.set_child(checkButton);
@@ -60,7 +61,7 @@ export const ColumnView = GObject.registerClass({
             });
         });
 
-        const operationColumn = PrefsWidgets.newColumnViewColumn('Operation',
+        const operationColumn = PrefsWidgets.newColumnViewColumn(_('Operation'),
         (factory, listItem) => {
             const button = PrefsWidgets.newRemoveButton();
             listItem.set_child(button);
@@ -106,7 +107,7 @@ export const WhitelistColumnView = GObject.registerClass({
         const settingKey = 'close-windows-whitelist';
         this._settings = PrefsUtils.getSettings();
 
-        const nameColumn = PrefsWidgets.newColumnViewColumn('Name', 
+        const nameColumn = PrefsWidgets.newColumnViewColumn(_('Name'),
         null, (factory, listItem) => {
             const item = listItem.get_item();
             const name = item.name ? item.name : '';
@@ -123,7 +124,7 @@ export const WhitelistColumnView = GObject.registerClass({
             });
         });
 
-        const closeWindowsColumn = PrefsWidgets.newColumnViewColumn('Close windows',
+        const closeWindowsColumn = PrefsWidgets.newColumnViewColumn(_('Close windows'),
         (factory, listItem) => {
             const switcher = new Gtk.Switch({halign: Gtk.Align.START, valign: Gtk.Align.CENTER});
             listItem.set_child(switcher);
@@ -137,7 +138,7 @@ export const WhitelistColumnView = GObject.registerClass({
             });
         });
 
-        const logoffColumn = PrefsWidgets.newColumnViewColumn('Log Out, Reboot, Power Off',
+        const logoffColumn = PrefsWidgets.newColumnViewColumn(_('Log Out, Reboot, Power Off'),
         (factory, listItem) => {
             const switcher = new Gtk.Switch({halign: Gtk.Align.START, valign: Gtk.Align.CENTER});
             listItem.set_child(switcher);

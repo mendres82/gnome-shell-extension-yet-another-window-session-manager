@@ -6,6 +6,7 @@ import Gtk from 'gi://Gtk';
 
 import * as PrefsWidgets from './prefsWidgets.js';
 
+import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export const WindowPickableEntry = GObject.registerClass({
     Signals: {
@@ -52,7 +53,7 @@ export const WindowPickableEntry = GObject.registerClass({
 
     _initEntry(entry) {
         entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'document-edit-symbolic');
-        entry.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, 'Edit the entry');
+        entry.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Edit the entry'));
         entry.set_icon_activatable(Gtk.EntryIconPosition.SECONDARY, true);
         const iconPressId = entry.connect('icon-press', (source, icon_pos) => {
             if (icon_pos !== Gtk.EntryIconPosition.SECONDARY)
@@ -75,7 +76,7 @@ export const WindowPickableEntry = GObject.registerClass({
                 source.set_position(-1);
 
                 source.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'emblem-ok-symbolic');
-                source.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, 'Complete editing');
+                source.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Complete editing'));
                 source._showSaveIconYAWSM = true;
 
                 // Save the entry when we close the prefs dialog window
@@ -108,7 +109,7 @@ export const WindowPickableEntry = GObject.registerClass({
         const chooseButton = new Gtk.Button({
             icon_name: 'find-location-symbolic',
             // label: 'Pick...',
-            tooltip_text: 'Choose a window to fill the entry based on the current setting',
+            tooltip_text: _('Choose a window to fill the entry based on the current setting'),
         });
         this.chooseButton = chooseButton;
         
@@ -201,7 +202,7 @@ export const WindowPickableEntry = GObject.registerClass({
         entry.set_editable(false);
         this._unfocus(entry);
         entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'document-edit-symbolic');
-        entry.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, 'Edit the entry');
+        entry.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Edit the entry'));
         entry.set_tooltip_text(entry.get_text());
         this.emit('entry-edit-complete', entry);
     }

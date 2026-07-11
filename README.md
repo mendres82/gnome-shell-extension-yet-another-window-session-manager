@@ -253,6 +253,50 @@ They are all in `~/.config/yet-another-window-session-manager/sessions`. When us
 
 Note that I've marked `backups` as a reserved word, so you can't use it as a session name when saving a session. But you do have the freedom to manually create a file named `backups` in `~/.config/yet-another-window-session-manager/sessions`. But this extension will only backup the session file that you are clicking the save button and you will receive an error log in the `journalctl` and an error notification every time you save an existing session.
 
+# Translations
+
+Contributions for new languages and improvements to existing translations are welcome. Translation files are in the `po/` directory using the [gettext](https://gjs.guide/extensions/development/translations.html) format.
+
+## Translate an existing language
+
+1. Open the `.po` file for your language in `po/` (for example `po/de.po`).
+2. Fill in or update the `msgstr` entries. Each `msgid` is the English source string; `msgstr` is your translation.
+3. Submit a pull request with the updated `po/*.po` file.
+
+## Add a new language
+
+If there is no `.po` file for your language yet, create one from the template:
+
+```bash
+msginit --locale=fr \
+  --input=po/yet-another-window-session-manager@github.com.pot \
+  --output=po/fr.po
+```
+
+Replace `fr` with your language code. Translate the strings in the new file and open a pull request that adds `po/fr.po`.
+
+## Pull requests
+
+Please submit **only** the updated or new `po/*.po` files. Do not include the compiled `locale/` directory — that is generated when building the extension.
+
+If the template has changed on the main branch since you started, sync your `.po` file before submitting:
+
+```bash
+msgmerge --update po/de.po po/yet-another-window-session-manager@github.com.pot
+```
+
+Resolve any new or fuzzy entries, then commit the updated `.po` file.
+
+## Test locally (optional)
+
+To try your translation before opening a pull request, install [gettext-tools](https://www.gnu.org/software/gettext/) and compile the locales:
+
+```bash
+make compile-locales
+```
+
+Install the extension (including the generated `locale/` directory), restart GNOME Shell, and open the preferences or panel menu in your locale.
+
 # TODO
 1. - Close open windows
      - [ ] Close all windows on the current workspace. (WIP, see https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/pull/71)
@@ -277,7 +321,7 @@ Note that I've marked `backups` as a reserved word, so you can't use it as a ses
 1. - [x] Support restoring a saved session at startup ([issue 9](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/9))
 1. - [x] Support saving and closing windows when Log Out, Power off, Reboot ([issue 9](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/9))
 1. - [ ] All TODO tags in the projects
-1. - [ ] Translation?
+1. - [x] Translation (See [Translations](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#translations))
 1. - [ ] A client tool called `yawsm-client` (See: [issue 34](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/34))
 1. - [ ] Fix any typo or grammar errors.
 1. - [ ] Open the Preferences on the popup menu 

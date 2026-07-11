@@ -6,6 +6,7 @@ import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as SessionConfig from './model/sessionConfig.js';
 
@@ -212,7 +213,7 @@ export const SaveSession = class {
                     sessionConfig.x_session_config_objects.push(sessionConfigObject);    
                 } catch (e) {
                     this._log.error(e, `Failed to generate session ${sessionName}`);
-                    global.notify_error(`Failed to generate session ${sessionName}`, e.message);
+                    global.notify_error(_('Failed to generate session %s').format(sessionName), e.message);
                 }
             }
         }
@@ -468,10 +469,10 @@ export const SaveSession = class {
                         try {
                             success = sessionFile.replace_contents_finish(asyncResult);
                             if (success) {
-                                const savedMsg = `Session ${sessionConfig.session_name} saved to ${sessionFile.get_path()}!`;
+                                const savedMsg = _('Session %s saved to %s!').format(sessionConfig.session_name, sessionFile.get_path());
                                 Log.Log.getDefault().info(`${savedMsg}`);
                                 if (this._notifyUser && this._settings.get_boolean('enable-save-session-notification')) {
-                                    Main.notify(`Yet Another Window Session Manager`, savedMsg);
+                                    Main.notify(_('Yet Another Window Session Manager'), savedMsg);
                                 }
                                 resolve(success);
                                 // TODO Notification

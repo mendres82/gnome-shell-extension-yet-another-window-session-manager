@@ -21,6 +21,7 @@ import * as RestoreSession from '../restoreSession.js';
 import * as MoveSession from '../moveSession.js';
 import * as CloseSession from '../closeSession.js';
 import * as Constants from '../constants.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {Button} from './button.js';
 
@@ -51,17 +52,17 @@ class SessionItemButtons extends GObject.Object {
         this._actionTooltips = [];
 
         const saveButton = this._addButton('save-symbolic.svg');
-        this._addActionTooltip(saveButton, 'Save open windows using the current session name', 'save-session-shortcut');
+        this._addActionTooltip(saveButton, _('Save open windows using the current session name'), 'save-session-shortcut');
         saveButton.connect('clicked', this._onClickSave.bind(this));
 
         const restoreButton = this._addButton('restore-symbolic.svg');
         restoreButton.set_reactive(this.sessionItem._available);
-        this._addActionTooltip(restoreButton, 'Restore windows from the saved session', 'restore-session-shortcut');
+        this._addActionTooltip(restoreButton, _('Restore windows from the saved session'), 'restore-session-shortcut');
         restoreButton.connect('clicked', this._onClickRestore.bind(this));
 
         const moveButton = this._addButton('move-symbolic.svg');
         moveButton.set_reactive(this.sessionItem._available);
-        this._addActionTooltip(moveButton, 'Move windows to their workspace and position by the saved session', 'move-windows-shortcut');
+        this._addActionTooltip(moveButton, _('Move windows to their workspace and position by the saved session'), 'move-windows-shortcut');
         moveButton.connect('clicked', this._onClickMove.bind(this));
 
         for (const settingsKey of [
@@ -80,7 +81,7 @@ class SessionItemButtons extends GObject.Object {
         const autoRestoreSwitcher = this._addAutostartSwitcher();
         new Tooltip.Tooltip({
             parent: autoRestoreSwitcher,
-            markup: 'Set as default session',
+            markup: _('Set as default session'),
         });
         this._syncingAutostartSwitch = false;
         this._autostartSwitch.connect('notify::state', () => {
@@ -108,7 +109,7 @@ class SessionItemButtons extends GObject.Object {
         const viewButton = this._addViewButton();
         new Tooltip.Tooltip({
             parent: viewButton,
-            markup: 'Open session file using an external editor',
+            markup: _('Open session file using an external editor'),
         });
         viewButton.connect('clicked', () => {
             const sessions_path = FileUtils.get_sessions_path();
@@ -127,7 +128,7 @@ class SessionItemButtons extends GObject.Object {
         const deleteButton = this._addDeleteButton();
         new Tooltip.Tooltip({
             parent: deleteButton,
-            markup: 'Move to Trash',
+            markup: _('Move to Trash'),
         });
         deleteButton.connect('clicked', () => {
             // We just trash file to trash scan instead of delete in case still need it.
@@ -187,12 +188,12 @@ class SessionItemButtons extends GObject.Object {
 
     _addViewButton() {
         const [exists, sessionFilePath] = FileUtils.sessionExists(this.sessionItem._filename);
-        return this._addTextButton('View', exists);
+        return this._addTextButton(_('View'), exists);
     }
 
     _addDeleteButton() {
         const reactive = this.sessionItem._filename != FileUtils.recently_closed_session_name;
-        return this._addTextButton('Delete', reactive);
+        return this._addTextButton(_('Delete'), reactive);
     }
 
     _addTextButton(label, reactive) {
@@ -257,7 +258,7 @@ class SessionItemButtons extends GObject.Object {
 
     _onClickSave(button, event) {
         this._saveSession.saveSessionAsync(this.sessionItem._filename).catch(e => {
-            let message = `Failed to save session`;
+            let message = _('Failed to save session');
             this._log.error(e, e.desc ?? message);
             global.notify_error(message, e.cause?.message ?? e.desc ?? message);
         });

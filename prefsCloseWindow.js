@@ -18,8 +18,7 @@ import * as PrefsWindowPickableEntry from './prefsWindowPickableEntry.js';
 import * as PrefsWidgets from './prefsWidgets.js';
 import * as PrefsColumnView from './prefsColumnView.js';
 
-
-// const _ = ExtensionUtils.gettext;
+import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 /**
  * Based on https://gitlab.gnome.org/GNOME/gnome-shell-extensions/-/blob/main/extensions/auto-move-windows/prefs.js
@@ -56,7 +55,7 @@ export const UICloseWindows = GObject.registerClass(
             const close_windows_whitelist_listbox = this._builder.get_object('close_windows_whitelist_listbox');
             this._listBoxes.push(close_windows_whitelist_listbox);
             close_windows_whitelist_listbox.set_header_func((currentRow, beforeRow, data) => {
-                this._setHeader(currentRow, beforeRow, data, 'Whitelist');
+                this._setHeader(currentRow, beforeRow, data, _('Whitelist'));
             });
 
             const whitelistColumnView = new PrefsColumnView.WhitelistColumnView();
@@ -116,7 +115,7 @@ export const UICloseWindows = GObject.registerClass(
             const close_by_rules_list_box = this._builder.get_object('close_by_rules_applications_list_box');
             this._listBoxes.push(close_by_rules_list_box);
             close_by_rules_list_box.set_header_func((currentRow, beforeRow, data) => {
-                this._setHeader(currentRow, beforeRow, data, 'Applications');
+                this._setHeader(currentRow, beforeRow, data, _('Applications'));
             });
             const addApp = new YawsmNewRuleRow();
             close_by_rules_list_box.append(addApp);
@@ -150,7 +149,7 @@ export const UICloseWindows = GObject.registerClass(
             const close_by_rules_by_keyword_list_box = this._builder.get_object('close_by_rules_keywords_list_box');
             this._listBoxes.push(close_by_rules_by_keyword_list_box);
             close_by_rules_by_keyword_list_box.set_header_func((currentRow, beforeRow, data) => {
-                this._setHeader(currentRow, beforeRow, data, 'Keywords');
+                this._setHeader(currentRow, beforeRow, data, _('Keywords'));
             });
             const addKeyword = new YawsmNewRuleRow();
             close_by_rules_by_keyword_list_box.append(addKeyword);
@@ -199,7 +198,7 @@ export const UICloseWindows = GObject.registerClass(
                     margin_start: 12,
                     use_markup: true,
                     label: `<b>${headerName}</b>`,
-                    tooltip_text: 'Apps in the whitelist will be closed even if they have multiple windows'
+                    tooltip_text: _('Apps in the whitelist will be closed even if they have multiple windows')
                 });
                 if (labelProperties)
                     Object.assign(label, labelProperties);
@@ -472,7 +471,7 @@ const RuleRow = GObject.registerClass({
 
     _newShortcutDropDown() {
         let comboBoxValues = [
-            ['Shortcut', 'Shortcut']
+            [_('Shortcut'), 'Shortcut']
         ];
         return this._newDropDown(comboBoxValues, null);
     }
@@ -540,10 +539,10 @@ const RuleRow = GObject.registerClass({
         }
 
         const addAccelButton = new Gtk.Button({
-            label: 'Add accelerator',
+            label: _('Add accelerator'),
         });
         const deleteAccelButton = new Gtk.Button({
-            label: 'Delete accelerator',
+            label: _('Delete accelerator'),
             icon_name: 'edit-clear-symbolic',
         });
         const rendererAccelOptBox = this._newBox();
@@ -575,7 +574,7 @@ const RuleRow = GObject.registerClass({
             this._rendererAccelBox.append(lastNextArrow);
         }
         const newAccelButton = new Gtk.Button({
-            label: 'New accelerator...',
+            label: _('New accelerator…'),
         });
         
         let order;
@@ -782,7 +781,7 @@ const RuleRowByApp = GObject.registerClass({
         let displayName
         = appInfo
         ? appInfo.get_display_name()
-        : `${ruleDetail.appDesktopFilePath} does't have app info. You may want to add this rule to 'Keywords'.`;
+        : _('%s does\'t have app info. You may want to add this rule to \'Keywords\'.').format(ruleDetail.appDesktopFilePath);
 
         const icon = new Gtk.Image({
             gicon: appInfo ? appInfo.get_icon() : IconFinder.find('empty-symbolic.svg'),
@@ -896,7 +895,7 @@ const RuleRowByKeyword = GObject.registerClass({
         const methodDropDown = this._newMethodDropDown();
         const pickableEntry = new PrefsWindowPickableEntry.WindowPickableEntry({
             text: ruleDetail.keyword ? ruleDetail.keyword : '',
-            tooltip_text: ruleDetail.keyword ? ruleDetail.keyword : 'A string that is used to match windows or apps',
+            tooltip_text: ruleDetail.keyword ? ruleDetail.keyword : _('A string that is used to match windows or apps'),
             pickConditionFunc: (() => {
                 return this._compareWithDropDown.get_selected_item().get_string();
             }).bind(this)
@@ -957,21 +956,21 @@ const RuleRowByKeyword = GObject.registerClass({
 
     _newMethodDropDown() {
         let comboBoxValues = [
-            ['Equals', 'equals'],
-            ['Includes', 'includes'],
-            ['Starts with', 'startsWith'],
-            ['Ends with', 'endsWith'],
-            ['RegExp', 'regex']
+            [_('Equals'), 'equals'],
+            [_('Includes'), 'includes'],
+            [_('Starts with'), 'startsWith'],
+            [_('Ends with'), 'endsWith'],
+            [_('RegExp'), 'regex']
         ];
         return this._newDropDown(comboBoxValues, this._ruleDetail.method);
     }
 
     _newCompareWithDropDown() {
         let comboBoxValues = [
-            ['wm class', 'wm_class'],
-            ['wm class instance', 'wm_class_instance'],
-            ['Application name', 'app_name'],
-            ['Window title', 'title'],
+            [_('wm class'), 'wm_class'],
+            [_('wm class instance'), 'wm_class_instance'],
+            [_('Application name'), 'app_name'],
+            [_('Window title'), 'title'],
         ];
         return this._newDropDown(comboBoxValues, this._ruleDetail.compareWith);
     }
@@ -1013,7 +1012,7 @@ class YawsmNewRuleRow extends Gtk.ListBoxRow {
             }),
             sensitive: true
         });
-        this.update_property([Gtk.AccessibleProperty.LABEL], ['Add Rule']);
+        this.update_property([Gtk.AccessibleProperty.LABEL], [_('Add Rule')]);
         
         const gesture = Gtk.GestureClick.new();
         gesture.set_button(Gdk.BUTTON_PRIMARY);
