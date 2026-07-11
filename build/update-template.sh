@@ -12,7 +12,6 @@ VERSION="$(grep -o '"version"[[:space:]]*:[[:space:]]*[0-9]*' "$METADATA" | grep
 cd "$ROOT"
 
 xgettext --from-code=UTF-8 \
-  --language=JavaScript \
   --output="$POT" \
   --package-name="Yet Another Window Session Manager" \
   --package-version="$VERSION" \

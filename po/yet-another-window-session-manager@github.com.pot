@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 56\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-11 20:45+0200\n"
+"POT-Creation-Date: 2026-07-11 22:01+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -168,7 +168,7 @@ msgid "Save open windows"
 msgstr ""
 
 #: ui/popupMenuButtonItems.js
-msgid "Type a session name, default is defaultSession"
+msgid "Type a session name, default is Default Session"
 msgstr ""
 
 #: ui/popupMenuButtonItems.js
@@ -415,6 +415,22 @@ msgid "Session %s saved to %s!"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
+msgid "General"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Panel indicator"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Show indicator on the panel"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/prefs-gtk4.ui
 msgid "Auto close session"
 msgstr ""
 
@@ -531,15 +547,7 @@ msgid ""
 msgstr ""
 
 #: ui/prefs-gtk4.ui
-msgid "General"
-msgstr ""
-
-#: ui/prefs-gtk4.ui
-msgid "Show indicator on the panel"
-msgstr ""
-
-#: ui/prefs-gtk4.ui
-msgid "Keyboard shortcuts"
+msgid "Advanced"
 msgstr ""
 
 #: ui/prefs-gtk4.ui
