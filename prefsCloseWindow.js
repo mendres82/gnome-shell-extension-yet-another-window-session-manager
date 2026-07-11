@@ -20,6 +20,8 @@ import * as PrefsColumnView from './prefsColumnView.js';
 
 import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+const RULES_LIST_WIDTH = 1000;
+
 /**
  * Based on https://gitlab.gnome.org/GNOME/gnome-shell-extensions/-/blob/main/extensions/auto-move-windows/prefs.js
  */
@@ -41,6 +43,16 @@ export const UICloseWindows = GObject.registerClass(
             
             // Store ListBox references for cleanup
             this._listBoxes = [];
+        }
+
+        _setRulesListBoxWidth(listBox) {
+            listBox.width_request = RULES_LIST_WIDTH;
+            listBox.set_hexpand(false);
+            listBox.set_halign(Gtk.Align.START);
+
+            const frame = listBox.get_parent();
+            if (frame instanceof Gtk.Frame)
+                frame.width_request = RULES_LIST_WIDTH;
         }
 
         init() {
@@ -116,6 +128,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initAppRules() {
             const close_by_rules_list_box = this._builder.get_object('close_by_rules_applications_list_box');
+            this._setRulesListBoxWidth(close_by_rules_list_box);
             this._listBoxes.push(close_by_rules_list_box);
             close_by_rules_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, _('Applications'));
@@ -150,6 +163,7 @@ export const UICloseWindows = GObject.registerClass(
 
         _initKeywordRules() {
             const close_by_rules_by_keyword_list_box = this._builder.get_object('close_by_rules_keywords_list_box');
+            this._setRulesListBoxWidth(close_by_rules_by_keyword_list_box);
             this._listBoxes.push(close_by_rules_by_keyword_list_box);
             close_by_rules_by_keyword_list_box.set_header_func((currentRow, beforeRow, data) => {
                 this._setHeader(currentRow, beforeRow, data, _('Keywords'));
@@ -419,10 +433,10 @@ const RuleRow = GObject.registerClass({
         this._settings = PrefsUtils.getSettings();
 
         const ruleRowBox = this._newBox({
-            hexpand: true,
-            halign: Gtk.Align.FILL
+            hexpand: false,
+            halign: Gtk.Align.START,
         });
-    
+
         const boxLeft = this._newBox({
             hexpand: true,
             halign: Gtk.Align.START
@@ -432,10 +446,17 @@ const RuleRow = GObject.registerClass({
             halign: Gtk.Align.END
         });
 
+        const scroll = new Gtk.ScrolledWindow({
+            hscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            vscrollbar_policy: Gtk.PolicyType.NEVER,
+            hexpand: true,
+            vexpand: false,
+        });
+
         super._init(ruleDetail, {
             // TODO
             // value: GLib.Variant.new_strv(ruleDetail.value),
-            child: ruleRowBox,
+            child: scroll,
         });
         this._ruleDetail = ruleDetail;
 
@@ -450,6 +471,7 @@ const RuleRow = GObject.registerClass({
 
         ruleRowBox.append(boxLeft);
         ruleRowBox.append(boxRight);
+        scroll.set_child(ruleRowBox);
 
         this.boxLeft = boxLeft;
         this.boxRight = boxRight;

@@ -50,15 +50,25 @@ export const updateStyle = function(widget, css) {
     widget.get_style_context().add_provider(cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 }
 
-export const _newBox = function(properties) {
+export const _newBox = function(properties = {}) {
+    const {
+        orientation = Gtk.Orientation.HORIZONTAL,
+        spacing = 6,
+        margin_top = 6,
+        margin_bottom = 6,
+        margin_start = 6,
+        margin_end = 6,
+        ...rest
+    } = properties;
     const box = new Gtk.Box({
-        spacing: 6,
-        margin_top: 6,
-        margin_bottom: 6,
-        margin_start: 6,
-        margin_end: 6,
-    })
-    Object.assign(box, properties);
+        orientation,
+        spacing,
+        margin_top,
+        margin_bottom,
+        margin_start,
+        margin_end,
+    });
+    Object.assign(box, rest);
     return box;
 }
 
