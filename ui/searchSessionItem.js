@@ -8,6 +8,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as Tooltip from '../utils/tooltip.js';
+import {PrefsUtils} from '../utils/prefsUtils.js';
 
 
 export const SearchSessionItem = GObject.registerClass(
@@ -28,7 +29,8 @@ export const SearchSessionItem = GObject.registerClass(
                 hint_text: _('Type to search'),
                 track_hover: true,
                 x_expand: false,
-                y_expand: true
+                y_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
             });
 
             this._entry.set_primary_icon(new St.Icon({
@@ -57,16 +59,17 @@ export const SearchSessionItem = GObject.registerClass(
             });
             this.add_child(filterLabel);
             this._filterAutoRestore();
-            
+            this._addPreferencesButton();
         }
         
         _filterAutoRestore() {
             this._filterAutoRestoreSwitch = new PopupMenu.Switch(false);
-            this._filterAutoRestoreSwitch.set_style_class_name('toggle-switch yawsm-toggle-switch');
             let button = new St.Button({
                 style_class: 'dnd-button',
                 can_focus: true,
                 x_align: Clutter.ActorAlign.END,
+                y_align: Clutter.ActorAlign.CENTER,
+                y_expand: true,
                 toggle_mode: true,
                 child: this._filterAutoRestoreSwitch,
             });
@@ -77,6 +80,34 @@ export const SearchSessionItem = GObject.registerClass(
             new Tooltip.Tooltip({
                 parent: button,
                 markup: _('Show only the default session'),
+            });
+
+            this.add_child(button);
+        }
+
+        _addPreferencesButton() {
+            const icon = new St.Icon({
+                icon_name: 'preferences-system-symbolic',
+                style_class: 'search-entry-icon',
+            });
+            const button = new St.Button({
+                style_class: 'search-preferences-button',
+                can_focus: true,
+                x_align: Clutter.ActorAlign.END,
+                y_align: Clutter.ActorAlign.CENTER,
+                y_expand: true,
+                reactive: true,
+                child: icon,
+                track_hover: true,
+            });
+
+            new Tooltip.Tooltip({
+                parent: button,
+                markup: 'Open preferences',
+            });
+
+            button.connect('clicked', () => {
+                PrefsUtils.extensionObject.openPreferences();
             });
 
             this.add_child(button);

@@ -64,14 +64,16 @@ export const UICloseWindows = GObject.registerClass(
             // Get the auto-created ListBoxRow and make it non-activatable
             const whitelistRow = whitelistColumnView.get_parent();
             if (whitelistRow instanceof Gtk.ListBoxRow) {
+                whitelistRow.set_focusable(false);
                 whitelistRow.set_activatable(false);
                 whitelistRow.set_selectable(false);
             }
             close_windows_whitelist_listbox.append(addWhitelist);
 
             addWhitelist.connect('clicked', (source) => {
-                const oldCloseWindowsWhitelist = this._settings.get_string(settingKey);
-                const newId = Math.max(...Object.keys(oldCloseWindowsWhitelist)) + 1;
+                let oldWhitelist = JSON.parse(this._settings.get_string(settingKey));
+                const ids = Object.keys(oldWhitelist).map(Number);
+                const newId = ids.length ? Math.max(...ids) + 1 : 1;
 
                 const closeWindowsWhitelist = CloseWindowsRule.CloseWindowsWhitelist.new({
                     id: newId,
@@ -82,22 +84,23 @@ export const UICloseWindows = GObject.registerClass(
                     enableWhenLogout: true,
                 });
 
-                let oldWhitelist = JSON.parse(oldCloseWindowsWhitelist);
                 oldWhitelist[newId] = closeWindowsWhitelist;
                 const newWhitelist = JSON.stringify(oldWhitelist);
                 this._settings.set_string(settingKey, newWhitelist);
+                this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
             });
 
-            this._changedId = this._settings.connect(
-                `changed::${settingKey}`,
-                (settings) => {
-                    try {
-                        this._settings.block_signal_handler(this._changedId);
-                        this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
-                    } finally {
-                        this._settings.unblock_signal_handler(this._changedId);
+            whitelistColumnView.connect('row-deleted', () => {
+                const focus = whitelistColumnView.get_root()?.get_focus();
+                for (let w = focus; w; w = w.get_parent()) {
+                    if (w === whitelistColumnView) {
+                        this.close_by_rules_switch.grab_focus();
+                        break;
                     }
-                });
+                }
+                this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
+            });
+
             this._syncColumnView(whitelistColumnView, CloseWindowsRule.CloseWindowsWhitelist, settingKey);
         }
 
@@ -154,8 +157,9 @@ export const UICloseWindows = GObject.registerClass(
             const addKeyword = new YawsmNewRuleRow();
             close_by_rules_by_keyword_list_box.append(addKeyword);
             addKeyword.connect('clicked', (source) => {
-                const oldCloseWindowsRules = this._settings.get_string('close-windows-rules-by-keyword');
-                const newId = Math.max(...Object.keys(oldCloseWindowsRules)) + 1;
+                let oldCloseWindowsRulesObj = JSON.parse(this._settings.get_string('close-windows-rules-by-keyword'));
+                const ids = Object.keys(oldCloseWindowsRulesObj).map(Number);
+                const newId = ids.length ? Math.max(...ids) + 1 : 1;
 
                 const closeWindowsRule = CloseWindowsRule.CloseWindowsRuleByKeyword.new({
                     id: newId,
@@ -168,7 +172,6 @@ export const UICloseWindows = GObject.registerClass(
                     method: 'equals'
                 });
 
-                let oldCloseWindowsRulesObj = JSON.parse(oldCloseWindowsRules);
                 oldCloseWindowsRulesObj[newId] = closeWindowsRule;
                 const newCloseWindowsRules = JSON.stringify(oldCloseWindowsRulesObj);
                 this._settings.set_string('close-windows-rules-by-keyword', newCloseWindowsRules);
@@ -286,6 +289,15 @@ export const UICloseWindows = GObject.registerClass(
             });
 
             removed.forEach(r => {
+                if (this._getRuleRows(listBox).filter(row => row !== r).length === 0) {
+                    const focus = r.get_root()?.get_focus();
+                    for (let w = focus; w; w = w.get_parent()) {
+                        if (w === r) {
+                            this.close_by_rules_switch.grab_focus();
+                            break;
+                        }
+                    }
+                }
                 listBox.remove(r);
             });
         }
@@ -334,6 +346,8 @@ const Row = GObject.registerClass({
     _init(detail, params) {
         super._init({
             activatable: false,
+            focusable: false,
+            selectable: false,
         });
 
         Object.assign(this, params);
@@ -1002,6 +1016,9 @@ class YawsmNewRuleRow extends Gtk.ListBoxRow {
     _init() {
         super._init({
             action_name: 'rules.add',
+            activatable: false,
+            focusable: false,
+            selectable: false,
             child: new Gtk.Image({
                 icon_name: 'list-add-symbolic',
                 pixel_size: 16,

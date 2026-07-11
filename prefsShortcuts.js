@@ -11,7 +11,11 @@ const ShortcutRow = GObject.registerClass({
 }, class ShortcutRow extends Gtk.ListBoxRow {
 
     _init({title, description, settingsKey, settings}) {
-        super._init({focusable: true});
+        super._init({
+            activatable: false,
+            focusable: false,
+            selectable: false,
+        });
 
         this._settingsKey = settingsKey;
         this._settings = settings;

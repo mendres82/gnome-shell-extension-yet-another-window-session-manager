@@ -1,11 +1,3 @@
-.yawsm-toggle-switch {
-    background-image: url("./icons/toggle-off-autorestore-symbolic.svg");
-}
-
-.yawsm-toggle-switch:checked {
-    background-image: url("./icons/toggle-on-autorestore-symbolic.svg");
-}
-
 /* Restore Session Dialog */
 .restore-session-dialog {
     width: 30em;
@@ -48,13 +40,22 @@
 .confirm-before-operate {
     color: #F00; 
     font-weight: bold; 
-    font-style: italic
+    font-style: italic;
 }
 
-.confirm-before-operate:hover, .confirm-before-operate:focus {
-    background-color: rgba(255,255,255,0.2);
-    border: none;
+.button-item.confirm-before-operate {
     padding: 5px;
+    border: none;
+    border-radius: 32px;
+}
+
+.button-item.confirm-before-operate:hover,
+.button-item.confirm-before-operate:focus {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.popup-close-menu-item .button-item.confirm-before-operate {
+    padding: 0;
 }
 
 .button-item > StIcon {
@@ -95,4 +96,33 @@ Based on https://gitlab.com/bartl/todo-txt-gnome-shell-extension/-/blob/master/s
 
 .aws-item-button > StIcon {
     icon-size: 14px;
+}
+
+.search-entry .search-entry-icon {
+    margin-top: 0;
+}
+
+.popup-menu-item StEntry {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 4px 8px;
+}
+
+.search-preferences-button {
+    border: none;
+    padding: 0;
+    margin-left: 10px;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.search-preferences-button > StIcon {
+    icon-size: 18px;
+}
+
+.search-preferences-button:hover,
+.search-preferences-button:focus {
+    background-color: transparent;
+    box-shadow: none;
 }

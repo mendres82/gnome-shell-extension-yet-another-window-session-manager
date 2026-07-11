@@ -98,9 +98,11 @@ class SessionItemButtons extends GObject.Object {
 
         this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
             const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
-            this._syncingAutostartSwitch = true;
-            this._autostartSwitch.state = toggled;
-            this._syncingAutostartSwitch = false;
+            if (this._autostartSwitch.state !== toggled) {
+                this._syncingAutostartSwitch = true;
+                this._autostartSwitch.state = toggled;
+                this._syncingAutostartSwitch = false;
+            }
             this._updateActionTooltips();
         });
 
@@ -170,7 +172,6 @@ class SessionItemButtons extends GObject.Object {
 
         const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
         this._autostartSwitch = new PopupMenu.Switch(toggled);
-        this._autostartSwitch.set_style_class_name('toggle-switch yawsm-toggle-switch');
         let button = new St.Button({
             style_class: 'dnd-button',
             can_focus: true,

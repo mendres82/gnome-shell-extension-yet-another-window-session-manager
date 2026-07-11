@@ -75,7 +75,7 @@ export const WindowPickableEntry = GObject.registerClass({
                 // -1 put the cursor to the end
                 source.set_position(-1);
 
-                source.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'emblem-ok-symbolic');
+                source.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'object-select-symbolic');
                 source.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Complete editing'));
                 source._showSaveIconYAWSM = true;
 
