@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Yet Another Window Session Manager 57\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-12 00:16+0200\n"
+"POT-Creation-Date: 2026-07-12 12:40+0200\n"
 "PO-Revision-Date: 2026-07-11 20:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -378,7 +378,6 @@ msgid "Log Out, Reboot, Power Off"
 msgstr "Abmelden, neu starten, ausschalten"
 
 #: prefsCloseWindow.js
-#, fuzzy
 msgid "Apply this whitelist entry when logging out, rebooting, or shutting down"
 msgstr "Laufende Anwendungen und Fenster beim Abmelden, Neustart oder Herunterfahren schließen"
 
@@ -541,6 +540,18 @@ msgid "Show indicator on the panel"
 msgstr "Symbol in der Leiste anzeigen"
 
 #: ui/prefs-gtk4.ui
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: ui/prefs-gtk4.ui
+msgid "Session is saved notification"
+msgstr "Benachrichtigung bei gespeicherter Sitzung"
+
+#: ui/prefs-gtk4.ui
+msgid "Show a notification when users click buttons on the popup menu to save a session."
+msgstr "Benachrichtigung anzeigen, wenn im Popup-Menü eine Sitzung gespeichert wird."
+
+#: ui/prefs-gtk4.ui
 msgid "Keyboard shortcuts"
 msgstr "Tastenkürzel"
 
@@ -559,18 +570,6 @@ msgstr "Nach Regeln schließen"
 #: ui/prefs-gtk4.ui
 msgid "To make this feature work, see: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>How to make `Close by rules` work</a>."
 msgstr "Damit diese Funktion funktioniert, siehe: <a href='https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work'>So funktioniert „Nach Regeln schließen“</a>."
-
-#: ui/prefs-gtk4.ui
-msgid "Save windows"
-msgstr "Fenster speichern"
-
-#: ui/prefs-gtk4.ui
-msgid "Session is saved notification"
-msgstr "Benachrichtigung bei gespeicherter Sitzung"
-
-#: ui/prefs-gtk4.ui
-msgid "Show a notification when users click buttons on the popup menu to save a session."
-msgstr "Benachrichtigung anzeigen, wenn im Popup-Menü eine Sitzung gespeichert wird."
 
 #: ui/prefs-gtk4.ui
 msgid "Restore sessions"
@@ -659,6 +658,9 @@ msgstr "Debug-Modus"
 #: ui/prefs-gtk4.ui
 msgid "Verbose logging"
 msgstr "Ausführliche Protokollierung"
+
+#~ msgid "Save windows"
+#~ msgstr "Fenster speichern"
 
 #~ msgid "The rules"
 #~ msgstr "Die Regeln"

@@ -57,7 +57,6 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         const pages = [
             this._builder.get_object('general_page'),
             this._builder.get_object('close_windows_page'),
-            this._builder.get_object('save_windows_page'),
             this._builder.get_object('restore_sessions_page'),
             this._builder.get_object('advanced_page'),
         ];

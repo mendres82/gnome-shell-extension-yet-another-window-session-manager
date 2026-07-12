@@ -78,6 +78,80 @@
       </object>
     </child>
     <child>
+      <object class="AdwPreferencesGroup" id="notifications_group">
+        <property name="title" translatable="yes">Notifications</property>
+        <child>
+          <object class="GtkFrame" id="save_session_notification_frame">
+            <child>
+              <object class="GtkListBox">
+                <property name="selection-mode">none</property>
+                <property name="focusable">false</property>
+                <child>
+                  <object class="GtkListBoxRow">
+                    <property name="activatable">false</property>
+                    <property name="focusable">false</property>
+                    <property name="selectable">false</property>
+                    <property name="child">
+                      <object class="GtkGrid">
+                        <property name="margin-bottom">12</property>
+                        <property name="row-spacing">6</property>
+                        <property name="column-spacing">32</property>
+                        <property name="margin-start">6</property>
+                        <child>
+                          <object class="GtkLabel" id="save_session_notification_label">
+                            <property name="margin-top">12</property>
+                            <property name="hexpand">true</property>
+                            <property name="label" translatable="yes">Session is saved notification</property>
+                            <property name="use-markup">true</property>
+                            <property name="xalign">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="save_session_notification_switch">
+                            <property name="margin-end">6</property>
+                            <property name="focusable">true</property>
+                            <property name="active">true</property>
+                            <property name="halign">end</property>
+                            <property name="valign">center</property>
+                            <property name="hexpand">true</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                              <property name="row-span">2</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="hexpand">true</property>
+                            <property name="label" translatable="yes">Show a notification when users click buttons on the popup menu to save a session.</property>
+                            <property name="wrap">true</property>
+                            <property name="use-markup">true</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">1</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
       <object class="AdwPreferencesGroup" id="keyboard_shortcuts_group">
         <property name="title" translatable="yes">Keyboard shortcuts</property>
         <child>
@@ -268,85 +342,6 @@
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="show-separators">true</property>
-              </object>
-            </property>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="AdwPreferencesPage" id="save_windows_page">
-    <property name="icon-name">document-save-symbolic</property>
-    <property name="use_underline">true</property>
-    <property name="title" translatable="yes">Save windows</property>
-    <child>
-      <object class="AdwPreferencesGroup" id="save_windows_group">
-        <property name="title" translatable="yes">Save windows</property>
-        <child>
-          <object class="GtkFrame" id="save_session_notification_frame">
-            <property name="child">
-              <object class="GtkListBox">
-                <property name="selection-mode">none</property>
-                <property name="focusable">false</property>
-                <child>
-                  <object class="GtkListBoxRow">
-                    <property name="activatable">false</property>
-                    <property name="focusable">false</property>
-                    <property name="selectable">false</property>
-                    <property name="child">
-                      <object class="GtkGrid">
-                        <property name="margin-bottom">12</property>
-                        <property name="row-spacing">6</property>
-                        <property name="column-spacing">32</property>
-                        <property name="margin-start">6</property>
-                        <child>
-                          <object class="GtkLabel" id="save_session_notification_label">
-                            <property name="margin-top">12</property>
-                            <property name="hexpand">true</property>
-                            <property name="label" translatable="yes">Session is saved notification</property>
-                            <property name="use-markup">true</property>
-                            <property name="xalign">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSwitch" id="save_session_notification_switch">
-                            <property name="margin-end">6</property>
-                            <property name="focusable">true</property>
-                            <property name="active">true</property>
-                            <property name="halign">end</property>
-                            <property name="valign">center</property>
-                            <property name="hexpand">true</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                              <property name="row-span">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="hexpand">true</property>
-                            <property name="label" translatable="yes">Show a notification when users click buttons on the popup menu to save a session.</property>
-                            <property name="wrap">true</property>
-                            <property name="use-markup">true</property>
-                            <property name="xalign">0</property>
-                            <style>
-                              <class name="dim-label"/>
-                            </style>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                  </object>
-                </child>
               </object>
             </property>
           </object>
