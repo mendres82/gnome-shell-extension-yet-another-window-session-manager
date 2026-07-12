@@ -5,7 +5,7 @@ Most importantly, it supports both X11 and Wayland!
 
 This extension is based on several [Gnome technologies](https://www.gnome.org/technologies/) and APIs including [Meta](https://gjs-docs.gnome.org/meta9~9_api), [Shell](https://gjs-docs.gnome.org/shell01~0.1_api/) and [St(Shell Toolkit)](https://gjs-docs.gnome.org/st10~1.0_api/).
 
-Based on [Another Window Session Manager](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager) by nlpsuge.
+Based on [Another Window Session Manager](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager) by [@nlpsuge](https://github.com/nlpsuge).
 
 
 <p align="left">
@@ -45,19 +45,16 @@ Click item to save open windows as a session:
 ## Preferences
 
 ### General
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/469b9c3c-c864-4a21-80c9-726dc4429cb3" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/35749741-057f-4abe-b434-aeda85ea5223" />
 
 ### Close windows
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/50c8e01a-35f4-494a-8f22-94a72325e8c1" />
-
-### Save windows
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/a2627692-f958-4068-b9eb-3387ecb356b6" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/d5e982e9-9458-4051-8c24-275e8dd9b956" />
 
 ### Restore sessions
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/673a6c78-2ff1-45ef-b983-3e0fc73d28cc" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/44984dc1-80a2-4e9a-8802-edc4d7614424" />
 
 ### Advanced
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/4b0a272c-e5f3-4b75-a82b-b22526d37621" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/7f411617-540e-4a47-9906-2eaf267cafe2" />
 
 
 # Main features
@@ -85,7 +82,7 @@ Click item to save open windows as a session:
 ### Auto close session
 Enable this feature through `Auto close session` under `Close windows`:
 
-<img width="1238" height="283" src="https://github.com/user-attachments/assets/83144d4a-b26d-4016-b67c-1f711d13f184" />
+<img width="1236" height="286" src="https://github.com/user-attachments/assets/6e8d6896-aa87-43ea-9d27-80812a355054" />
 
 After you click the `Log Out/Restart/Power Off` button and confirm GNOME's session dialog, YAWSM closes running apps and windows automatically. If everything closes successfully, logout, reboot, or shutdown continues without an extra prompt.
 
@@ -144,7 +141,7 @@ Feel free to fill an issue if `ydotool` does not work under normal user, you may
 ## Restore sessions
 
 ### Restore previous apps and windows at startup
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/b217917e-0014-4ecd-8d88-3b3a9fa8471e" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/827aa9dd-647c-4d28-9db8-766bcb3e0893" />
 
 Activate `Restore previous apps and windows at startup` to enable this feature. This option and `Restore selected session at startup` are exclusive. And this option works for shutting down the system normally (via Log Out/Restart/Power Off buttons) and other ways (like pressing the physical power-off button).
 
@@ -174,7 +171,7 @@ Please do not modify `_gnome-shell-extension-yet-another-window-session-manager.
 
 Configure keyboard shortcuts under `General -> Keyboard shortcuts` in the Preferences:
 
-<img width="1250" height="850" src="https://github.com/user-attachments/assets/469b9c3c-c864-4a21-80c9-726dc4429cb3" />
+<img width="1250" height="850" src="https://github.com/user-attachments/assets/35749741-057f-4abe-b434-aeda85ea5223" />
 
 YAWSM provides three global shortcuts that work with the **default session**. Set a default session in the panel menu first (See also: [Set the default session](#set-the-default-session)).
 
@@ -280,7 +277,7 @@ Replace `fr` with your language code. Translate the strings in the new file and 
 
 ## Pull requests
 
-Please submit **only** the updated or new `po/*.po` files. Do not include the compiled `locale/` directory — that is generated when building the extension.
+Please submit **only** the updated or new `po/*.po` files. Do not include the compiled `locale/` directory.
 
 If the template has changed on the main branch since you started, sync your `.po` file before submitting:
 
