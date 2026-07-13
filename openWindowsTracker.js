@@ -612,7 +612,7 @@ export const OpenWindowsTracker = class {
     _onConfirmedLogout(proxy, sender) {
         try {
             this._log.debug(`Resetting windows-mapping before logout.`);
-            this._settings.set_string('windows-mapping', '{}');
+            this._settings.set_string('windows-mapping', '[]');
         } catch (error) {
             this._log.error(error);
         }
@@ -620,12 +620,12 @@ export const OpenWindowsTracker = class {
 
     _onConfirmedReboot(proxy, sender) {
         this._log.debug(`Resetting windows-mapping before reboot.`);
-        this._settings.set_string('windows-mapping', '{}');
+        this._settings.set_string('windows-mapping', '[]');
     }
 
     _onConfirmedShutdown(proxy, sender) {
         this._log.debug(`Resetting windows-mapping before shutdown.`);
-        this._settings.set_string('windows-mapping', '{}');
+        this._settings.set_string('windows-mapping', '[]');
 
         // TODO Move currentSession to recentlyClosed (recent closed session / recent closed app) with three tabs?
     }
@@ -650,7 +650,7 @@ export const OpenWindowsTracker = class {
         const windowStableSequence = metaWindow.get_stable_sequence();
         const savedWindowsMappingJsonStr = this._settings.get_string('windows-mapping');
         let savedWindowsMapping;
-        if (savedWindowsMappingJsonStr === '{}') {
+        if (savedWindowsMappingJsonStr === '{}' || savedWindowsMappingJsonStr === '[]') {
             savedWindowsMapping = new Map();
         } else {
             savedWindowsMapping = new Map(JSON.parse(savedWindowsMappingJsonStr));
