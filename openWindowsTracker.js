@@ -391,28 +391,32 @@ export const OpenWindowsTracker = class {
         }
 
         const sessionPathFile = Gio.File.new_for_path(sessionFilePath);
-        let [success, contents] = sessionPathFile.load_contents(null);
-        if (!success) {
-            return;
-        }
+        sessionPathFile.load_contents_async(
+            null,
+            (file, asyncResult) => {
+                const [success, contents, _] = file.load_contents_finish(asyncResult);
+                if (!success) {
+                    return;
+                }
 
-        const sessionContent = FileUtils.getJsonObj(contents);
-        Log.Log.getDefault().debug(`Prepare to restore window session from ${sessionFilePath}`);
+                const sessionContent = FileUtils.getJsonObj(contents);
+                Log.Log.getDefault().debug(`Prepare to restore window session from ${sessionFilePath}`);
 
-        this._allSavedWindowSessions.push(sessionContent);
+                this._allSavedWindowSessions.push(sessionContent);
 
-        // TODO It's no necessary to put sessions to `RestoreSession.restoreSessionObject.restoringApps` any more, since this job has been done by `MoveSession.moveApps(sessions)`
-        const app = this._windowTracker.get_app_from_pid(sessionContent.pid);
-        if (app && app.get_name() == sessionContent.app_name) {
-            const restoringShellAppData = RestoreSession.restoreSessionObject.restoringApps.get(app);
-            if (restoringShellAppData) {
-                restoringShellAppData.saved_window_sessions.push(sessionContent);
-            } else {
-                RestoreSession.restoreSessionObject.restoringApps.set(app, {
-                    saved_window_sessions: [sessionContent]
-                });
-            }
-        }
+                // TODO It's no necessary to put sessions to `RestoreSession.restoreSessionObject.restoringApps` any more, since this job has been done by `MoveSession.moveApps(sessions)`
+                const app = this._windowTracker.get_app_from_pid(sessionContent.pid);
+                if (app && app.get_name() == sessionContent.app_name) {
+                    const restoringShellAppData = RestoreSession.restoreSessionObject.restoringApps.get(app);
+                    if (restoringShellAppData) {
+                        restoringShellAppData.saved_window_sessions.push(sessionContent);
+                    } else {
+                        RestoreSession.restoreSessionObject.restoringApps.set(app, {
+                            saved_window_sessions: [sessionContent]
+                        });
+                    }
+                }
+            });
     }
 
     async _prepareToSaveWindowSession(window) {

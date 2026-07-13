@@ -47,19 +47,25 @@ export const MoveSession = class {
 
         this._log.info(`Moving windows by saved session located in ${session_file_path}`);
         const session_file = Gio.File.new_for_path(session_file_path);
-        let [success, contents] = session_file.load_contents(null);
-        if (success) {
-            let session_config = FileUtils.getJsonObj(contents);
+        session_file.load_contents_async(
+            null,
+            (file, asyncResult) => {
+                const [success, contents, _] = file.load_contents_finish(asyncResult);
+                if (!success) {
+                    return;
+                }
 
-            const session_config_objects = session_config.x_session_config_objects;
-            if (!session_config_objects) {
-                logError(new Error(`Session details not found: ${session_file_path}`));
-                return;
-            }
+                let session_config = FileUtils.getJsonObj(contents);
 
-            // TODO Use global.get_window_actors(); / Meta.get_window_actors() / display.list_all_windows() instead and then call this.moveWindowByMetaWindow() and then can remove this.moveWindowsByShellApp()?
-            await this.moveApps(session_config_objects);
-        }
+                const session_config_objects = session_config.x_session_config_objects;
+                if (!session_config_objects) {
+                    logError(new Error(`Session details not found: ${session_file_path}`));
+                    return;
+                }
+
+                // TODO Use global.get_window_actors(); / Meta.get_window_actors() / display.list_all_windows() instead and then call this.moveWindowByMetaWindow() and then can remove this.moveWindowsByShellApp()?
+                this.moveApps(session_config_objects);
+            });
 
     }
 
