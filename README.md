@@ -64,7 +64,7 @@ Click item to save open windows as a session:
 1. Close running windows gracefully
 1. Close apps with multiple windows gracefully via `ydotool` so you don't lose sessions of this app (See also: [How to make Close by rules work](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#how-to-make-close-by-rules-work))
 1. Save running apps and windows manually
-1. Restore a selected session at startup (See also: [#9](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/9#issuecomment-1097012874)). **disabled by default**.
+1. Restore a selected session at startup (See also: [#9](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/9#issuecomment-1097012874)). **disabled by default**.
 1. Restore a saved session manually
 1. Restore window state, including `Always on Top`, `Always on Visible Workspace` and maximization
 1. Restore window workspace, size and position
@@ -301,15 +301,15 @@ Install the extension (including the generated `locale/` directory), restart GNO
 
 # TODO
 1. - Close open windows
-     - [ ] Close all windows on the current workspace. (WIP, see https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/pull/71)
+     - [ ] Close all windows on the current workspace. (WIP, see https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/pull/71)
 1. - Save open windows
      - [x] Save open windows 
 1. - Restore saved open windows
       - [x] Restore saved open windows
       - [x] Move to belonging workspace automatically
-      - [x] Restore window size and position ([issue 17](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/17))
+      - [x] Restore window size and position ([issue 17](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/17))
       - [x] Restore window workspace, size and position of applications launched via a command line and don't have a recognizable `.desktop` file by `Shell.AppSystem.get_default().get_running()`.
-      - [x] Support multi-monitor ([issue 21](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/21))
+      - [x] Support multi-monitor ([issue 21](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/21))
 1. - Saved open windows list
       - [x] Save open windows button
       - [x] Restore button
@@ -320,11 +320,11 @@ Install the extension (including the generated `locale/` directory), restart GNO
 1. - [ ] Settings
       - [x] Debugging mode
       - [ ] whitelist using for closing application with multiple windows
-1. - [x] Support restoring a saved session at startup ([issue 9](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/9))
-1. - [x] Support saving and closing windows when Log Out, Power off, Reboot ([issue 9](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/9))
+1. - [x] Support restoring a saved session at startup ([issue 9](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/9))
+1. - [x] Support saving and closing windows when Log Out, Power off, Reboot ([issue 9](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/9))
 1. - [ ] All TODO tags in the projects
 1. - [x] Translation (See [Translations](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#translations))
-1. - [ ] A client tool called `yawsm-client` (See: [issue 34](https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues/34))
+1. - [ ] A client tool called `yawsm-client` (See: [issue 34](https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/34))
 1. - [ ] Fix any typo or grammar errors.
 1. - [x] Open the Preferences on the popup menu 
 1. - [x] Open the session file from the popup menu
