@@ -25,7 +25,7 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
             }
         }
 
-        if (!pidSet.size) return;
+        if (!pidSet.size) return new Map();
     
         // Separated with comma
         const pids = Array.from(pidSet).join(',');
@@ -68,6 +68,7 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
         })
     } catch (e) {
         Log.Log.getDefault().error(e);
+        return new Map();
     }
 }
 

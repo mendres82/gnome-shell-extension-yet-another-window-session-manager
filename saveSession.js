@@ -162,7 +162,7 @@ export const SaveSession = class {
     
             this._log.debug(`Generating window session ${sessionName}`);
             
-            const _getProcessInfoPromise = this._getProcessInfo([app])
+            const _getProcessInfoPromise = SubprocessUtils.getProcessInfo([app]);
             
             const [canContinue, sessionConfigObject] = await this._builtSessionDetails(
                 app, 
