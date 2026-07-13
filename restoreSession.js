@@ -287,8 +287,15 @@ export const RestoreSession = class {
                                         this._log.info(`${app_name} is running, skipping`)
                                     } else {
                                         const msg = _('Failed to launch %s via command line').format(app_name);
-                                        let errorDetail = _('Can\'t restore this app from %s: %s.').format(
-                                            session_config_object._file_path, stderr);
+                                        let stderr = '';
+                                        if (stderrInputStream) {
+                                            let line;
+                                            while ((line = stderrInputStream.read_line(null)[0]) !== null)
+                                                stderr += (stderr ? '\n' : '') + line;
+                                        }
+                                        const errorDetail = _('Can\'t restore this app from %s: %s.').format(
+                                            session_config_object._file_path,
+                                            stderr.trim() || _('exit status %d').format(status));
                                         this._log.error(`${msg}. output: ${errorDetail}`);
                                         global.notify_error(msg, errorDetail);
                                     }
