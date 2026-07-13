@@ -210,7 +210,9 @@ const AutostartService = GObject.registerClass(
 
         _restorePreviousWithDelay(removeAfterRestore) {
             const restorePreviousDelay = this._settings.get_int('restore-previous-delay');
-            this._restorePreviousSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, restorePreviousDelay,
+            this._restorePreviousSourceId = GLib.timeout_add(
+                GLib.PRIORITY_LOW,
+                restorePreviousDelay * 1000,
                 () => {
                     const restoreSession = new RestoreSession.RestoreSession();
                     restoreSession.restorePreviousSession(removeAfterRestore);
