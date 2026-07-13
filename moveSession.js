@@ -27,8 +27,6 @@ export const MoveSession = class {
         this._defaultAppSystem = Shell.AppSystem.get_default();
         this._windowTracker = Shell.WindowTracker.get_default();
 
-        this._sourceIds = [];
-
         this._delayRestoreGeometryId = 0;
 
     }
@@ -527,13 +525,6 @@ export const MoveSession = class {
         if (this._log) {
             this._log.destroy();
             this._log = null;
-        }
-
-        if (this._sourceIds) {
-            this._sourceIds.forEach(sourceId => {
-                GLib.Source.remove(sourceId);
-            });
-            this._sourceIds = null;
         }
 
         if (this._windowTracker) {

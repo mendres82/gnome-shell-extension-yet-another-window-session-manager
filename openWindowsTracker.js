@@ -6,7 +6,6 @@ import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as SaveSession from './saveSession.js';
 import * as RestoreSession from './restoreSession.js';
@@ -117,8 +116,6 @@ export const OpenWindowsTracker = class {
             // `installed-changed` emits after `shell_app_system_init()` is called 
             // and all `window-created` emits.
             const installedChangedId = this._defaultAppSystem.connect('installed-changed', () => {
-                // RestoreSession.RestoreSession.restoreFromSummary();
-            
                 Log.Log.getDefault().info(`Restoring windows states after gnome shell starts`);
                 this._moveSession.moveApps(this._allSavedWindowSessions);
 
@@ -431,7 +428,6 @@ export const OpenWindowsTracker = class {
             if (!workspace) return;
             if (this._blacklist.has(window.get_wm_class())) return;
 
-            // this._log.debug(`Adding window ${window.get_title()} to queue (current size: ${this._windowsAboutToSaveSet.size}) to prepare to save window session`);
             this._windowsAboutToSaveSet.add(window);
         } catch (error) {
             this._log.error(error);

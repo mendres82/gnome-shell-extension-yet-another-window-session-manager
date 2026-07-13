@@ -30,19 +30,6 @@ class WindowPosition {
     height; // int
 }
 
-class WindowTilingFor {
-    app_name; // str
-    // the .desktop file name
-    desktop_file_id; // str
-    // The full .desktop file path
-    desktop_file_id_full_path; // str
-    window_title; // str
-}
-
-class WindowTiling {
-    window_tile_for = new WindowTilingFor(); // WindowTilingFor
-}
-
 export const SessionConfigObject = class {
 
     window_id; // str, hexadecimal on X11, int on Wayland
@@ -81,7 +68,8 @@ export const SessionConfigObject = class {
     fullscreen; // boolean
     minimized; // boolean
 
-    window_tiling; // WindowTiling
+    // { window_tile_for: { app_name, desktop_file_id, desktop_file_id_full_path, window_title } }
+    window_tiling;
 
     is_focused; // boolean, whether is the currently active window
 

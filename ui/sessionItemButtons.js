@@ -6,7 +6,6 @@ import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
 import Gtk from 'gi://Gtk';
 
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as IconFinder from '../utils/iconFinder.js';

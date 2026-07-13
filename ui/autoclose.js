@@ -17,6 +17,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
+import * as Function from '../utils/function.js';
 
 let GTop = null;
 try {
@@ -32,16 +33,6 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 let __confirm = null;
 let __init = null;
 let _OpenAsync = null;
-
-
-const callFunc = function (thisObj, func, param) {
-    const log = new Log.Log();
-    try {
-        return func.call(thisObj, param);
-    } catch (error) {
-        log.error(error);
-    }
-}
 
 const State = {
     OPENED: 0,
@@ -111,7 +102,7 @@ export const Autoclose = GObject.registerClass(
 
                     const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
                     if (!enableAutocloseSession) {
-                        callFunc(this, __confirm, signal);
+                        Function.callFunc(this, __confirm, signal);
                         return;
                     }
 
@@ -135,7 +126,7 @@ export const Autoclose = GObject.registerClass(
 
                                 if (opt === 'Confirm') {
                                     // this.close();
-                                    callFunc(this, __confirm, signal);
+                                    Function.callFunc(this, __confirm, signal);
                                 }
 
                                 if (opt == 'Cancel') {
@@ -256,7 +247,6 @@ const RunningApplicationListWindow = GObject.registerClass({
             this._checkProcessStateId = null;
             this._updatePositionIdleId = null;
 
-            // wm_class 
             this._apps_recheck_process_state = new Set(['Microsoft-edge']);
 
             this._initialKeyFocus = null;

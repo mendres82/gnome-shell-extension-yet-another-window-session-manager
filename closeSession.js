@@ -1,7 +1,6 @@
 'use strict';
 
 import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 

@@ -8,7 +8,6 @@ import * as FileUtils from './utils/fileUtils.js';
 import * as Log from './utils/log.js';
 import {PrefsUtils} from './utils/prefsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
-import * as DateUtils from './utils/dateUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -43,26 +42,6 @@ export const RestoreSession = class {
         this._display = global.display;
 
         this._connectIds = [];
-    }
-
-    /**
-     * Restore workspaces and make them persistent, etc
-     */
-    static restoreFromSummary() {
-        Log.Log.getDefault().debug(`Prepare to restore summary`);
-        FileUtils.loadSummary().then(([summary, path]) => {
-            Log.Log.getDefault().info(`Restoring summary from ${path}`);
-            const savedNWorkspace = summary.n_workspace;
-            const workspaceManager = global.workspace_manager;
-            const currentNWorkspace = workspaceManager.n_workspaces;
-            const moreWorkspace = savedNWorkspace - currentNWorkspace;
-            if (moreWorkspace) {
-                for (let i = currentNWorkspace; i <= savedNWorkspace; i++) {
-                    workspaceManager.append_new_workspace(false, DateUtils.get_current_time());
-                    workspaceManager.get_workspace_by_index(i)._keepAliveId = true;
-                }
-            }
-        }).catch(e => Log.Log.getDefault().error(e));
     }
 
     restoreSession(sessionName) {

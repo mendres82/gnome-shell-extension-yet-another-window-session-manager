@@ -26,7 +26,6 @@ export let desktop_template_path_restore_previous_at_autostart = null;
 export let desktop_template_launch_app_shell_script = null;
 
 export const desktop_file_store_path_base = GLib.build_filenamev([data_dir, '/applications']);
-export const desktop_file_store_path = `${desktop_file_store_path_base}/__yet-another-window-session-manager`;
 
 export const recently_closed_session_name = 'Recently Closed Session';
 export const recently_closed_session_path = GLib.build_filenamev([sessions_path, recently_closed_session_name]);
@@ -35,13 +34,9 @@ export const recently_closed_session_file = Gio.File.new_for_path(recently_close
 export const current_session_path = `${config_path_base}/currentSession`;
 
 export const current_session_summary_name = 'summary.json';
-export const current_session_summary_path = GLib.build_filenamev([current_session_path, 'summary.json']);
 
 export const autostart_restore_desktop_file_path = GLib.build_filenamev([user_config, '/autostart/_gnome-shell-extension-yet-another-window-session-manager.desktop']);
 export const autostart_restore_previous_desktop_file_path = GLib.build_filenamev([user_config, '/autostart/_yawsm-restore-previous-session.desktop']);
-
-export let desktop_template_path_ydotool_uinput_rules;
-export const system_udev_rules_path_ydotool_uinput_rules = '/etc/udev/rules.d/60-yawsm-ydotool-uinput.rules';
 
 // Some constants rely on extension metadata,
 // we put them all here and initialize them from extension.js 
@@ -52,37 +47,6 @@ export function init(extensionObject) {
     desktop_template_path_restore_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_gnome-shell-extension-yet-another-window-session-manager.desktop']);
     desktop_template_path_restore_previous_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_yawsm-restore-previous-session.desktop']);
     desktop_template_launch_app_shell_script = GLib.build_filenamev([extensionObject.path, '/template/launch-app.sh']);
-    desktop_template_path_ydotool_uinput_rules = GLib.build_filenamev([extensionObject.path, '/template/60-yawsm-ydotool-uinput.rules']);
-
-}
-
-export async function loadSummary() {
-    try {
-        return await loadFile(current_session_summary_path);
-    } catch (error) {
-        Log.Log.getDefault().error(error);
-    }
-}
-
-export async function loadFile(path) {
-    try {
-        return new Promise((resolve, reject) => {
-            const file = Gio.File.new_for_path(path);
-            file.load_contents_async(
-                null,
-                (file, asyncResult) => {
-                    try {
-                        const [success, contents, _] = file.load_contents_finish(asyncResult);
-                        resolve([getJsonObj(contents), path]);
-                    } catch (error) {
-                        Log.Log.getDefault().error(error);
-                        reject(error);
-                    }
-                });
-        });
-    } catch (error) {
-        Log.Log.getDefault().error(error);
-    }
 }
 
 /**
@@ -197,49 +161,6 @@ export function sessionExists(sessionName, baseDir = null) {
 }
 
 /**
- * Remove files. And also remove its parent if it's empty.
- *
- * @param {String} path         The path of a file or a directory
- */
-export function removeFileAndParent(path) {
-    if (!GLib.file_test(path, GLib.FileTest.EXISTS)) {
-        throw new Error(`Cannot remove '${path}': No such file or directory`);
-    }
-
-    const file = Gio.File.new_for_path(path);
-    try {
-        const info = file.query_info(
-            [Gio.FILE_ATTRIBUTE_STANDARD_TYPE].join(','),
-            Gio.FileQueryInfoFlags.NONE,
-            null);
-
-        const fileType = info.get_file_type();
-        const isDir = fileType === Gio.FileType.DIRECTORY;
-
-        file.delete(null);
-        Log.Log.getDefault().debug(`Removed ${isDir ? 'directory' : ''} ${path}`);
-
-        const parent = file.get_parent();
-        if (parent && isEmpty(parent)) {
-            parent.delete(null);
-            Log.Log.getDefault().debug(`Removed directory ${parent.get_path()}`);
-        }
-
-    } catch (e) {
-        Log.Log.getDefault().error(e);
-    }
-}
-
-export function isEmpty(directory) {
-    const fileEnumerator = directory.enumerate_children(
-        [Gio.FILE_ATTRIBUTE_STANDARD_NAME,
-            Gio.FILE_ATTRIBUTE_STANDARD_TYPE].join(','),
-        Gio.FileQueryInfoFlags.NONE,
-        null);
-    return !fileEnumerator.next_file(null);
-}
-
-/**
  * Remove files or directories
  *
  * @param {String} path         The path of a file or a directory
@@ -314,10 +235,6 @@ export function isDirectory(sessionName) {
     }
 
     return false;
-}
-
-export function loadAutostartDesktopTemplate() {
-    return loadTemplate(desktop_template_path_restore_at_autostart);
 }
 
 export function loadDesktopTemplate(cancellable = null) {

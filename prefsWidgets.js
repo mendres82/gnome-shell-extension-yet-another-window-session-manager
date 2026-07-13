@@ -15,31 +15,6 @@ export const boxProperties = {
     margin_bottom: 0,
 };
 
-export const newColumnViewColumn = function(title, factorySetupFunc, factoryBindFunc, options = {}) {
-    const factory = new Gtk.SignalListItemFactory();
-    const columnViewColumn = new Gtk.ColumnViewColumn({
-        title,
-        factory
-    });
-
-    if (options.fixedWidth >= 0)
-        columnViewColumn.set_fixed_width(options.fixedWidth);
-
-    if (factorySetupFunc) {
-        factory.connect('setup', (factory, listItem) => {
-            factorySetupFunc(factory, listItem);
-        });
-    }
-
-    factory.connect('bind', (factory, listItem) => {
-        // Let Tab reach interactive widgets inside the cell, not the cell wrapper
-        listItem.set_focusable(false);
-        if (factoryBindFunc)
-            factoryBindFunc(factory, listItem);
-    });
-    return columnViewColumn;
-}
-
 export const newRemoveButton = function() {
     return new BoxRemoveButton();
 }
@@ -187,21 +162,4 @@ export const BoxRemoveButton = GObject.registerClass({
     }
 
 });
-
-// TODO This function does not work
-export const addScrolledWindow = function(widget) {
-    const scroll = new Gtk.ScrolledWindow({ 
-        vexpand: true, 
-        hexpand: true,
-        hscrollbar_policy: Gtk.PolicyType.NEVER,
-        vscrollbar_policy: Gtk.PolicyType.AUTOMATIC
-    });
-    
-    const parent = widget.get_parent();
-    widget.unparent();
-    scroll.set_child(widget);
-    // How to add widget to Adw.PreferencesPage. parent is a Adw.PreferencesPage?
-    parent.add_child(scroll);
-
-}
 
