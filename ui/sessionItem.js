@@ -44,7 +44,11 @@ class SessionItem extends PopupMenu.PopupMenuItem {
 
     }
 
-   
-    
+    destroy() {
+        this._sessionItemButtons?.destroy();
+        this._sessionItemButtons = null;
+        super.destroy();
+    }
+
 });
 

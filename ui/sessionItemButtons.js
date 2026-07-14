@@ -95,7 +95,7 @@ class SessionItemButtons extends GObject.Object {
             }
         });
 
-        this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
+        this._autorestoreChangedId = this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
             const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
             if (this._autostartSwitch.state !== toggled) {
                 this._syncingAutostartSwitch = true;
@@ -279,5 +279,12 @@ class SessionItemButtons extends GObject.Object {
     _onClickClose(button, event) {
         // TODO Close specified windows in the session?
         this._closeSession.closeWindows();
+    }
+
+    destroy() {
+        if (this._autorestoreChangedId) {
+            this._settings.disconnect(this._autorestoreChangedId);
+            this._autorestoreChangedId = 0;
+        }
     }
 });
