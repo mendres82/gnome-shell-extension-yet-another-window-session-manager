@@ -43,17 +43,19 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
                         const processInfoMap = new Map();
                         let [, stdout, stderr] = proc.communicate_utf8_finish(res);
                         let status = proc.get_exit_status();
-                        if (status === 0 && stdout) {
-                            const lines = stdout.trim();
-                            for (const line of lines.split('\n')) {
+                        if (stdout?.trim()) {
+                            for (const line of stdout.trim().split('\n')) {
                                 const processInfoArray = line.split(' ').filter(a => a);
                                 const pid = processInfoArray.slice(7, 8).join();
-                                processInfoMap.set(Number(pid), processInfoArray);
+                                if (pid)
+                                    processInfoMap.set(Number(pid), processInfoArray);
                             }
-                            return resolve(processInfoMap);
                         }
-    
-                        Log.Log.getDefault().error(new Error(`Failed to query process info. status: ${status}, stdout: ${stdout}, stderr: ${stderr}`));
+
+                        if (processInfoMap.size > 0 || status === 0)
+                            return resolve(processInfoMap);
+
+                        Log.Log.getDefault().debug(`Failed to query process info. status: ${status}, stdout: ${stdout}, stderr: ${stderr}`);
                         resolve(processInfoMap);
                     } catch(e) {
                         Log.Log.getDefault().error(e);
