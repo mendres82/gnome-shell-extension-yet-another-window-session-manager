@@ -132,7 +132,8 @@ class SessionItemButtons extends GObject.Object {
             markup: _('Move to Trash'),
         });
         deleteButton.connect('clicked', () => {
-            // We just trash file to trash scan instead of delete in case still need it.
+            if (this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS) === this.sessionItem._filename)
+                this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, '');
             FileUtils.trashSession(this.sessionItem._filename);
         });
 
