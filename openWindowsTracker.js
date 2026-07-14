@@ -501,6 +501,7 @@ export const OpenWindowsTracker = class {
                     }
                 });
                 this._signals.push([appId, app]);
+                this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
             }
         } catch (e) {
             this._log.error(e);
@@ -518,10 +519,10 @@ export const OpenWindowsTracker = class {
         this._log.debug(`${window.get_title()}(${app?.get_name()}) was closed. Cleaning up its saved session files.`);
 
         FileUtils.removeFile(sessionFilePath);
-        this._removeOrphanSessionConfigs(app, sessionDirectory);
+        this._removeOrphanSessionConfigs(app, sessionDirectory, window).catch(e => this._log.error(e));
     }
 
-    _removeOrphanSessionConfigs(app, sessionDirectory) {
+    async _removeOrphanSessionConfigs(app, sessionDirectory, closingWindow = null) {
         try {
             if (!app) return;
             if (!GLib.file_test(sessionDirectory, GLib.FileTest.EXISTS)) return;
@@ -531,17 +532,21 @@ export const OpenWindowsTracker = class {
             const sessionNames = new Set();
             const windows = app.get_windows();
             for (const metaWindow of windows) {
-                if (UiHelper.ignoreWindows(metaWindow)) continue;
+                if (metaWindow === closingWindow || UiHelper.ignoreWindows(metaWindow)) continue;
                 sessionNames.add(`${MetaWindowUtils.getStableWindowId(metaWindow)}.json`);
             }
 
-            FileUtils.listAllSessions(sessionDirectory, false, (file, info) => {
+            await FileUtils.listAllSessions(sessionDirectory, false, (file, info) => {
                 const filename = info.get_name();
                 const path = file.get_path();
                 if (!sessionNames.has(filename) && path && GLib.file_test(path, GLib.FileTest.EXISTS)) {
                     FileUtils.removeFile(path);
                 }
             });
+
+            if (!sessionNames.size && GLib.file_test(sessionDirectory, GLib.FileTest.EXISTS)) {
+                FileUtils.removeFile(sessionDirectory, true);
+            }
         } catch (e) {
             this._log.error(e);
         }
