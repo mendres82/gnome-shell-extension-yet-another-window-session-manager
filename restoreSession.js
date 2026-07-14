@@ -268,9 +268,9 @@ export const RestoreSession = class {
                                         const msg = _('Failed to launch %s via command line').format(app_name);
                                         let stderr = '';
                                         if (stderrInputStream) {
-                                            let line;
-                                            while ((line = stderrInputStream.read_line(null)[0]) !== null)
-                                                stderr += (stderr ? '\n' : '') + line;
+                                            let bytes;
+                                            while ((bytes = stderrInputStream.read_line(null)[0]) !== null)
+                                                stderr += (stderr ? '\n' : '') + new TextDecoder().decode(bytes);
                                         }
                                         const errorDetail = _('Can\'t restore this app from %s: %s.').format(
                                             session_config_object._file_path,
