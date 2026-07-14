@@ -192,9 +192,7 @@ export function removeFile(path, recursively = false) {
             let fileInfo = null;
             while (fileInfo = fileEnumerator.next_file(null)) {
                 const childFile = fileEnumerator.get_child(fileInfo);
-                if (info.get_file_type() === Gio.FileType.DIRECTORY) {
-                    removeFile(childFile.get_path(), recursively);
-                }
+                removeFile(childFile.get_path(), recursively);
             }
 
             file.delete(null);
