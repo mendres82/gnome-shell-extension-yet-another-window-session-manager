@@ -6,13 +6,13 @@
 
 
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Name=${appName}
-Comment=${appName} 
+Comment=User-created launcher for ${appName}
 Type=Application
 Exec=${commandLine}
 Icon=${icon}
+Terminal=false
 StartupWMClass=${wmClass}
 # If the former does not work, use the below line instead.
 # If it still does not work, please fill an issue at:
