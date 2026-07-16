@@ -6,7 +6,6 @@ import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
 import Gtk from 'gi://Gtk';
 
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as IconFinder from '../utils/iconFinder.js';
@@ -96,7 +95,7 @@ class SessionItemButtons extends GObject.Object {
             }
         });
 
-        this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
+        this._autorestoreChangedId = this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
             const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
             if (this._autostartSwitch.state !== toggled) {
                 this._syncingAutostartSwitch = true;
@@ -133,7 +132,8 @@ class SessionItemButtons extends GObject.Object {
             markup: _('Move to Trash'),
         });
         deleteButton.connect('clicked', () => {
-            // We just trash file to trash scan instead of delete in case still need it.
+            if (this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS) === this.sessionItem._filename)
+                this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, '');
             FileUtils.trashSession(this.sessionItem._filename);
         });
 
@@ -280,5 +280,12 @@ class SessionItemButtons extends GObject.Object {
     _onClickClose(button, event) {
         // TODO Close specified windows in the session?
         this._closeSession.closeWindows();
+    }
+
+    destroy() {
+        if (this._autorestoreChangedId) {
+            this._settings.disconnect(this._autorestoreChangedId);
+            this._autorestoreChangedId = 0;
+        }
     }
 });

@@ -1,7 +1,6 @@
 'use strict';
 
 import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
@@ -513,7 +512,9 @@ export const CloseSession = class {
 
     _sortWindowsOnX11(app) {
         const savedWindowsMappingJsonStr = this._settings.get_string('windows-mapping');
-        const savedWindowsMapping = savedWindowsMappingJsonStr === '{}' ? new Map() : new Map(JSON.parse(savedWindowsMappingJsonStr));
+        const savedWindowsMapping = (savedWindowsMappingJsonStr === '{}' || savedWindowsMappingJsonStr === '[]')
+            ? new Map()
+            : new Map(JSON.parse(savedWindowsMappingJsonStr));
 
         const app_info = app.get_app_info();
         const key = app_info ? app_info.get_filename() : app.get_name();

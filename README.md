@@ -210,21 +210,6 @@ Use `gdbus` to call the remote method, which is provided by this exension, to im
 
 Send keys to close the application gracefully with multiple windows.
 
-* libgtop2
-
-As of version 34, YAWSM also uses `libgtop2` to query process information, just like `ps`. The cost of calling `ps` is very high, so I'm planing to remove this entirely.
-
-To install it:
-
-* Fedora and derivatives:
-`dnf install libgtop2`
-
-* Debian, Ubuntu, Pop!_OS, and derivatives:
-`apt install gir1.2-gtop-2.0 libgtop2-dev`
-
-* Arch and derivatives:
-`pacman -S libgtop`
-
 # Known issues
 
 1. On both X11 and Wayland, if click restore button (<img src=icons/restore-symbolic.svg width="14" height="14">) continually during the process of restoring, the window size and position may can't be restored, and it may restore many instances of an application. **As a workaround, click the restore button (<img src=icons/restore-symbolic.svg width="14" height="14">) only once until all apps are restored.**

@@ -68,7 +68,6 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
         this.restore_previous_delay_spinbutton.set_sensitive(activeOfRestorePrevious);
 
         const restore_at_startup_switch_state = this.restore_at_startup_switch.get_active();
-        this.timer_on_the_autostart_dialog_spinbutton.set_sensitive(restore_at_startup_switch_state);
         this.restore_at_startup_without_asking_switch.set_sensitive(restore_at_startup_switch_state);
         this.timer_on_the_autostart_dialog_spinbutton.set_sensitive(
             restore_at_startup_switch_state && !this.restore_at_startup_without_asking_switch.get_active()

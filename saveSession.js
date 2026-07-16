@@ -38,8 +38,6 @@ export const SaveSession = class {
         this._defaultAppSystem = Shell.AppSystem.get_default();
 
         this._settings = PrefsUtils.getSettings();
-
-        this._sourceIds = [];
     }
 
     async saveSummaryAsync(cancellable) {
@@ -71,7 +69,7 @@ export const SaveSession = class {
         }
     }
 
-    async saveSessionAsync(sessionName, baseDir = null, backup = true) {
+    async saveSessionAsync(sessionName) {
         try {
             this._log.debug(`Generating session ${sessionName}`);
 
@@ -79,13 +77,8 @@ export const SaveSession = class {
     
             sessionConfig.x_session_config_objects = sessionConfig.sort();
             
-            if (backup) {
-                await this.backupExistingSessionIfNecessary(sessionName, baseDir);
-            }
-    
-            await this._saveSessionConfigAsync(sessionConfig, baseDir);
-    
-            // TODO saved Notification   
+            await this.backupExistingSessionIfNecessary(sessionName);
+            await this._saveSessionConfigAsync(sessionConfig);
         } catch (error) {
             this._log.error(error);
         }
@@ -121,7 +114,7 @@ export const SaveSession = class {
 
                     this._log.debug(`Generating window session ${sessionName}`);
                 
-                    const [canContinue, sessionConfigObject] = this._builtSessionDetails(
+                    const [canContinue, sessionConfigObject] = await this._builtSessionDetails(
                         app, 
                         metaWindow, 
                         cancellable);
@@ -150,39 +143,6 @@ export const SaveSession = class {
         }
     }
 
-    async saveWindowSessionAsync(metaWindow, sessionName, baseDir, cancellable = null) {
-        try {
-            if (cancellable && cancellable.is_cancelled()) {
-                return;
-            }
-    
-            const app = this._windowTracker.get_window_app(metaWindow);
-            if (!app) return;
-            if (UiHelper.ignoreWindows(metaWindow)) return;
-    
-            this._log.debug(`Generating window session ${sessionName}`);
-            
-            const _getProcessInfoPromise = this._getProcessInfo([app])
-            
-            const [canContinue, sessionConfigObject] = this._builtSessionDetails(
-                app, 
-                metaWindow, 
-                cancellable);
-            if (!canContinue) return;
-    
-            const processInfoMap = await _getProcessInfoPromise;
-            const processInfoArray = processInfoMap.get(metaWindow.get_pid());
-            this._setFieldsFromProcess(processInfoArray, sessionConfigObject);
-    
-            return await this._saveSessionConfigAsync({
-                ...sessionConfigObject, 
-                session_name: sessionName
-            }, baseDir, cancellable);
-        } catch (e) {
-            this._log.error(e);
-        }
-    }
-    
     async _buildSession(sessionName) {
         const runningShellApps = this._defaultAppSystem.get_running();
         const _getProcessInfoPromise = SubprocessUtils.getProcessInfo(runningShellApps, (metaWindow) => {
@@ -201,7 +161,7 @@ export const SaveSession = class {
 
             for (const metaWindow of metaWindows) {
                 try {
-                    const [canContinue, sessionConfigObject] = this._builtSessionDetails(runningShellApp, metaWindow);
+                    const [canContinue, sessionConfigObject] = await this._builtSessionDetails(runningShellApp, metaWindow);
                     if (!canContinue) {
                         continue;
                     }
@@ -235,7 +195,7 @@ export const SaveSession = class {
         return { metaWindows, ignoredWindowsMap };
     }
 
-    _builtSessionDetails(runningShellApp, metaWindow, cancellable = null) {
+    async _builtSessionDetails(runningShellApp, metaWindow, cancellable = null) {
         const sessionConfigObject = new SessionConfig.SessionConfigObject();
         if (cancellable && cancellable.is_cancelled()) {
             return [false, sessionConfigObject];
@@ -345,15 +305,22 @@ export const SaveSession = class {
             if (cmdStr.startsWith('./')) {
                 // Try to get the working directory to complete the command line
                 const proc = this._subprocessLauncher.spawnv(['pwdx', `${metaWindow.get_pid()}`]);
-                // TODO Use async version in the future
-                const result = proc.communicate_utf8(null, cancellable);
-                let [, stdout, stderr] = result;
-                let status = proc.get_exit_status();
-                if (status === 0 && stdout) {
-                    cmdStr = `${stdout.split(':')[1].trim()}/${cmdStr}`
-                } else {
-                    this._log.error(new Error(`Failed to query the working directory according to ${metaWindow.get_pid()}, and the current command line is ${cmdStr}. stderr: ${stderr}`));
-                }
+                await new Promise(resolve => {
+                    proc.communicate_utf8_async(null, cancellable, (proc, res) => {
+                        try {
+                            let [, stdout, stderr] = proc.communicate_utf8_finish(res);
+                            let status = proc.get_exit_status();
+                            if (status === 0 && stdout) {
+                                cmdStr = `${stdout.split(':')[1].trim()}/${cmdStr}`
+                            } else {
+                                this._log.error(new Error(`Failed to query the working directory according to ${metaWindow.get_pid()}, and the current command line is ${cmdStr}. stderr: ${stderr}`));
+                            }
+                        } catch (e) {
+                            this._log.error(e);
+                        }
+                        resolve();
+                    });
+                });
 
             }
             const iconString = runningShellApp.get_icon().to_string()
@@ -382,7 +349,7 @@ export const SaveSession = class {
         return [true, sessionConfigObject];
     }
 
-    async backupExistingSessionIfNecessary(sessionName, baseDir) {
+    async backupExistingSessionIfNecessary(sessionName) {
 
         const sessions_path = FileUtils.get_sessions_path();
         const session_file_path = GLib.build_filenamev([sessions_path, sessionName]);
@@ -475,7 +442,6 @@ export const SaveSession = class {
                                     Main.notify(_('Yet Another Window Session Manager'), savedMsg);
                                 }
                                 resolve(success);
-                                // TODO Notification
                                 return;
                             }
                         } catch (e) {
@@ -514,12 +480,6 @@ export const SaveSession = class {
         }
         if (this._subprocessLauncher) {
             this._subprocessLauncher = null;
-        }
-        if (this._sourceIds) {
-            this._sourceIds.forEach(sourceId => {
-                GLib.Source.remove(sourceId);
-            });
-            this._sourceIds = null;
         }
         if (this._saveSessionIdleId) {
             GLib.Source.remove(this._saveSessionIdleId);

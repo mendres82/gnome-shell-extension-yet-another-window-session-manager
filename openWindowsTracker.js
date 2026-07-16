@@ -6,7 +6,6 @@ import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as SaveSession from './saveSession.js';
 import * as RestoreSession from './restoreSession.js';
@@ -117,8 +116,6 @@ export const OpenWindowsTracker = class {
             // `installed-changed` emits after `shell_app_system_init()` is called 
             // and all `window-created` emits.
             const installedChangedId = this._defaultAppSystem.connect('installed-changed', () => {
-                // RestoreSession.RestoreSession.restoreFromSummary();
-            
                 Log.Log.getDefault().info(`Restoring windows states after gnome shell starts`);
                 this._moveSession.moveApps(this._allSavedWindowSessions);
 
@@ -391,28 +388,32 @@ export const OpenWindowsTracker = class {
         }
 
         const sessionPathFile = Gio.File.new_for_path(sessionFilePath);
-        let [success, contents] = sessionPathFile.load_contents(null);
-        if (!success) {
-            return;
-        }
+        sessionPathFile.load_contents_async(
+            null,
+            (file, asyncResult) => {
+                const [success, contents, _] = file.load_contents_finish(asyncResult);
+                if (!success) {
+                    return;
+                }
 
-        const sessionContent = FileUtils.getJsonObj(contents);
-        Log.Log.getDefault().debug(`Prepare to restore window session from ${sessionFilePath}`);
+                const sessionContent = FileUtils.getJsonObj(contents);
+                Log.Log.getDefault().debug(`Prepare to restore window session from ${sessionFilePath}`);
 
-        this._allSavedWindowSessions.push(sessionContent);
+                this._allSavedWindowSessions.push(sessionContent);
 
-        // TODO It's no necessary to put sessions to `RestoreSession.restoreSessionObject.restoringApps` any more, since this job has been done by `MoveSession.moveApps(sessions)`
-        const app = this._windowTracker.get_app_from_pid(sessionContent.pid);
-        if (app && app.get_name() == sessionContent.app_name) {
-            const restoringShellAppData = RestoreSession.restoreSessionObject.restoringApps.get(app);
-            if (restoringShellAppData) {
-                restoringShellAppData.saved_window_sessions.push(sessionContent);
-            } else {
-                RestoreSession.restoreSessionObject.restoringApps.set(app, {
-                    saved_window_sessions: [sessionContent]
-                });
-            }
-        }
+                // TODO It's no necessary to put sessions to `RestoreSession.restoreSessionObject.restoringApps` any more, since this job has been done by `MoveSession.moveApps(sessions)`
+                const app = this._windowTracker.get_app_from_pid(sessionContent.pid);
+                if (app && app.get_name() == sessionContent.app_name) {
+                    const restoringShellAppData = RestoreSession.restoreSessionObject.restoringApps.get(app);
+                    if (restoringShellAppData) {
+                        restoringShellAppData.saved_window_sessions.push(sessionContent);
+                    } else {
+                        RestoreSession.restoreSessionObject.restoringApps.set(app, {
+                            saved_window_sessions: [sessionContent]
+                        });
+                    }
+                }
+            });
     }
 
     async _prepareToSaveWindowSession(window) {
@@ -427,7 +428,6 @@ export const OpenWindowsTracker = class {
             if (!workspace) return;
             if (this._blacklist.has(window.get_wm_class())) return;
 
-            // this._log.debug(`Adding window ${window.get_title()} to queue (current size: ${this._windowsAboutToSaveSet.size}) to prepare to save window session`);
             this._windowsAboutToSaveSet.add(window);
         } catch (error) {
             this._log.error(error);
@@ -501,6 +501,7 @@ export const OpenWindowsTracker = class {
                     }
                 });
                 this._signals.push([appId, app]);
+                this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
             }
         } catch (e) {
             this._log.error(e);
@@ -518,10 +519,10 @@ export const OpenWindowsTracker = class {
         this._log.debug(`${window.get_title()}(${app?.get_name()}) was closed. Cleaning up its saved session files.`);
 
         FileUtils.removeFile(sessionFilePath);
-        this._removeOrphanSessionConfigs(app, sessionDirectory);
+        this._removeOrphanSessionConfigs(app, sessionDirectory, window).catch(e => this._log.error(e));
     }
 
-    _removeOrphanSessionConfigs(app, sessionDirectory) {
+    async _removeOrphanSessionConfigs(app, sessionDirectory, closingWindow = null) {
         try {
             if (!app) return;
             if (!GLib.file_test(sessionDirectory, GLib.FileTest.EXISTS)) return;
@@ -531,17 +532,21 @@ export const OpenWindowsTracker = class {
             const sessionNames = new Set();
             const windows = app.get_windows();
             for (const metaWindow of windows) {
-                if (UiHelper.ignoreWindows(metaWindow)) continue;
+                if (metaWindow === closingWindow || UiHelper.ignoreWindows(metaWindow)) continue;
                 sessionNames.add(`${MetaWindowUtils.getStableWindowId(metaWindow)}.json`);
             }
 
-            FileUtils.listAllSessions(sessionDirectory, false, (file, info) => {
+            await FileUtils.listAllSessions(sessionDirectory, false, (file, info) => {
                 const filename = info.get_name();
                 const path = file.get_path();
                 if (!sessionNames.has(filename) && path && GLib.file_test(path, GLib.FileTest.EXISTS)) {
                     FileUtils.removeFile(path);
                 }
             });
+
+            if (!sessionNames.size && GLib.file_test(sessionDirectory, GLib.FileTest.EXISTS)) {
+                FileUtils.removeFile(sessionDirectory, true);
+            }
         } catch (e) {
             this._log.error(e);
         }
@@ -608,7 +613,7 @@ export const OpenWindowsTracker = class {
     _onConfirmedLogout(proxy, sender) {
         try {
             this._log.debug(`Resetting windows-mapping before logout.`);
-            this._settings.set_string('windows-mapping', '{}');
+            this._settings.set_string('windows-mapping', '[]');
         } catch (error) {
             this._log.error(error);
         }
@@ -616,12 +621,12 @@ export const OpenWindowsTracker = class {
 
     _onConfirmedReboot(proxy, sender) {
         this._log.debug(`Resetting windows-mapping before reboot.`);
-        this._settings.set_string('windows-mapping', '{}');
+        this._settings.set_string('windows-mapping', '[]');
     }
 
     _onConfirmedShutdown(proxy, sender) {
         this._log.debug(`Resetting windows-mapping before shutdown.`);
-        this._settings.set_string('windows-mapping', '{}');
+        this._settings.set_string('windows-mapping', '[]');
 
         // TODO Move currentSession to recentlyClosed (recent closed session / recent closed app) with three tabs?
     }
@@ -646,7 +651,7 @@ export const OpenWindowsTracker = class {
         const windowStableSequence = metaWindow.get_stable_sequence();
         const savedWindowsMappingJsonStr = this._settings.get_string('windows-mapping');
         let savedWindowsMapping;
-        if (savedWindowsMappingJsonStr === '{}') {
+        if (savedWindowsMappingJsonStr === '{}' || savedWindowsMappingJsonStr === '[]') {
             savedWindowsMapping = new Map();
         } else {
             savedWindowsMapping = new Map(JSON.parse(savedWindowsMappingJsonStr));

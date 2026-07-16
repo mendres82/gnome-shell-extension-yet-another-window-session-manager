@@ -8,7 +8,6 @@ import * as FileUtils from './utils/fileUtils.js';
 import * as Log from './utils/log.js';
 import {PrefsUtils} from './utils/prefsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
-import * as DateUtils from './utils/dateUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -45,26 +44,6 @@ export const RestoreSession = class {
         this._connectIds = [];
     }
 
-    /**
-     * Restore workspaces and make them persistent, etc
-     */
-    static restoreFromSummary() {
-        Log.Log.getDefault().debug(`Prepare to restore summary`);
-        FileUtils.loadSummary().then(([summary, path]) => {
-            Log.Log.getDefault().info(`Restoring summary from ${path}`);
-            const savedNWorkspace = summary.n_workspace;
-            const workspaceManager = global.workspace_manager;
-            const currentNWorkspace = workspaceManager.n_workspaces;
-            const moreWorkspace = savedNWorkspace - currentNWorkspace;
-            if (moreWorkspace) {
-                for (let i = currentNWorkspace; i <= savedNWorkspace; i++) {
-                    workspaceManager.append_new_workspace(false, DateUtils.get_current_time());
-                    workspaceManager.get_workspace_by_index(i)._keepAliveId = true;
-                }
-            }
-        }).catch(e => Log.Log.getDefault().error(e));
-    }
-
     restoreSession(sessionName) {
         if (!sessionName) {
             sessionName = this.sessionName;
@@ -87,55 +66,59 @@ export const RestoreSession = class {
 
     restoreSessionFromFile(session_file_path) {
         const session_file = Gio.File.new_for_path(session_file_path);
-        let [success, contents] = session_file.load_contents(null);
-        if (!success) {
-            return;
-        }
-
-        let session_config = FileUtils.getJsonObj(contents);
-        let session_config_objects = session_config.x_session_config_objects;
-        if (!(session_config_objects && session_config_objects.length)) {
-            this._log.error(new Error(`Session details not found: ${session_file_path}`));
-            global.notify_error(
-                _('No session to restore from %s').format(session_file_path),
-                _('Session config is empty.'));
-            return;
-        }
-
-        session_config_objects = session_config_objects.filter(session_config_object => {
-            const desktop_file_id = session_config_object.desktop_file_id;
-            if (!desktop_file_id) {
-                return true;
-            }
-            const shellApp = this._defaultAppSystem.lookup_app(desktop_file_id);
-            if (!shellApp) {
-                return true;
-            }
-
-            if (this._appIsRunning(shellApp)) {
-                this._log.debug(`${shellApp.get_name()} is already running`)
-                return false;
-            }
-
-            return true;
-        });
-        if (session_config_objects.length === 0) return;
-
-        this._restoreOneSession(session_config_objects.shift());
-        if (session_config_objects.length === 0) return;
-
-        this._restoreSessionTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 
-            // In milliseconds. 
-            // Note that this timing might not be precise, see https://gjs-docs.gnome.org/glib20~2.66.1/glib.timeout_add
-            this._restore_session_interval,
-            () => {
-                if (!session_config_objects.length) {
-                    return GLib.SOURCE_REMOVE;
+        session_file.load_contents_async(
+            null,
+            (file, asyncResult) => {
+                const [success, contents, _] = file.load_contents_finish(asyncResult);
+                if (!success) {
+                    return;
                 }
+
+                let session_config = FileUtils.getJsonObj(contents);
+                let session_config_objects = session_config.x_session_config_objects;
+                if (!(session_config_objects && session_config_objects.length)) {
+                    this._log.error(new Error(`Session details not found: ${session_file_path}`));
+                    global.notify_error(
+                        _('No session to restore from %s').format(session_file_path),
+                        _('Session config is empty.'));
+                    return;
+                }
+
+                session_config_objects = session_config_objects.filter(session_config_object => {
+                    const desktop_file_id = session_config_object.desktop_file_id;
+                    if (!desktop_file_id) {
+                        return true;
+                    }
+                    const shellApp = this._defaultAppSystem.lookup_app(desktop_file_id);
+                    if (!shellApp) {
+                        return true;
+                    }
+
+                    if (this._appIsRunning(shellApp)) {
+                        this._log.debug(`${shellApp.get_name()} is already running`)
+                        return false;
+                    }
+
+                    return true;
+                });
+                if (session_config_objects.length === 0) return;
+
                 this._restoreOneSession(session_config_objects.shift());
-                return GLib.SOURCE_CONTINUE;
-            }
-        );  
+                if (session_config_objects.length === 0) return;
+
+                this._restoreSessionTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 
+                    // In milliseconds. 
+                    // Note that this timing might not be precise, see https://gjs-docs.gnome.org/glib20~2.66.1/glib.timeout_add
+                    this._restore_session_interval,
+                    () => {
+                        if (!session_config_objects.length) {
+                            return GLib.SOURCE_REMOVE;
+                        }
+                        this._restoreOneSession(session_config_objects.shift());
+                        return GLib.SOURCE_CONTINUE;
+                    }
+                );  
+            });
     }
 
     async restorePreviousSession(removeAfterRestore) {
@@ -283,8 +266,15 @@ export const RestoreSession = class {
                                         this._log.info(`${app_name} is running, skipping`)
                                     } else {
                                         const msg = _('Failed to launch %s via command line').format(app_name);
-                                        let errorDetail = _('Can\'t restore this app from %s: %s.').format(
-                                            session_config_object._file_path, stderr);
+                                        let stderr = '';
+                                        if (stderrInputStream) {
+                                            let bytes;
+                                            while ((bytes = stderrInputStream.read_line(null)[0]) !== null)
+                                                stderr += (stderr ? '\n' : '') + new TextDecoder().decode(bytes);
+                                        }
+                                        const errorDetail = _('Can\'t restore this app from %s: %s.').format(
+                                            session_config_object._file_path,
+                                            stderr.trim() || _('exit status %d').format(status));
                                         this._log.error(`${msg}. output: ${errorDetail}`);
                                         global.notify_error(msg, errorDetail);
                                     }

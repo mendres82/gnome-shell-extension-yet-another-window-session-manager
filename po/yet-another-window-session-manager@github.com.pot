@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Yet Another Window Session Manager 57\n"
+"Project-Id-Version: Yet Another Window Session Manager 58\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-12 12:40+0200\n"
+"POT-Creation-Date: 2026-07-14 10:11+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -175,10 +175,6 @@ msgstr ""
 
 #: ui/sessionItem.js
 msgid "(Please save this session before using it)"
-msgstr ""
-
-#: ui/sessionItem.js
-msgid "(Empty, please save open windows first)"
 msgstr ""
 
 #: ui/popupMenuButtonItems.js
@@ -365,7 +361,7 @@ msgstr ""
 msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
 msgstr ""
 
-#: prefsCloseWindow.js prefsColumnView.js ui/prefs-gtk4.ui
+#: prefsCloseWindow.js ui/prefs-gtk4.ui
 msgid "Close windows"
 msgstr ""
 
@@ -373,7 +369,7 @@ msgstr ""
 msgid "Apply this whitelist entry when closing windows"
 msgstr ""
 
-#: prefsCloseWindow.js prefsColumnView.js
+#: prefsCloseWindow.js
 msgid "Log Out, Reboot, Power Off"
 msgstr ""
 
@@ -451,24 +447,17 @@ msgstr ""
 
 #: restoreSession.js
 #, javascript-format
+msgid "exit status %d"
+msgstr ""
+
+#: restoreSession.js
+#, javascript-format
 msgid "Can't restore this app from %s: Invalid command line: %s."
 msgstr ""
 
 #: restoreSession.js
 #, javascript-format
 msgid "Failed to restore %s"
-msgstr ""
-
-#: prefsColumnView.js
-msgid "Enabled"
-msgstr ""
-
-#: prefsColumnView.js
-msgid "Operation"
-msgstr ""
-
-#: prefsColumnView.js
-msgid "Name"
 msgstr ""
 
 #: prefsWindowPickableEntry.js

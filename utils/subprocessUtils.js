@@ -25,7 +25,7 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
             }
         }
 
-        if (!pidSet.size) return;
+        if (!pidSet.size) return new Map();
     
         // Separated with comma
         const pids = Array.from(pidSet).join(',');
@@ -43,17 +43,19 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
                         const processInfoMap = new Map();
                         let [, stdout, stderr] = proc.communicate_utf8_finish(res);
                         let status = proc.get_exit_status();
-                        if (status === 0 && stdout) {
-                            const lines = stdout.trim();
-                            for (const line of lines.split('\n')) {
+                        if (stdout?.trim()) {
+                            for (const line of stdout.trim().split('\n')) {
                                 const processInfoArray = line.split(' ').filter(a => a);
                                 const pid = processInfoArray.slice(7, 8).join();
-                                processInfoMap.set(Number(pid), processInfoArray);
+                                if (pid)
+                                    processInfoMap.set(Number(pid), processInfoArray);
                             }
-                            return resolve(processInfoMap);
                         }
-    
-                        Log.Log.getDefault().error(new Error(`Failed to query process info. status: ${status}, stdout: ${stdout}, stderr: ${stderr}`));
+
+                        if (processInfoMap.size > 0 || status === 0)
+                            return resolve(processInfoMap);
+
+                        Log.Log.getDefault().debug(`Failed to query process info. status: ${status}, stdout: ${stdout}, stderr: ${stderr}`);
                         resolve(processInfoMap);
                     } catch(e) {
                         Log.Log.getDefault().error(e);
@@ -68,6 +70,7 @@ export async function getProcessInfo(apps /*ShellApp*/, ignoreWindowsCb) {
         })
     } catch (e) {
         Log.Log.getDefault().error(e);
+        return new Map();
     }
 }
 
@@ -92,7 +95,7 @@ function readOutput(stream, lineBuffer) {
  * subprocess might exit later with failure.
  * 
  */
-export const trySpawnCmdstr = function(commandLineString, callBackOnSuccess, callBackOnFailure) {
+export const trySpawnCmdstr = function(commandLineString) {
     let success_, argv;
 
     try {
@@ -111,7 +114,7 @@ export const trySpawnCmdstr = function(commandLineString, callBackOnSuccess, cal
     return new Promise((resolve, reject) => {
         proc.wait_async(null, (proc, res) => {
             try {
-                let successful = proc.wait_finish(res);
+                proc.wait_finish(res);
                 let status = proc.get_exit_status();
                 let stdoutInputStream = proc.get_stdout_pipe();
                 let stderrInputStream = proc.get_stderr_pipe();
@@ -128,44 +131,6 @@ export const trySpawnCmdstr = function(commandLineString, callBackOnSuccess, cal
                 }
 
                 resolve([status === 0, status, stdoutInputStream, stderrInputStream]);
-            } catch(e) {
-                Log.Log.getDefault().error(e);
-                reject(e);
-            }
-        });
-    });
-}
-
-/**
- * Deprecated. Use `trySpawnCmdstr()` instead.
- * 
- * Since `proc.communicate_utf8_finish(res)` only returns value
- * after the subprocess (created by `commandLineString`)
- * exits, we cannot get the pid right after the subprocess launches. 
- * So there will be some kind of blocking here. 
- */
-export const trySpawnCmdstrWithBlocking = function(commandLineString, callBackOnSuccess, callBackOnFailure) {
-    let success_, argv;
-
-    try {
-        [success_, argv] = GLib.shell_parse_argv(commandLineString);
-    } catch (err) {
-        // Replace "Error invoking GLib.shell_parse_argv: " with
-        // something nicer
-        err.message = err.message.replace(/[^:]*: /, `${_('Could not parse command:')}\n`);
-        throw err;
-    }
-
-    let proc = Gio.Subprocess.new(
-        argv,
-        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
-    );
-    return new Promise((resolve, reject) => {
-        proc.communicate_utf8_async(null, null, (proc, res) => {
-            try {
-                let [, stdout, stderr] = proc.communicate_utf8_finish(res);
-                let status = proc.get_exit_status();
-                resolve([status === 0, status, stdout, stderr]);
             } catch(e) {
                 Log.Log.getDefault().error(e);
                 reject(e);
@@ -201,7 +166,7 @@ export const trySpawn = async function(commandLineArray, callBackOnSuccess, call
  * 2. https://gitlab.gnome.org/GNOME/gnome-shell/blob/8fda3116f03d95fabf3fac6d082b5fa268158d00/js/misc/util.js:L111
  * 
  * This implement will return the `stderr` and `stdout` to caller via two callback 
- * `callBackOnFailure` and `callBackOnFailure`
+ * `callBackOnSuccess` and `callBackOnFailure`
  * 
  */
 export const trySpawnAsync = function(commandLineArray, callBackOnSuccess, callBackOnFailure) {
@@ -225,7 +190,7 @@ export const trySpawnAsync = function(commandLineArray, callBackOnSuccess, callB
             }
         );
 
-        // Any unsused streams still have to be closed explicitly, otherwise the
+        // Any unused streams still have to be closed explicitly, otherwise the
         // file descriptors may be left open
         GLib.close(stdin);
 
@@ -278,51 +243,5 @@ export const trySpawnAsync = function(commandLineArray, callBackOnSuccess, callB
     } catch (e) {
         logError(e);
     }
-}
-
-
-/**
- * Execute a command asynchronously and check the exit status.
- *
- * If given, @cancellable can be used to stop the process before it finishes.
- *
- * @param {string[]} argv - a list of string arguments
- * @param {Gio.Cancellable} [cancellable] - optional cancellable object
- * @returns {Promise<boolean>} - The process success
- */
-export async function execCheck(argv, cancellable = null) {
-    let cancelId = 0;
-    let proc = new Gio.Subprocess({
-        argv: argv,
-        flags: Gio.SubprocessFlags.NONE
-    });
-    proc.init(cancellable);
-
-    if (cancellable instanceof Gio.Cancellable) {
-        cancelId = cancellable.connect(() => proc.force_exit());
-    }
-
-    return new Promise((resolve, reject) => {
-        proc.wait_check_async(null, (proc, res) => {
-            try {
-                if (!proc.wait_check_finish(res)) {
-                    let status = proc.get_exit_status();
-
-                    throw new Gio.IOErrorEnum({
-                        code: Gio.io_error_from_errno(status),
-                        message: GLib.strerror(status)
-                    });
-                }
-
-                resolve();
-            } catch (e) {
-                reject(e);
-            } finally {
-                if (cancelId > 0) {
-                    cancellable.disconnect(cancelId);
-                }
-            }
-        });
-    });
 }
 

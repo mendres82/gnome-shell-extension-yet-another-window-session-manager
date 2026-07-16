@@ -3,6 +3,8 @@
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -107,7 +109,25 @@ export const SearchSessionItem = GObject.registerClass(
             });
 
             button.connect('clicked', () => {
-                PrefsUtils.extensionObject.openPreferences();
+                this._getTopMenu()?.close(true);
+                Gio.DBus.session.call(
+                    'org.gnome.Shell.Extensions',
+                    '/org/gnome/Shell/Extensions',
+                    'org.gnome.Shell.Extensions',
+                    'OpenExtensionPrefs',
+                    new GLib.Variant('(ssa{sv})', [PrefsUtils.extensionObject.uuid, '', {}]),
+                    null,
+                    Gio.DBusCallFlags.NONE,
+                    -1,
+                    null,
+                    (_, result) => {
+                        try {
+                            Gio.DBus.session.call_finish(result);
+                        } catch (e) {
+                            logError(e, '[Yet Another Window Session Manager] Failed to open preferences');
+                        }
+                    },
+                );
             });
 
             this.add_child(button);

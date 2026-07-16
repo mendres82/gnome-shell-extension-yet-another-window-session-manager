@@ -44,16 +44,10 @@ class SessionItem extends PopupMenu.PopupMenuItem {
 
     }
 
-   
-    
-});
-
-const EmptySessionItem = GObject.registerClass(
-class EmptySessionItem extends PopupMenu.PopupMenuItem {
-    
-    _init() {
-        super._init(_('(Empty, please save open windows first)'));
-        this.setSensitive(false);
+    destroy() {
+        this._sessionItemButtons?.destroy();
+        this._sessionItemButtons = null;
+        super.destroy();
     }
 
 });

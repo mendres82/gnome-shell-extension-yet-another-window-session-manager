@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Yet Another Window Session Manager 57\n"
+"Project-Id-Version: Yet Another Window Session Manager 58\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-12 12:40+0200\n"
+"POT-Creation-Date: 2026-07-14 10:11+0200\n"
 "PO-Revision-Date: 2026-07-11 20:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -176,10 +176,6 @@ msgstr "(Unbekannt)"
 #: ui/sessionItem.js
 msgid "(Please save this session before using it)"
 msgstr "(Bitte speichern Sie diese Sitzung, bevor Sie sie verwenden)"
-
-#: ui/sessionItem.js
-msgid "(Empty, please save open windows first)"
-msgstr "(Leer, bitte zuerst offene Fenster speichern)"
 
 #: ui/popupMenuButtonItems.js
 msgid "Close open windows"
@@ -365,7 +361,7 @@ msgstr "Neues Tastenkürzel …"
 msgid "%s does't have app info. You may want to add this rule to 'Keywords'."
 msgstr "%s hat keine Anwendungsinformationen. Möglicherweise sollten Sie diese Regel unter „Schlüsselwörter“ hinzufügen."
 
-#: prefsCloseWindow.js prefsColumnView.js ui/prefs-gtk4.ui
+#: prefsCloseWindow.js ui/prefs-gtk4.ui
 msgid "Close windows"
 msgstr "Fenster schließen"
 
@@ -373,7 +369,7 @@ msgstr "Fenster schließen"
 msgid "Apply this whitelist entry when closing windows"
 msgstr "Diesen Whitelist-Eintrag beim Schließen von Fenstern anwenden"
 
-#: prefsCloseWindow.js prefsColumnView.js
+#: prefsCloseWindow.js
 msgid "Log Out, Reboot, Power Off"
 msgstr "Abmelden, neu starten, ausschalten"
 
@@ -451,6 +447,11 @@ msgstr "Diese Anwendung kann nicht aus %s wiederhergestellt werden: %s."
 
 #: restoreSession.js
 #, javascript-format
+msgid "exit status %d"
+msgstr "Rückgabestatus %d"
+
+#: restoreSession.js
+#, javascript-format
 msgid "Can't restore this app from %s: Invalid command line: %s."
 msgstr "Diese Anwendung kann nicht aus %s wiederhergestellt werden: Ungültige Befehlszeile: %s."
 
@@ -458,18 +459,6 @@ msgstr "Diese Anwendung kann nicht aus %s wiederhergestellt werden: Ungültige B
 #, javascript-format
 msgid "Failed to restore %s"
 msgstr "%s konnte nicht wiederhergestellt werden"
-
-#: prefsColumnView.js
-msgid "Enabled"
-msgstr "Aktiviert"
-
-#: prefsColumnView.js
-msgid "Operation"
-msgstr "Aktion"
-
-#: prefsColumnView.js
-msgid "Name"
-msgstr "Name"
 
 #: prefsWindowPickableEntry.js
 msgid "Edit the entry"
@@ -658,6 +647,18 @@ msgstr "Debug-Modus"
 #: ui/prefs-gtk4.ui
 msgid "Verbose logging"
 msgstr "Ausführliche Protokollierung"
+
+#~ msgid "(Empty, please save open windows first)"
+#~ msgstr "(Leer, bitte zuerst offene Fenster speichern)"
+
+#~ msgid "Enabled"
+#~ msgstr "Aktiviert"
+
+#~ msgid "Operation"
+#~ msgstr "Aktion"
+
+#~ msgid "Name"
+#~ msgstr "Name"
 
 #~ msgid "Save windows"
 #~ msgstr "Fenster speichern"

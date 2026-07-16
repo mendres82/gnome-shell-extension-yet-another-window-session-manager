@@ -103,9 +103,6 @@ export const WindowPickableEntry = GObject.registerClass({
             this.emit('entry-changed', source);
         });
 
-        // const image = new Gtk.Image({
-        //     file: IconFinder.findPath('choose-window-symbolic.svg'),
-        // });
         const chooseButton = new Gtk.Button({
             icon_name: 'find-location-symbolic',
             // label: 'Pick...',

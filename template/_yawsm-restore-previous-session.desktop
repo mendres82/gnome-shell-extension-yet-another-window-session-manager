@@ -5,10 +5,8 @@
 
 [Desktop Entry]
 Name=Restore the previous session at startup
-Comment=Restore the previous session at startup
+Comment=Yet Another Window Session Manager autostart entry
 Icon=
 Exec=bash -c 'sleep ${autostartDelay} && gdbus call --session --dest org.gnome.Shell.Extensions.yawsm --object-path /org/gnome/Shell/Extensions/yawsm --method org.gnome.Shell.Extensions.yawsm.Autostart.RestorePreviousSession "{}"'
 Terminal=false
 Type=Application
-# This option does not work on my machine, so I use `sleep` instead ...
-X-GNOME-Autostart-Delay=

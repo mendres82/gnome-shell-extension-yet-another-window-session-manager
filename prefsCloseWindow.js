@@ -646,7 +646,6 @@ const RuleRow = GObject.registerClass({
             this._removeAccelerator(_eventControllerKey.get_widget());
             return Gdk.EVENT_STOP;
         }
-        // if (!Gtk.accelerator_valid(keyval, mask)) return Gdk.EVENT_STOP;
         let shortcut = Gtk.accelerator_get_label(keyval, mask);
 
         // Control Right

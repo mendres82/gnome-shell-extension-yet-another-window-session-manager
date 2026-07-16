@@ -17,13 +17,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
-
-let GTop = null;
-try {
-    GTop = await import('gi://GTop');
-} catch (e) {
-    Log.Log.getDefault().error(e, `GTop is not installed, I highly recommend to install it, so that a process can be closed safely. How to install it? Please visit: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager#dependencies .`);
-}
+import * as Function from '../utils/function.js';
 
 import {PrefsUtils} from '../utils/prefsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
@@ -32,16 +26,6 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 let __confirm = null;
 let __init = null;
 let _OpenAsync = null;
-
-
-const callFunc = function (thisObj, func, param) {
-    const log = new Log.Log();
-    try {
-        return func.call(thisObj, param);
-    } catch (error) {
-        log.error(error);
-    }
-}
 
 const State = {
     OPENED: 0,
@@ -52,6 +36,15 @@ const State = {
     CANCELLED: 5,
     CONFIRMING: 6,
     CONFIRMED: 7
+};
+
+// /proc/<pid>/stat state field (same mapping libgtop uses).
+const ProcState = {
+    RUNNING: 'R',
+    SLEEPING: 'S',
+    UNINTERRUPTIBLE: 'D',
+    ZOMBIE: 'Z',
+    STOPPED: 'T',
 };
 
 export const Autoclose = GObject.registerClass(
@@ -111,7 +104,7 @@ export const Autoclose = GObject.registerClass(
 
                     const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
                     if (!enableAutocloseSession) {
-                        callFunc(this, __confirm, signal);
+                        Function.callFunc(this, __confirm, signal);
                         return;
                     }
 
@@ -135,7 +128,7 @@ export const Autoclose = GObject.registerClass(
 
                                 if (opt === 'Confirm') {
                                     // this.close();
-                                    callFunc(this, __confirm, signal);
+                                    Function.callFunc(this, __confirm, signal);
                                 }
 
                                 if (opt == 'Cancel') {
@@ -256,7 +249,6 @@ const RunningApplicationListWindow = GObject.registerClass({
             this._checkProcessStateId = null;
             this._updatePositionIdleId = null;
 
-            // wm_class 
             this._apps_recheck_process_state = new Set(['Microsoft-edge']);
 
             this._initialKeyFocus = null;
@@ -483,13 +475,6 @@ const RunningApplicationListWindow = GObject.registerClass({
         }
 
         _prepareToConfirm() {
-            if (!GTop) {
-                // Since the gtop is not installed, we close the system directly (if there are no apps running). 
-                // The process of apps may be still running to save data to disk, etc.
-                this._confirm();
-                return;
-            }
-
             if (this._checkProcessStateId) return;
 
             this._applicationSection.title = _('Waiting below processes to exit, this may take a while…');
@@ -519,34 +504,48 @@ const RunningApplicationListWindow = GObject.registerClass({
             });
         }
 
-        _checkRunningPidState() {
+        /**
+         * Read the process state from /proc/<pid>/stat.
+         * Returns the state character, or null if the process no longer exists.
+         * See proc(5): field 3 after "pid (comm)".
+         */
+        _readProcState(pid) {
             try {
-                const pidStateMap = new Map();
-                // TODO Fixme: TypeError: GTop.glibtop_proc_state is not a constructor
-                let state = new GTop.glibtop_proc_state();
-                for (const [pid, app] of this._pidsMap) {
-                    GTop.glibtop_get_proc_state(state, pid);
-                    // 0 has to indicate the process does not exist. See: https://developer-old.gnome.org/libgtop/stable/libgtop-procstate.html. 
-                    // But I don't fully understand this page.🫣
-                    const appName = app.get_name();
-                    // A zombie process is in terminated state and it has completed execution.
-                    // The underlying program is no longer executing, but the process remains 
-                    // in the process table as a zombie process until its parent process calls 
-                    // the wait system call to read its exit status, at which point the process
-                    // is removed from the process table, finally ending the process's lifetime. 
-                    // See: https://en.wikipedia.org/wiki/Zombie_process and https://en.wikipedia.org/wiki/Process_state#Terminated
-                    if (state.state && state.state !== GTop.GLIBTOP_PROCESS_ZOMBIE) {
-                        // this._log.debug(`Process ${pid} (${appName}) is still running with state ${state.state}, waiting it to exit`)
-                        pidStateMap.set(pid, state.state);
-                    } else {
-                        this._log.info(`Process ${pid} (${appName}) is exited with process state ${state.state} (${this._formatProcessState(state.state)})`);
-                        this._pidsMap.delete(pid)
-                    }
-                }
-                return pidStateMap;
+                const [ok, bytes] = GLib.file_get_contents(`/proc/${pid}/stat`);
+                if (!ok)
+                    return null;
+                const stat = new TextDecoder().decode(bytes);
+                // comm may contain spaces and parentheses; state follows the last ')'
+                const closeParen = stat.lastIndexOf(')');
+                if (closeParen === -1 || closeParen + 2 >= stat.length)
+                    return null;
+                return stat[closeParen + 2];
             } catch (e) {
-                this._log.error(e, 'Failed to check pid state');
+                // ENOENT etc. — process has exited
+                return null;
             }
+        }
+
+        _checkRunningPidState() {
+            const pidStateMap = new Map();
+            for (const [pid, app] of this._pidsMap) {
+                const state = this._readProcState(pid);
+                const appName = app.get_name();
+                // A zombie process is in terminated state and it has completed execution.
+                // The underlying program is no longer executing, but the process remains
+                // in the process table as a zombie process until its parent process calls
+                // the wait system call to read its exit status, at which point the process
+                // is removed from the process table, finally ending the process's lifetime.
+                // See: https://en.wikipedia.org/wiki/Zombie_process and https://en.wikipedia.org/wiki/Process_state#Terminated
+                if (state && state !== ProcState.ZOMBIE) {
+                    // this._log.debug(`Process ${pid} (${appName}) is still running with state ${state}, waiting it to exit`)
+                    pidStateMap.set(pid, state);
+                } else {
+                    this._log.info(`Process ${pid} (${appName}) is exited with process state ${state} (${this._formatProcessState(state)})`);
+                    this._pidsMap.delete(pid);
+                }
+            }
+            return pidStateMap;
         }
 
         _showProcesses(pidStateMap) {
@@ -571,34 +570,35 @@ const RunningApplicationListWindow = GObject.registerClass({
                 this._scheduleUpdatePosition();
         }
 
-        // Translated to js and borrowed from https://github.com/GNOME/gnome-system-monitor/blob/d80dceedd106ca2415aeb0cb71b54ae4bd93bf75/src/util.cpp#format_process_state
+        // Borrowed from https://github.com/GNOME/gnome-system-monitor/blob/master/src/util.cpp (format_process_state)
         _formatProcessState(state) {
-            if (state === undefined) {
+            if (!state) {
                 return _('Exited');
             }
             let status;
             switch (state) {
-              case GTop.GLIBTOP_PROCESS_RUNNING:
+              case ProcState.RUNNING:
                 status = _('Running');
                 break;
-        
-              case GTop.GLIBTOP_PROCESS_STOPPED:
+
+              case ProcState.STOPPED:
+              case 't': // tracing stop
                 status = _('Stopped');
                 break;
-        
-              case GTop.GLIBTOP_PROCESS_ZOMBIE:
+
+              case ProcState.ZOMBIE:
                 status = _('Zombie');
                 break;
-        
-              case GTop.GLIBTOP_PROCESS_UNINTERRUPTIBLE:
+
+              case ProcState.UNINTERRUPTIBLE:
                 status = _('Uninterruptible');
                 break;
-        
+
               default:
                 status = _('Sleeping');
                 break;
             }
-        
+
           return status;
         }
 

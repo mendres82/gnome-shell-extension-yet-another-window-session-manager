@@ -55,11 +55,6 @@ class AwsIndicator extends PanelMenu.Button {
 
         this.menu.connect('open-state-changed', this._onOpenStateChanged.bind(this));
 
-        // Open menu
-        // this.menu.open(true);
-        // Toggle menu
-        // this.menu.toggle();
-
         // Remove all activate signals on all menu items, so the panel menu can always stay open
         // See: PopupMenu#itemActivated() => this.menu._getTopMenu().close
         this.menu.itemActivated = function(animate) {};
