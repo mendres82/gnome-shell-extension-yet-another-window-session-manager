@@ -29,7 +29,7 @@ export const desktop_file_store_path_base = GLib.build_filenamev([data_dir, '/ap
 
 export const recently_closed_session_name = 'Recently Closed Session';
 export const recently_closed_session_path = GLib.build_filenamev([sessions_path, recently_closed_session_name]);
-export const recently_closed_session_file = Gio.File.new_for_path(recently_closed_session_path);
+export let recently_closed_session_file = null;
 
 export const current_session_path = `${config_path_base}/currentSession`;
 
@@ -47,6 +47,17 @@ export function init(extensionObject) {
     desktop_template_path_restore_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_gnome-shell-extension-yet-another-window-session-manager.desktop']);
     desktop_template_path_restore_previous_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_yawsm-restore-previous-session.desktop']);
     desktop_template_launch_app_shell_script = GLib.build_filenamev([extensionObject.path, '/template/launch-app.sh']);
+    recently_closed_session_file = Gio.File.new_for_path(recently_closed_session_path);
+}
+
+export function destroy() {
+    current_extension_dir = null;
+    current_extension_path = null;
+    desktop_template_path = null;
+    desktop_template_path_restore_at_autostart = null;
+    desktop_template_path_restore_previous_at_autostart = null;
+    desktop_template_launch_app_shell_script = null;
+    recently_closed_session_file = null;
 }
 
 /**

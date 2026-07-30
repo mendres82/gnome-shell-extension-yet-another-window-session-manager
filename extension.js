@@ -119,6 +119,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
             this._settings = null;
         }
 
+        FileUtils.destroy();
         prefsUtilsDestroy();
     
     }
