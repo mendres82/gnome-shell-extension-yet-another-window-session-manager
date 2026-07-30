@@ -351,8 +351,28 @@ export const CloseSession = class {
     async _activateAndCloseWindows(app, linuxKeyCodes, shortcutsOriginal) {
         try {
             const rules = app._rulesYAWSM;
-            const keyDelay = rules?.keyDelay;
-            const cmd = ['ydotool', 'key', '--key-delay', keyDelay ? keyDelay + '' : '0'].concat(linuxKeyCodes);
+            let keyDelay = parseInt(rules?.keyDelay ?? 0);
+            if (Number.isNaN(keyDelay))
+                keyDelay = 0;
+            const keyDelayArg = String(keyDelay);
+
+            const keyCodeArgs = [];
+            for (const keyCode of linuxKeyCodes) {
+                const [codeStr, stateStr] = String(keyCode).split(':');
+                const code = parseInt(codeStr);
+                const state = parseInt(stateStr);
+                if (Number.isNaN(code) || Number.isNaN(state))
+                    continue;
+                keyCodeArgs.push(`${code}:${state}`);
+            }
+
+            const cmd = [
+                'ydotool',
+                'key',
+                '--key-delay',
+                keyDelayArg,
+                ...keyCodeArgs,
+            ];
             const cmdStr = cmd.join(' ');
             
             this._log.info(`Closing ${app.get_name()} by sending: ${cmdStr} (${shortcutsOriginal.join(' ')})`);
