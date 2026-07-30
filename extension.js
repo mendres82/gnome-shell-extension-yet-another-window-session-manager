@@ -29,7 +29,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
 
     enable() {
         // settings is needed by the initialization of some utils
-        this._settings = this.getSettings('org.gnome.shell.extensions.yet-another-window-session-manager');        
+        this._settings = this.getSettings();        
 
         this.initUtils();
         
