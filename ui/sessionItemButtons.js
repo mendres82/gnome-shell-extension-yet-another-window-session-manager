@@ -85,19 +85,29 @@ class SessionItemButtons extends GObject.Object {
             markup: _('Set as default session'),
         }));
         this._syncingAutostartSwitch = false;
+        // Menu rebuild can dispose the Switch before our destroy(); drop the settings listener then.
+        this._autostartSwitch.connectObject('destroy', () => {
+            this._settings.disconnectObject(this);
+            this._autostartSwitch = null;
+        }, this);
         this._autostartSwitch.connectObject('notify::state', () => {
-            if (this._syncingAutostartSwitch)
+            if (this._syncingAutostartSwitch || !this._autostartSwitch)
                 return;
 
+            this._syncingAutostartSwitch = true;
             const state = this._autostartSwitch.state;
             if (state) {
                 this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, this.sessionItem._filename);
             } else if (this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS) === this.sessionItem._filename) {
                 this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, '');
             }
+            this._syncingAutostartSwitch = false;
         }, this);
 
         this._settings.connectObject(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
+            if (!this._autostartSwitch)
+                return;
+
             const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
             if (this._autostartSwitch.state !== toggled) {
                 this._syncingAutostartSwitch = true;
@@ -262,7 +272,10 @@ class SessionItemButtons extends GObject.Object {
 
     destroy() {
         this._settings.disconnectObject(this);
-        this._autostartSwitch.disconnectObject(this);
+        const autostartSwitch = this._autostartSwitch;
+        this._autostartSwitch = null;
+        if (autostartSwitch)
+            autostartSwitch.disconnectObject(this);
         this._saveButton.disconnectObject(this);
         this._restoreButton.disconnectObject(this);
         this._moveButton.disconnectObject(this);

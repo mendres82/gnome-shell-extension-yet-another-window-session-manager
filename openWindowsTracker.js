@@ -300,16 +300,26 @@ export const OpenWindowsTracker = class {
             this._moveSession.moveWindowByMetaWindow(metaWindow, shellAppData.saved_window_sessions);
         };
 
+        const dropConnectId = (obj, signalId) => {
+            if (!this._metaWindowConnectIds || !signalId)
+                return;
+            this._metaWindowConnectIds = this._metaWindowConnectIds.filter(
+                ([o, id]) => !(o === obj && id === signalId));
+        };
+
         const connectFirstFrame = (metaWindowActor) => {
             let firstFrameId = metaWindowActor.connect('first-frame', () => {
                 moveIfRestoring('first-frame');
                 this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+                dropConnectId(metaWindowActor, firstFrameId);
                 firstFrameId = 0;
             });
             this._metaWindowConnectIds.push([metaWindowActor, firstFrameId]);
 
             let unmanagingId = metaWindow.connect('unmanaging', () => {
                 this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+                dropConnectId(metaWindowActor, firstFrameId);
+                dropConnectId(metaWindow, unmanagingId);
             });
             this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
         };
@@ -337,12 +347,14 @@ export const OpenWindowsTracker = class {
         let shownId = metaWindow.connect('shown', () => {
             moveIfRestoring('shown');
             metaWindow.disconnect(shownId);
+            dropConnectId(metaWindow, shownId);
             shownId = 0;
         });
 
         let titleChangedId = metaWindow.connect('notify::title', () => {
             moveIfRestoring('title changed');
             metaWindow.disconnect(titleChangedId);
+            dropConnectId(metaWindow, titleChangedId);
             titleChangedId = 0;
         });
 
@@ -792,7 +804,11 @@ export const OpenWindowsTracker = class {
 
         if (this._windowsWithSaveSignals) {
             for (const window of this._windowsWithSaveSignals) {
-                window.disconnectObject(this);
+                try {
+                    window.disconnectObject(this);
+                } catch (e) {
+                    // Meta.Window already disposed
+                }
             }
             this._windowsWithSaveSignals.clear();
             this._windowsWithSaveSignals = null;
