@@ -37,13 +37,16 @@ export const AutostartServiceProvider = GObject.registerClass(
             this._autostartService = null;
             this._autostartDbusImpl = null;
             this._dbusNameOwnerId = 0;
+            this._cancellable = new Gio.Cancellable();
 
             const ifaceFile = FileUtils.current_extension_dir
                 .get_child('dbus-interfaces')
                 .get_child('org.gnome.Shell.Extensions.yawsm.Autostart.xml');
-            ifaceFile.load_contents_async(null, (file, asyncResult) => {
+            ifaceFile.load_contents_async(this._cancellable, (file, asyncResult) => {
                 try {
                     const [, contents] = file.load_contents_finish(asyncResult);
+                    if (!this._cancellable)
+                        return;
                     this._autostartDbusXml = new TextDecoder().decode(contents);
 
                     // https://gjs.guide/guides/gio/dbus.html#exporting-interfaces
@@ -56,12 +59,17 @@ export const AutostartServiceProvider = GObject.registerClass(
                         this.onNameLost.bind(this),
                     );
                 } catch (e) {
+                    if (!this._cancellable)
+                        return;
                     this._log.error(e, 'Failed to load Autostart dbus interface!');
                 }
             });
         }
 
         onBusAcquired(connection, name) {
+            if (!this._cancellable)
+                return;
+
             this._log.debug(`DBus bus with name ${name} acquired!`);
 
             this._autostartService = new AutostartService();
@@ -82,6 +90,11 @@ export const AutostartServiceProvider = GObject.registerClass(
         }
 
         disable() {
+            if (this._cancellable) {
+                this._cancellable.cancel();
+                this._cancellable = null;
+            }
+
             // Unexport the D-Bus interface to avoid:
             //   Gio.IOErrorEnum: An object is already exported for the interface
             //   org.gnome.Shell.Extensions.yawsm.Autostart at /org/gnome/Shell/Extensions/yawsm
@@ -104,6 +117,11 @@ export const AutostartServiceProvider = GObject.registerClass(
             if (this._autostartService) {
                 this._autostartService.disable();
                 this._autostartService = null;
+            }
+
+            if (this._log) {
+                this._log.destroy();
+                this._log = null;
             }
         }
     });
@@ -152,7 +170,7 @@ const AutostartService = GObject.registerClass(
             this._log.info(restoringMsg);
             Main.notify(_('Yet Another Window Session Manager'), restoringMsg);
 
-            this._autostartDialog = new AutostartDialog();
+            this._autostartDialog = new AutostartDialog(this);
             if (this._settings.get_boolean('restore-at-startup-without-asking')) {
                 this._autostartDialog._confirm();
                 return _('Restore session \'%s\' without asking …').format(this._sessionName);
@@ -223,18 +241,18 @@ const AutostartService = GObject.registerClass(
                 GLib.PRIORITY_LOW,
                 restorePreviousDelay * 1000,
                 () => {
-                    const restoreSession = new RestoreSession.RestoreSession();
-                    restoreSession.restorePreviousSession(removeAfterRestore);
+                    this._restorePreviousSourceId = null;
+                    if (this._restoreSession) {
+                        this._restoreSession.destroy();
+                        this._restoreSession = null;
+                    }
+                    this._restoreSession = new RestoreSession.RestoreSession();
+                    this._restoreSession.restorePreviousSession(removeAfterRestore);
                     return GLib.SOURCE_REMOVE;
                 });
         }
 
         disable() {
-            Main.layoutManager.disconnectObject(this);
-            if (this._autostartDialog) {
-                this._autostartDialog.destroy();
-                this._autostartDialog = null;
-            }
             if (this._restorePreviousSourceId) {
                 GLib.Source.remove(this._restorePreviousSourceId);
                 this._restorePreviousSourceId = null;
@@ -242,6 +260,21 @@ const AutostartService = GObject.registerClass(
             if (this._idleIdOpenRestoreSessionDialog) {
                 GLib.Source.remove(this._idleIdOpenRestoreSessionDialog);
                 this._idleIdOpenRestoreSessionDialog = null;
+            }
+
+            Main.layoutManager.disconnectObject(this);
+
+            if (this._autostartDialog) {
+                this._autostartDialog.destroy();
+                this._autostartDialog = null;
+            }
+            if (this._restoreSession) {
+                this._restoreSession.destroy();
+                this._restoreSession = null;
+            }
+            if (this._log) {
+                this._log.destroy();
+                this._log = null;
             }
             this._settings = null;
         }
@@ -252,11 +285,15 @@ const AutostartService = GObject.registerClass(
 const AutostartDialog = GObject.registerClass(
     class AutostartDialog extends ModalDialog.ModalDialog {
 
-        _init() {
+        _init(service) {
             super._init({
                 styleClass: 'restore-session-dialog',
                 destroyOnClose: true
             });
+
+            // destroyOnClose can dispose this before AutostartService.disable();
+            // clear the owner's reference so disable does not destroy() twice.
+            this._service = service;
 
             this._settings = PrefsUtils.getSettings();
 
@@ -394,6 +431,14 @@ const AutostartDialog = GObject.registerClass(
             }
             this._secondsLeft = 0;
             this._settings = null;
+
+            if (this._service) {
+                if (this._service._autostartDialog === this)
+                    this._service._autostartDialog = null;
+                this._service = null;
+            }
+
+            super.destroy();
         }
 
 

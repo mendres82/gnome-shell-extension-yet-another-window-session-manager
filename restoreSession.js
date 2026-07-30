@@ -112,6 +112,7 @@ export const RestoreSession = class {
                     this._restore_session_interval,
                     () => {
                         if (!session_config_objects.length) {
+                            this._restoreSessionTimeoutId = null;
                             return GLib.SOURCE_REMOVE;
                         }
                         this._restoreOneSession(session_config_objects.shift());
@@ -354,27 +355,9 @@ export const RestoreSession = class {
     }
 
     destroy() {
-        if (restoreSessionObject.restoringApps) {
-            restoreSessionObject.restoringApps.clear();
-            restoreSessionObject.restoringApps = null;
-        }
-
-        if (this._restoredApps) {
-            this._restoredApps.clear();
-            this._restoredApps = null;
-        }
-
-        if (this._defaultAppSystem) {
-            this._defaultAppSystem = null;
-        }
-
-        if (this._windowTracker) {
-            this._windowTracker = null;
-        }
-
-        if (this._log) {
-            this._log.destroy();
-            this._log = null;
+        if (this._restoreSessionTimeoutId) {
+            GLib.Source.remove(this._restoreSessionTimeoutId);
+            this._restoreSessionTimeoutId = null;
         }
 
         if (this._connectIds) {
@@ -384,11 +367,18 @@ export const RestoreSession = class {
             this._connectIds = null;
         }
 
-        if (this._restoreSessionTimeoutId) {
-            GLib.Source.remove(this._restoreSessionTimeoutId);
-            this._restoreSessionTimeoutId = null;
+        if (this._restoredApps) {
+            this._restoredApps.clear();
+            this._restoredApps = null;
         }
-        
+
+        this._defaultAppSystem = null;
+        this._windowTracker = null;
+
+        if (this._log) {
+            this._log.destroy();
+            this._log = null;
+        }
     }
 
 }

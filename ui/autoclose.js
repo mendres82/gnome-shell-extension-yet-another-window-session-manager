@@ -58,6 +58,7 @@ export const Autoclose = GObject.registerClass(
             this._runningApplicationListWindow = null;
             
             this._retryIdleId = null;
+            this._closeSession = null;
 
             // org.gnome.SessionManager logout-prompt=false skips EndSessionDialog;
             // session preservation is handled via SystemActions in openWindowsTracker.js.
@@ -137,8 +138,18 @@ export const Autoclose = GObject.registerClass(
                             },
                             () => {
                                 that._retryIdleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                                    if (that._closeSession) {
+                                        that._closeSession.destroy();
+                                        that._closeSession = null;
+                                    }
                                     const closeSession = new CloseSession.CloseSession(CloseSession.flags.logoff);
-                                    closeSession.closeWindows(true);
+                                    that._closeSession = closeSession;
+                                    closeSession.closeWindows(true).finally(() => {
+                                        if (that._closeSession === closeSession) {
+                                            closeSession.destroy();
+                                            that._closeSession = null;
+                                        }
+                                    });
                                     that._retryIdleId = null;
                                     return GLib.SOURCE_REMOVE;
                                 });
@@ -158,7 +169,12 @@ export const Autoclose = GObject.registerClass(
                     that._runningApplicationListWindow.open();
 
                     that._runningApplicationListWindow.updateRunningPids()
+                    if (that._closeSession) {
+                        that._closeSession.destroy();
+                        that._closeSession = null;
+                    }
                     const closeSession = new CloseSession.CloseSession(CloseSession.flags.logoff);
+                    that._closeSession = closeSession;
                     closeSession.closeWindows(true)
                         .then((result) => {
                             try {
@@ -177,6 +193,11 @@ export const Autoclose = GObject.registerClass(
                             }
                         }).catch(error => {
                             that._log.error(error);
+                        }).finally(() => {
+                            if (that._closeSession === closeSession) {
+                                closeSession.destroy();
+                                that._closeSession = null;
+                            }
                         });
                 } catch (error) {
                     that._log.error(error);
@@ -203,19 +224,25 @@ export const Autoclose = GObject.registerClass(
         }
 
         disable() {
-            if (this._disabled)
+            if (!this._log)
                 return;
-            this._disabled = true;
 
             this._restoreEndSessionDialog();
-            if (this._runningApplicationListWindow) {
-                this._runningApplicationListWindow.disable();
-                this._runningApplicationListWindow = null;
-            }
             if (this._retryIdleId) {
                 GLib.source_remove(this._retryIdleId);
                 this._retryIdleId = null;
             }
+            if (this._closeSession) {
+                this._closeSession.destroy();
+                this._closeSession = null;
+            }
+            if (this._runningApplicationListWindow) {
+                this._runningApplicationListWindow.destroy();
+                this._runningApplicationListWindow = null;
+            }
+            this._log.destroy();
+            this._log = null;
+            this._settings = null;
         }
 
         destroy() {
@@ -688,14 +715,8 @@ const RunningApplicationListWindow = GObject.registerClass({
         }
 
         disable() {
-            if (this._disabled)
+            if (!this._log)
                 return;
-            this._disabled = true;
-
-            this._defaultAppSystem.disconnectObject(this);
-            Main.overview.disconnectObject(this);
-            this._initialKeyFocus?.disconnectObject(this);
-            this._initialKeyFocus = null;
 
             if (this._confirmIdleId) {
                 GLib.source_remove(this._confirmIdleId);
@@ -709,6 +730,16 @@ const RunningApplicationListWindow = GObject.registerClass({
                 GLib.source_remove(this._updatePositionIdleId);
                 this._updatePositionIdleId = null;
             }
+
+            this._defaultAppSystem.disconnectObject(this);
+            Main.overview.disconnectObject(this);
+            this._initialKeyFocus?.disconnectObject(this);
+            this._initialKeyFocus = null;
+            this._defaultAppSystem = null;
+
+            this._log.destroy();
+            this._log = null;
+
             this.hide();
             super.destroy();
         }

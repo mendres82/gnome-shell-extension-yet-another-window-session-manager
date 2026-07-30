@@ -43,6 +43,23 @@ export class KeyboardShortcuts {
         for (const [name] of BINDINGS) {
             Main.wm.removeKeybinding(name);
         }
+
+        if (this._restoreSession) {
+            this._restoreSession.destroy();
+            this._restoreSession = null;
+        }
+        if (this._saveSession) {
+            this._saveSession.destroy();
+            this._saveSession = null;
+        }
+        if (this._moveSession) {
+            this._moveSession.destroy();
+            this._moveSession = null;
+        }
+        if (this._log) {
+            this._log.destroy();
+            this._log = null;
+        }
     }
 
     _defaultSessionName() {
@@ -79,7 +96,12 @@ export class KeyboardShortcuts {
 
         sessionEndState.sessionClosedByUser = false;
         RestoreSession.restoreSessionObject.restoringApps = new Map();
-        new RestoreSession.RestoreSession().restoreSession(sessionName);
+        if (this._restoreSession) {
+            this._restoreSession.destroy();
+            this._restoreSession = null;
+        }
+        this._restoreSession = new RestoreSession.RestoreSession();
+        this._restoreSession.restoreSession(sessionName);
     }
 
     _onMoveWindows() {

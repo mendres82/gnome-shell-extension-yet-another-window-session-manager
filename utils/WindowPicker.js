@@ -33,17 +33,26 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
 
   constructor() {
     this._dbus = null;
+    this._cancellable = new Gio.Cancellable();
     const ifaceFile = FileUtils.current_extension_dir
       .get_child('dbus-interfaces')
       .get_child('org.gnome.Shell.Extensions.yawsm.PickWindow.xml');
     this._ifaceReady = new Promise((resolve, reject) => {
-      ifaceFile.load_contents_async(null, (file, asyncResult) => {
+      ifaceFile.load_contents_async(this._cancellable, (file, asyncResult) => {
         try {
           const [, contents] = file.load_contents_finish(asyncResult);
+          if (!this._cancellable) {
+            resolve();
+            return;
+          }
           this._dbus = Gio.DBusExportedObject.wrapJSObject(
             new TextDecoder().decode(contents), this);
           resolve();
         } catch (e) {
+          if (!this._cancellable) {
+            resolve();
+            return;
+          }
           reject(e);
         }
       });
@@ -124,6 +133,8 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
   // Call this to make the window-picking API available on the D-Bus.
   enable() {
     this._ifaceReady.then(() => {
+      if (!this._dbus)
+        return;
       // Defensively unexport first: after a rapid disable/enable cycle (e.g.
       // suspend/resume, screen lock/unlock), the previous export may still be
       // registered.  Calling unexport() on an already-unexported object is
@@ -141,12 +152,17 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
 
   // Call this to stop this D-Bus again.
   destroy() {
-    if (!this._dbus)
-      return;
-    try {
-      this._dbus.unexport();
-    } catch (_e) {
-      // Already unexported — not an error
+    if (this._cancellable) {
+      this._cancellable.cancel();
+      this._cancellable = null;
+    }
+    if (this._dbus) {
+      try {
+        this._dbus.unexport();
+      } catch (_e) {
+        // Already unexported — not an error
+      }
+      this._dbus = null;
     }
   }
 };

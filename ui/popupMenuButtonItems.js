@@ -234,6 +234,11 @@ class PopupMenuButtonItemClose extends PopupMenuButtonItem {
             this._timeline.stop();
             this._timeline = null;
         }
+        if (this.closeSession) {
+            this.closeSession.destroy();
+            this.closeSession = null;
+        }
+        super.destroy();
     }
 
 });
@@ -426,6 +431,15 @@ class PopupMenuButtonItemSave extends PopupMenuButtonItem {
             this._timeline.stop();
             this._timeline = null;
         }
+        if (this._saveSession) {
+            this._saveSession.destroy();
+            this._saveSession = null;
+        }
+        if (this._log) {
+            this._log.destroy();
+            this._log = null;
+        }
+        super.destroy();
     }
     
 

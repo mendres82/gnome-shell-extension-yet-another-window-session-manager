@@ -79,7 +79,7 @@ export const SearchSessionItem = GObject.registerClass(
                 button, 'checked',
                 GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE);
 
-            new Tooltip.Tooltip({
+            this._filterAutoRestoreTooltip = new Tooltip.Tooltip({
                 parent: button,
                 markup: _('Show only the default session'),
             });
@@ -103,7 +103,7 @@ export const SearchSessionItem = GObject.registerClass(
                 track_hover: true,
             });
 
-            new Tooltip.Tooltip({
+            this._preferencesTooltip = new Tooltip.Tooltip({
                 parent: button,
                 markup: _('Open preferences'),
             });
@@ -146,5 +146,16 @@ export const SearchSessionItem = GObject.registerClass(
             this._filterAutoRestoreSwitch.disconnectObject(this);
             this._entry.disconnectObject(this);
             this._preferencesButton.disconnectObject(this);
+
+            if (this._filterAutoRestoreTooltip) {
+                this._filterAutoRestoreTooltip.destroy();
+                this._filterAutoRestoreTooltip = null;
+            }
+            if (this._preferencesTooltip) {
+                this._preferencesTooltip.destroy();
+                this._preferencesTooltip = null;
+            }
+
+            super.destroy();
         }
     });
