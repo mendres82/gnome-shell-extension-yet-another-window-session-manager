@@ -415,7 +415,12 @@ export const MoveSession = class {
         if (delay) {
             // Fix: https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/25
             // TODO Note that this is not a perfect solution to address the above issue.
+            if (this._delayRestoreGeometryId) {
+                GLib.Source.remove(this._delayRestoreGeometryId);
+                this._delayRestoreGeometryId = 0;
+            }
             this._delayRestoreGeometryId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                this._delayRestoreGeometryId = 0;
                 this._moveResizeFrame(metaWindow, saved_window_session);
                 return GLib.SOURCE_REMOVE;
             });
