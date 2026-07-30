@@ -140,9 +140,10 @@ const AutostartService = GObject.registerClass(
                 return this._startRestoreSelectedSession();
             }
 
-            Main.layoutManager.connect('startup-complete', () => {
+            Main.layoutManager.connectObject('startup-complete', () => {
+                Main.layoutManager.disconnectObject(this);
                 this._startRestoreSelectedSession();
-            });
+            }, this);
             return _('Waiting for startup to restore session \'%s\' …').format(this._sessionName);
         }
 
@@ -204,12 +205,13 @@ const AutostartService = GObject.registerClass(
                 _requiredToRestorePrevious = true;
                 const msg = _('Required to restore the previous apps and windows');
                 Main.notify(_('Yet Another Window Session Manager'), msg);
-                Main.layoutManager.connect('startup-complete', () => {
+                Main.layoutManager.connectObject('startup-complete', () => {
+                    Main.layoutManager.disconnectObject(this);
                     const msg = _('Restoring the previous apps and windows');
                     this._log.info(`${msg} after startup-complete`);
                     Main.notify(_('Yet Another Window Session Manager'), msg);
                     this._restorePreviousWithDelay(removeAfterRestore);
-                });
+                }, this);
                 return msg;
             }
 
@@ -228,6 +230,7 @@ const AutostartService = GObject.registerClass(
         }
 
         disable() {
+            Main.layoutManager.disconnectObject(this);
             if (this._autostartDialog) {
                 this._autostartDialog.destroy();
                 this._autostartDialog = null;

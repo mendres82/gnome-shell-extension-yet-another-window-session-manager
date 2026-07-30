@@ -52,7 +52,8 @@ class SessionItemButtons extends GObject.Object {
             parent: saveButton,
             markup: _('Save open windows using the current session name'),
         });
-        saveButton.connect('clicked', this._onClickSave.bind(this));
+        saveButton.connectObject('clicked', this._onClickSave.bind(this), this);
+        this._saveButton = saveButton;
 
         const restoreButton = this._addButton('restore-symbolic.svg');
         restoreButton.set_reactive(this.sessionItem._available);
@@ -60,7 +61,8 @@ class SessionItemButtons extends GObject.Object {
             parent: restoreButton,
             markup: _('Restore windows from the saved session'),
         });
-        restoreButton.connect('clicked', this._onClickRestore.bind(this));
+        restoreButton.connectObject('clicked', this._onClickRestore.bind(this), this);
+        this._restoreButton = restoreButton;
 
         const moveButton = this._addButton('move-symbolic.svg');
         moveButton.set_reactive(this.sessionItem._available);
@@ -68,7 +70,8 @@ class SessionItemButtons extends GObject.Object {
             parent: moveButton,
             markup: _('Move windows to their workspace and position by the saved session'),
         });
-        moveButton.connect('clicked', this._onClickMove.bind(this));
+        moveButton.connectObject('clicked', this._onClickMove.bind(this), this);
+        this._moveButton = moveButton;
 
         // this._addSeparator();
 
@@ -81,7 +84,7 @@ class SessionItemButtons extends GObject.Object {
             markup: _('Set as default session'),
         });
         this._syncingAutostartSwitch = false;
-        this._autostartSwitch.connect('notify::state', () => {
+        this._autostartSwitch.connectObject('notify::state', () => {
             if (this._syncingAutostartSwitch)
                 return;
 
@@ -91,16 +94,16 @@ class SessionItemButtons extends GObject.Object {
             } else if (this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS) === this.sessionItem._filename) {
                 this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, '');
             }
-        });
+        }, this);
 
-        this._autorestoreChangedId = this._settings.connect(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
+        this._settings.connectObject(`changed::${Constants.PREFS_SETTING_AUTORESTORE_SESSIONS}`, () => {
             const toggled = this.sessionItem._filename === this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
             if (this._autostartSwitch.state !== toggled) {
                 this._syncingAutostartSwitch = true;
                 this._autostartSwitch.state = toggled;
                 this._syncingAutostartSwitch = false;
             }
-        });
+        }, this);
 
         this._addSeparator();
     
@@ -109,7 +112,7 @@ class SessionItemButtons extends GObject.Object {
             parent: viewButton,
             markup: _('Open session file using an external editor'),
         });
-        viewButton.connect('clicked', () => {
+        viewButton.connectObject('clicked', () => {
             const sessions_path = FileUtils.get_sessions_path();
             const session_file_path = GLib.build_filenamev([sessions_path, this.sessionItem._filename]);
             FileUtils.findDefaultApp(session_file_path).then(([app, file]) => {
@@ -121,18 +124,20 @@ class SessionItemButtons extends GObject.Object {
             }).catch(error => {
                 this._log.error(error, `Failed to find the default application to ${session_file_path}`);
             });
-        });
+        }, this);
+        this._viewButton = viewButton;
 
         const deleteButton = this._addDeleteButton();
         new Tooltip.Tooltip({
             parent: deleteButton,
             markup: _('Move to Trash'),
         });
-        deleteButton.connect('clicked', () => {
+        deleteButton.connectObject('clicked', () => {
             if (this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS) === this.sessionItem._filename)
                 this._settings.set_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS, '');
             FileUtils.trashSession(this.sessionItem._filename);
-        });
+        }, this);
+        this._deleteButton = deleteButton;
 
     }
 
@@ -251,9 +256,12 @@ class SessionItemButtons extends GObject.Object {
     }
 
     destroy() {
-        if (this._autorestoreChangedId) {
-            this._settings.disconnect(this._autorestoreChangedId);
-            this._autorestoreChangedId = 0;
-        }
+        this._settings.disconnectObject(this);
+        this._autostartSwitch.disconnectObject(this);
+        this._saveButton.disconnectObject(this);
+        this._restoreButton.disconnectObject(this);
+        this._moveButton.disconnectObject(this);
+        this._viewButton.disconnectObject(this);
+        this._deleteButton.disconnectObject(this);
     }
 });

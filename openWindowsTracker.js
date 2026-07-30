@@ -83,6 +83,7 @@ export const OpenWindowsTracker = class {
         this._settings = PrefsUtils.getSettings();
         this._signal = new Signal.Signal();
         this._metaWindowConnectIds = [];
+        this._windowsWithSaveSignals = new Set();
         this._isDestroyed = false;
 
         this._saveSession = new SaveSession.SaveSession();
@@ -109,29 +110,27 @@ export const OpenWindowsTracker = class {
 
         this._display = global.display;
 
-        const x11DisplayOpenedId = this._display.connect('x11-display-opened', () => {
+        this._display.connectObject('x11-display-opened', () => {
             this._restoringSession = true;
             this._allSavedWindowSessions = [];
             
             // `installed-changed` emits after `shell_app_system_init()` is called 
             // and all `window-created` emits.
-            const installedChangedId = this._defaultAppSystem.connect('installed-changed', () => {
+            this._defaultAppSystem.disconnectObject(this);
+            this._defaultAppSystem.connectObject('installed-changed', () => {
                 Log.Log.getDefault().info(`Restoring windows states after gnome shell starts`);
                 this._moveSession.moveApps(this._allSavedWindowSessions);
 
                 this._restoringSession = false;
-            });
-            this._signals.push([installedChangedId, this._defaultAppSystem]);
-        });
-        this._signals.push([x11DisplayOpenedId, this._display]);
+            }, this);
+        }, this);
 
-        const windowCreatedId = this._display.connect('window-created', (display, window, userData) => {
+        this._display.connectObject('window-created', (display, window, userData) => {
             this._onWindowCreatedSaveOrUpdateWindowsMapping(display, window, userData);
 
             this._restoreOrSaveWindowSession(window);
             this._placeRestoredWindow(window);
-        });
-        this._signals.push([windowCreatedId, this._display]);
+        }, this);
 
         this._meta_is_restarting = false;
         this._overrideMetaRestart();
@@ -142,28 +141,27 @@ export const OpenWindowsTracker = class {
         this._saveSummary();
         
         this._saveAllWindows();
-        const settingsChangedToSaveAllWindows = [
-            'stash-and-restore-states',
-            'enable-restore-previous-session'
-        ];
-        settingsChangedToSaveAllWindows.forEach((setting) => {
-            this._settings.connect(`changed::${setting}`, () => {
-                if (this._settings.get_boolean(`${setting}`))
+        this._settings.connectObject(
+            'changed::stash-and-restore-states', () => {
+                if (this._settings.get_boolean('stash-and-restore-states'))
                     this._saveAllWindows();
-            });
-        });
+            },
+            'changed::enable-restore-previous-session', () => {
+                if (this._settings.get_boolean('enable-restore-previous-session'))
+                    this._saveAllWindows();
+            },
+            this);
 
-        const windowTiledId = WindowTilingSupport.connect('window-tiled', (signals, w1, w2) => {
-            // w2 will be saved in another 'window-tiled'
-            this._prepareToSaveWindowSession(w1);
-        });
-        this._signals.push([windowTiledId, WindowTilingSupport]);
-
-        const windowUntiledId = WindowTilingSupport.connect('window-untiled', (signals, w1, w2) => {
-            this._prepareToSaveWindowSession(w1);
-            this._prepareToSaveWindowSession(w2);
-        });
-        this._signals.push([windowUntiledId, WindowTilingSupport]);
+        WindowTilingSupport.connectObject(
+            'window-tiled', (signals, w1, w2) => {
+                // w2 will be saved in another 'window-tiled'
+                this._prepareToSaveWindowSession(w1);
+            },
+            'window-untiled', (signals, w1, w2) => {
+                this._prepareToSaveWindowSession(w1);
+                this._prepareToSaveWindowSession(w2);
+            },
+            this);
 
         this._overrideSystemActionsPrototypeMap = new Map();
         // org.gnome.SessionManager logout-prompt=false skips EndSessionDialog; autoclose.js never runs.
@@ -194,12 +192,14 @@ export const OpenWindowsTracker = class {
 
     _connectSignalsToSaveSummary() {
         this._signalsToSaveSummary.forEach(e => {
+            const args = [];
             e.signals.forEach(signal => {
-                const id = e.instance.connect(signal, () => {
+                args.push(signal, () => {
                     this._summaryAboutToSave = true;
                 });
-                this._signals.push([id, e.instance]);
             });
+            args.push(this);
+            e.instance.connectObject(...args);
         });
     }
 
@@ -363,12 +363,15 @@ export const OpenWindowsTracker = class {
     }
 
     _connectWindowSignalsToSaveSession(window) {
+        const args = [];
         this._windowInterestingSignalsWhileSave.forEach(signal => {
-            const windowSignalId = window.connect(signal, () => {
+            args.push(signal, () => {
                 this._prepareToSaveWindowSession(window);
             });
-            this._signals.push([windowSignalId, window]);
         })
+        args.push(this);
+        window.connectObject(...args);
+        this._windowsWithSaveSignals.add(window);
     }
 
     _restoreWindowState(window) {
@@ -777,6 +780,20 @@ export const OpenWindowsTracker = class {
             }
             this._metaWindowConnectIds = null;
         }
+
+        if (this._windowsWithSaveSignals) {
+            for (const window of this._windowsWithSaveSignals) {
+                window.disconnectObject(this);
+            }
+            this._windowsWithSaveSignals.clear();
+            this._windowsWithSaveSignals = null;
+        }
+
+        this._display.disconnectObject(this);
+        this._defaultAppSystem.disconnectObject(this);
+        global.workspace_manager.disconnectObject(this);
+        this._settings.disconnectObject(this);
+        WindowTilingSupport.disconnectObject(this);
 
         if (this._signals && this._signals.length) {
             this._signals.forEach(([id, obj]) => {

@@ -48,7 +48,7 @@ export const SearchSessionItem = GObject.registerClass(
             });
 
             this._entry.set_secondary_icon(this._clearIcon);
-            this._secondaryIconClickedId = this._entry.connect('secondary-icon-clicked', this.reset.bind(this));
+            this._entry.connectObject('secondary-icon-clicked', this.reset.bind(this), this);
 
             this._addFilters();
         }
@@ -108,7 +108,7 @@ export const SearchSessionItem = GObject.registerClass(
                 markup: _('Open preferences'),
             });
 
-            button.connect('clicked', () => {
+            button.connectObject('clicked', () => {
                 this._getTopMenu()?.close(true);
                 Gio.DBus.session.call(
                     'org.gnome.Shell.Extensions',
@@ -128,7 +128,8 @@ export const SearchSessionItem = GObject.registerClass(
                         }
                     },
                 );
-            });
+            }, this);
+            this._preferencesButton = button;
 
             this.add_child(button);
         }
@@ -141,9 +142,9 @@ export const SearchSessionItem = GObject.registerClass(
         }
 
         destroy() {
-            if (this._secondaryIconClickedId) {
-                this._entry.disconnect(this._secondaryIconClickedId);
-                this._secondaryIconClickedId = null;
-            }
+            this._entry.get_clutter_text().disconnectObject(this);
+            this._filterAutoRestoreSwitch.disconnectObject(this);
+            this._entry.disconnectObject(this);
+            this._preferencesButton.disconnectObject(this);
         }
     });

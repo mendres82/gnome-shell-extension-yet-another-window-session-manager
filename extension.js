@@ -33,7 +33,9 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
 
         this.initUtils();
         
-        this._settingsChangedId = this._settings.connect('changed::show-indicator', () => this.showOrHideIndicator());
+        this._settings.connectObject(
+            'changed::show-indicator', () => this.showOrHideIndicator(),
+            this);
         this.showOrHideIndicator();
     
         _autostartServiceProvider = new Autostart.AutostartServiceProvider();
@@ -113,10 +115,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
         }
 
         if (this._settings) {
-            if (this._settingsChangedId) {
-                this._settings.disconnect(this._settingsChangedId);
-                this._settingsChangedId = null;
-            }
+            this._settings.disconnectObject(this);
             this._settings = null;
         }
 

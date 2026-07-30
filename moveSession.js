@@ -185,12 +185,20 @@ export const MoveSession = class {
                 // MetaWindow.move_to_monitor() can no longer be assumed to have updated the monitor on return, as under wayland
                 // Wait for the monitor change to take effect
                 // See: https://gitlab.gnome.org/GNOME/gnome-shell/-/commit/1cb01ec5b139da136cac665fc705e4ddd1d926a1
-                const id = global.display.connect('window-entered-monitor',
+                const owner = {};
+                const timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+                    global.display.disconnectObject(owner);
+                    resolve(metaWindow);
+                    return GLib.SOURCE_REMOVE;
+                });
+                global.display.connectObject('window-entered-monitor',
                     (dsp, num, w) => {
-                        if (w === metaWindow)
-                            global.display.disconnect(id);
+                        if (w !== metaWindow)
+                            return;
+                        GLib.Source.remove(timeoutId);
+                        global.display.disconnectObject(owner);
                         resolve(metaWindow);
-                    });
+                    }, owner);
                 metaWindow.move_to_monitor(toMonitorIndex);
             });
         }

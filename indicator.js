@@ -53,7 +53,7 @@ class AwsIndicator extends PanelMenu.Button {
 
         this._createMenu();
 
-        this.menu.connect('open-state-changed', this._onOpenStateChanged.bind(this));
+        this.menu.connectObject('open-state-changed', this._onOpenStateChanged.bind(this), this);
 
         // Remove all activate signals on all menu items, so the panel menu can always stay open
         // See: PopupMenu#itemActivated() => this.menu._getTopMenu().close
@@ -79,8 +79,8 @@ class AwsIndicator extends PanelMenu.Button {
 
         this._searchSessionItem = new SearchSessionItem.SearchSessionItem();
         const searchEntryText = this._searchSessionItem._entry.get_clutter_text()
-        searchEntryText.connect('text-changed', this._onSearch.bind(this));
-        this._searchSessionItem._filterAutoRestoreSwitch.connect('notify::state', this._onAutoRestoreSwitchChanged.bind(this));
+        searchEntryText.connectObject('text-changed', this._onSearch.bind(this), this._searchSessionItem);
+        this._searchSessionItem._filterAutoRestoreSwitch.connectObject('notify::state', this._onAutoRestoreSwitchChanged.bind(this), this._searchSessionItem);
 
         this.menu.addMenuItem(this._searchSessionItem, this._itemIndex++);
                 
@@ -90,11 +90,11 @@ class AwsIndicator extends PanelMenu.Button {
         });
 
         this._addSessionFolderMonitor();
-        this._settings.connect('changed::debugging-mode', () => {
+        this._settings.connectObject('changed::debugging-mode', () => {
             this._addSessionItems().catch(error => {
                 this._log.error(error, 'Error reloading session items while debugging-mode was changed');
             });
-        });
+        }, this);
     }
 
     _addScrollableSessionsMenuSection() {
@@ -237,7 +237,7 @@ class AwsIndicator extends PanelMenu.Button {
         const monitor = directory.monitor_directory(
             Gio.FileMonitorFlags.WATCH_MOUNTS |
             Gio.FileMonitorFlags.WATCH_MOVES, null);
-        monitor.connect('changed', this._sessionChanged.bind(this));
+        monitor.connectObject('changed', this._sessionChanged.bind(this), this);
         this.monitors.push(monitor);
     }
 
@@ -353,11 +353,16 @@ class AwsIndicator extends PanelMenu.Button {
     destroy() {
         if (this.monitors) {
             this.monitors.forEach ((monitor) => {
+                monitor.disconnectObject(this);
                 monitor.cancel();
                 monitor = null;
             });
             this.monitors = [];
         }
+
+        this.menu.disconnectObject(this);
+        this._settings.disconnectObject(this);
+        this._searchSessionItem.destroy();
 
         if (this._sessions_path) {
             this._sessions_path = null;

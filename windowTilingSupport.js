@@ -23,9 +23,13 @@ export class WindowTilingSupport {
 
         this._grabbedWindowsAboutToUntileMap = new Map();
 
-        this._grabOpBeginId = global.display.connect('grab-op-begin', this._grabOpBegin.bind(this));
-        this._grabOpEndId = global.display.connect('grab-op-end', this._grabOpEnd.bind(this));
+        this._sizeChangedId = 0;
+        this._sizeChangedWindow = null;
 
+        global.display.connectObject(
+            'grab-op-begin', this._grabOpBegin.bind(this),
+            'grab-op-end', this._grabOpEnd.bind(this),
+            this._signals);
     }
 
     static prepareToTile(metaWindow, window_tiling) {
@@ -73,6 +77,7 @@ export class WindowTilingSupport {
         
         if (!this._settings.get_boolean('restore-window-tiling')) return;
 
+        this._sizeChangedWindow = grabbedWindow;
         this._sizeChangedId = grabbedWindow.connect('size-changed', () => {
             const grabbedWindowRect = grabbedWindow.get_frame_rect();
             const windowAboutToResizeRect = windowAboutToResize.get_frame_rect();
@@ -129,11 +134,7 @@ export class WindowTilingSupport {
             this._signals.emit('window-untiled', grabbedWindow, anotherTilingWindow);
         }
 
-        if (this._sizeChangedId) {
-            grabbedWindow.disconnect(this._sizeChangedId);
-            this._sizeChangedId = 0;
-        }
-
+        this._disconnectSizeChanged();
     }
 
     static _getWindowAboutToResize(window_tiling) {
@@ -161,11 +162,19 @@ export class WindowTilingSupport {
     }
 
     static connect(signal, func) {
-        this._signals.connect(signal, func);
+        return this._signals.connect(signal, func);
     }
 
     static disconnect(id) {
         this._signals.disconnect(id);
+    }
+
+    static connectObject(...args) {
+        this._signals.connectObject(...args);
+    }
+
+    static disconnectObject(obj) {
+        this._signals.disconnectObject(obj);
     }
 
     static _disconnectRaisedSignals() {
@@ -177,6 +186,14 @@ export class WindowTilingSupport {
         }
     }
 
+    static _disconnectSizeChanged() {
+        if (this._sizeChangedId && this._sizeChangedWindow) {
+            this._sizeChangedWindow.disconnect(this._sizeChangedId);
+        }
+        this._sizeChangedId = 0;
+        this._sizeChangedWindow = null;
+    }
+
     static destroy() {
 
         if (this._grabbedWindowsAboutToUntileMap) {
@@ -185,18 +202,13 @@ export class WindowTilingSupport {
         }
 
         this._disconnectRaisedSignals();
+        this._disconnectSizeChanged();
 
         this._signalsConnectedMap = null;
 
-        if (this._grabOpBeginId) {
-            global.display.disconnect(this._grabOpBeginId);
-            this._grabOpBeginId = 0;
-        }
+        global.display.disconnectObject(this._signals);
 
-        if (this._grabOpEndId) {
-            global.display.disconnect(this._grabOpEndId);
-            this._grabOpEndId = 0;
-        }
+        this._signals = null;
     }
 
 
