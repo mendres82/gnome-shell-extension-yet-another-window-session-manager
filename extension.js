@@ -27,11 +27,6 @@ let _keyboardShortcuts;
 
 export default class AnotherWindowSessionManagerExtension extends Extension {
 
-    constructor(metadata) {
-        super(metadata);
-        this.initTranslations(this.metadata['gettext-domain'] ?? this.metadata.uuid);
-    }
-
     enable() {
         // settings is needed by the initialization of some utils
         this._settings = this.getSettings('org.gnome.shell.extensions.yet-another-window-session-manager');        

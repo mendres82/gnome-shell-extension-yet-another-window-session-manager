@@ -18,11 +18,6 @@ import {initShortcutRows} from './prefsShortcuts.js';
 
 
 export default class AnotherWindowSessionManagerPreferences extends ExtensionPreferences {
-    constructor(metadata) {
-        super(metadata);
-        this.initTranslations(this.metadata['gettext-domain'] ?? this.metadata.uuid);
-    }
-
     fillPreferencesWindow(window) {
         window.set_default_size(1200, 800);
         window.set_size_request(1200, 800);
