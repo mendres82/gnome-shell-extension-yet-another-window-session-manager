@@ -383,7 +383,7 @@ const AutostartDialog = GObject.registerClass(
         _sync() {
 
             let displayTime;
-            if (EndSessionDialog && typeof EndSessionDialog._roundSecondsToInterval === 'function') {
+            if (EndSessionDialog._roundSecondsToInterval) {
                 displayTime = EndSessionDialog._roundSecondsToInterval(this._totalSecondsToStayOpen,
                                                                          this._secondsLeft,
                                                                          1);

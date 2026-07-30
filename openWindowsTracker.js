@@ -786,7 +786,7 @@ export const OpenWindowsTracker = class {
             _meta_restart = null;
         }
 
-        if (this._overrideSystemActionsPrototypeMap?.size) {
+        if (this._overrideSystemActionsPrototypeMap) {
             const proto = Object.getPrototypeOf(SystemActions.getDefault());
             this._overrideSystemActionsPrototypeMap.forEach((originalFunc, funcName) => {
                 proto[funcName] = originalFunc;
