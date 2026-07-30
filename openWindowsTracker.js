@@ -84,7 +84,7 @@ export const OpenWindowsTracker = class {
         this._signal = new Signal.Signal();
         this._metaWindowConnectIds = [];
         this._windowsWithSaveSignals = new Set();
-        this._isDestroyed = false;
+        this._compositorIdleIds = [];
 
         this._saveSession = new SaveSession.SaveSession();
         this._moveSession = new MoveSession.MoveSession();
@@ -284,7 +284,7 @@ export const OpenWindowsTracker = class {
 
     _connectPlacementSignals(metaWindow) {
         const moveIfRestoring = (phase) => {
-            if (this._isDestroyed || metaWindow._aboutToClose)
+            if (metaWindow._aboutToClose)
                 return;
 
             const shellApp = this._windowTracker.get_window_app(metaWindow);
@@ -302,15 +302,11 @@ export const OpenWindowsTracker = class {
 
         const connectFirstFrame = (metaWindowActor) => {
             let firstFrameId = metaWindowActor.connect('first-frame', () => {
-                if (this._isDestroyed) {
-                    this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-                    return;
-                }
-
                 moveIfRestoring('first-frame');
                 this._signal.disconnectSafely(metaWindowActor, firstFrameId);
                 firstFrameId = 0;
             });
+            this._metaWindowConnectIds.push([metaWindowActor, firstFrameId]);
 
             let unmanagingId = metaWindow.connect('unmanaging', () => {
                 this._signal.disconnectSafely(metaWindowActor, firstFrameId);
@@ -323,36 +319,28 @@ export const OpenWindowsTracker = class {
             connectFirstFrame(metaWindowActor);
         } else {
             const idleCompositorId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                if (this._isDestroyed)
-                    return GLib.SOURCE_REMOVE;
-
                 metaWindowActor = metaWindow.get_compositor_private();
                 if (!metaWindowActor)
                     return GLib.SOURCE_CONTINUE;
+
+                const idx = this._compositorIdleIds.indexOf(idleCompositorId);
+                if (idx >= 0)
+                    this._compositorIdleIds.splice(idx, 1);
 
                 connectFirstFrame(metaWindowActor);
                 return GLib.SOURCE_REMOVE;
             });
             GLib.Source.set_name_by_id(idleCompositorId, '[gnome-shell-extension-yet-another-window-session-manager] wait-for-compositor');
+            this._compositorIdleIds.push(idleCompositorId);
         }
 
         let shownId = metaWindow.connect('shown', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(shownId);
-                return;
-            }
-
             moveIfRestoring('shown');
             metaWindow.disconnect(shownId);
             shownId = 0;
         });
 
         let titleChangedId = metaWindow.connect('notify::title', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(titleChangedId);
-                return;
-            }
-
             moveIfRestoring('title changed');
             metaWindow.disconnect(titleChangedId);
             titleChangedId = 0;
@@ -727,8 +715,33 @@ export const OpenWindowsTracker = class {
     }
 
     destroy() {
-        this._isDestroyed = true;
+        if (this._compositorIdleIds) {
+            for (const idleId of this._compositorIdleIds) {
+                GLib.Source.remove(idleId);
+            }
+            this._compositorIdleIds = null;
+        }
+
+        if (this._saveSummaryCancellable && !this._saveSummaryCancellable.is_cancelled())
+            this._saveSummaryCancellable.cancel();
+        this._saveSummaryCancellable = null;
+
         this._cancelAllRunningSave();
+
+        if (this._saveSessionByBatchTimeoutId) {
+            GLib.Source.remove(this._saveSessionByBatchTimeoutId);
+            this._saveSessionByBatchTimeoutId = 0;
+        }
+
+        if (this._saveSession) {
+            this._saveSession.destroy();
+            this._saveSession = null;
+        }
+
+        if (this._moveSession) {
+            this._moveSession.destroy();
+            this._moveSession = null;
+        }
 
         if (this._busWatchId) {
             Gio.bus_unwatch_name(this._busWatchId);
@@ -754,10 +767,6 @@ export const OpenWindowsTracker = class {
         if (this._canceledId) {
             this._endSessionProxy?.disconnectSignal(this._canceledId);
             this._canceledId = 0;
-        }
-        if (this._saveSessionByBatchTimeoutId) {
-            GLib.Source.remove(this._saveSessionByBatchTimeoutId);
-            this._saveSessionByBatchTimeoutId = 0;
         }
 
         if (_meta_restart) {

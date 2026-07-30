@@ -59,8 +59,6 @@ class AwsIndicator extends PanelMenu.Button {
         // See: PopupMenu#itemActivated() => this.menu._getTopMenu().close
         this.menu.itemActivated = function(animate) {};
 
-        this._isDestroyed = false;
-        
     }
 
     _onOpenStateChanged(menu, state) {
@@ -380,8 +378,6 @@ class AwsIndicator extends PanelMenu.Button {
 
         super.destroy();
 
-        this._isDestroyed = true;
-        
     }
 
 });
