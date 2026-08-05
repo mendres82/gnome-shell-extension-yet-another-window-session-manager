@@ -307,7 +307,7 @@ const AutostartDialog = GObject.registerClass(
             this._secondsLeft = 0;
             this._moveWindowsFallbackSourceId = 0;
 
-            this.connect('opened', this._onOpened.bind(this));
+            this.connectObject('opened', this._onOpened.bind(this), this);
 
             this._confirmDialogContent = new Dialog.MessageDialogContent();
             this._confirmDialogContent.title = _('Restore session \'%s\'').format(this._sessionName);
@@ -320,10 +320,11 @@ const AutostartDialog = GObject.registerClass(
 
             this._confirmButton = this.addButton({
                 action: () => {
-                    let signalId = this.connect('closed', () => {
-                        this.disconnect(signalId);
+                    const owner = {};
+                    this.connectObject('closed', () => {
+                        this.disconnectObject(owner);
                         this._confirm();
-                    });
+                    }, owner);
                     this.close();
                 },
                 label: _('Confirm'),
@@ -434,6 +435,8 @@ const AutostartDialog = GObject.registerClass(
             }
             this._secondsLeft = 0;
             this._settings = null;
+
+            this.disconnectObject(this);
 
             if (this._service) {
                 if (this._service._autostartDialog === this)

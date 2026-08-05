@@ -70,7 +70,8 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
     
     Main.popModal(lookingGlass._grab);
 
-    inspector.connect('target', (me, target, x, y) => {
+    const owner = {};
+    inspector.connectObject('target', (me, target, x, y) => {
       // Remove border effect when window is picked.
       target.get_effects()
         .filter(e => e.toString().includes('lookingGlass_RedBorderEffect'))
@@ -109,18 +110,19 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
       }
 
       this._dbus.emit_signal('WindowPicked', variant);
-    });
+    }, owner);
 
     // Close LookingGlass and release the grab when the picking is finished.
-    inspector.connect('closed', () => {
+    inspector.connectObject('closed', () => {
       // Restore the global grab to prevent the error 'incorrect pop' thrown by LookingGlass.close/Main.popModal(this._grab)
       lookingGlass._grab = Main.pushModal(lookingGlass, { actionMode: Shell.ActionMode.LOOKING_GLASS });
       lookingGlass.close();
-    });
+      inspector.disconnectObject(owner);
+    }, owner);
 
-    inspector.connect('WindowPickCancelled', () => {
+    inspector.connectObject('WindowPickCancelled', () => {
       this._dbus.emit_signal('WindowPickCancelled', null);
-    });
+    }, owner);
   }
 
   // -------------------------------------------------------------------- public interface

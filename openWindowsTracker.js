@@ -70,7 +70,8 @@ export const OpenWindowsTracker = class {
             }
         ];
 
-        this._signals = [];
+        // Remaining [obj, owner] pairs for connectObject cleanup on destroy
+        this._signalOwners = [];
 
         this._windowTracker = Shell.WindowTracker.get_default();
         this._defaultAppSystem = Shell.AppSystem.get_default();
@@ -78,7 +79,6 @@ export const OpenWindowsTracker = class {
 
         this._log = new Log.Log();
         this._settings = SettingsUtils.getSettings();
-        this._metaWindowConnectIds = [];
         this._windowsWithSaveSignals = new Set();
         this._compositorIdleIds = [];
 
@@ -278,6 +278,23 @@ export const OpenWindowsTracker = class {
         }
     }
 
+    _trackSignalOwner(obj, owner) {
+        this._signalOwners.push([obj, owner]);
+    }
+
+    _dropSignalOwner(obj, owner) {
+        if (!this._signalOwners)
+            return;
+        this._signalOwners = this._signalOwners.filter(
+            ([o, ow]) => !(o === obj && ow === owner));
+    }
+
+    _disconnectSignalOwner(obj, owner) {
+        if (obj && owner)
+            obj.disconnectObject(owner);
+        this._dropSignalOwner(obj, owner);
+    }
+
     _connectPlacementSignals(metaWindow) {
         const moveIfRestoring = (phase) => {
             if (metaWindow._aboutToClose)
@@ -296,31 +313,22 @@ export const OpenWindowsTracker = class {
             this._moveSession.moveWindowByMetaWindow(metaWindow, shellAppData.saved_window_sessions);
         };
 
-        const dropConnectId = (obj, signalId) => {
-            if (!this._metaWindowConnectIds || !signalId)
-                return;
-            this._metaWindowConnectIds = this._metaWindowConnectIds.filter(
-                ([o, id]) => !(o === obj && id === signalId));
-        };
-
         const connectFirstFrame = (metaWindowActor) => {
-            let firstFrameId = metaWindowActor.connect('first-frame', () => {
-                moveIfRestoring('first-frame');
-                metaWindowActor.disconnect(firstFrameId);
-                dropConnectId(metaWindowActor, firstFrameId);
-                firstFrameId = 0;
-            });
-            this._metaWindowConnectIds.push([metaWindowActor, firstFrameId]);
+            const firstFrameOwner = {};
+            const unmanagingOwner = {};
+            this._trackSignalOwner(metaWindowActor, firstFrameOwner);
+            this._trackSignalOwner(metaWindow, unmanagingOwner);
 
-            let unmanagingId = metaWindow.connect('unmanaging', () => {
-                if (firstFrameId) {
-                    metaWindowActor.disconnect(firstFrameId);
-                    dropConnectId(metaWindowActor, firstFrameId);
-                    firstFrameId = 0;
-                }
-                dropConnectId(metaWindow, unmanagingId);
-            });
-            this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
+            metaWindowActor.connectObject('first-frame', () => {
+                moveIfRestoring('first-frame');
+                this._disconnectSignalOwner(metaWindowActor, firstFrameOwner);
+                this._disconnectSignalOwner(metaWindow, unmanagingOwner);
+            }, firstFrameOwner);
+
+            metaWindow.connectObject('unmanaging', () => {
+                this._disconnectSignalOwner(metaWindowActor, firstFrameOwner);
+                this._disconnectSignalOwner(metaWindow, unmanagingOwner);
+            }, unmanagingOwner);
         };
 
         let metaWindowActor = metaWindow.get_compositor_private();
@@ -342,22 +350,19 @@ export const OpenWindowsTracker = class {
             this._compositorIdleIds.push(idleCompositorId);
         }
 
-        let shownId = metaWindow.connect('shown', () => {
+        const shownOwner = {};
+        this._trackSignalOwner(metaWindow, shownOwner);
+        metaWindow.connectObject('shown', () => {
             moveIfRestoring('shown');
-            metaWindow.disconnect(shownId);
-            dropConnectId(metaWindow, shownId);
-            shownId = 0;
-        });
+            this._disconnectSignalOwner(metaWindow, shownOwner);
+        }, shownOwner);
 
-        let titleChangedId = metaWindow.connect('notify::title', () => {
+        const titleOwner = {};
+        this._trackSignalOwner(metaWindow, titleOwner);
+        metaWindow.connectObject('notify::title', () => {
             moveIfRestoring('title changed');
-            metaWindow.disconnect(titleChangedId);
-            dropConnectId(metaWindow, titleChangedId);
-            titleChangedId = 0;
-        });
-
-        this._metaWindowConnectIds.push([metaWindow, shownId]);
-        this._metaWindowConnectIds.push([metaWindow, titleChangedId]);
+            this._disconnectSignalOwner(metaWindow, titleOwner);
+        }, titleOwner);
     }
 
     _connectWindowSignalsToSaveSession(window) {
@@ -481,27 +486,25 @@ export const OpenWindowsTracker = class {
     _connectSignalsToCleanUpSessionFile(window, sessionDirectory, sessionName) {
         try {
             // Clean up while window is closing
-
-            let unmanagingId = window.connect('unmanaging', () => {
-                window.disconnect(unmanagingId);
-                unmanagingId = 0;
+            const unmanagingOwner = {};
+            this._trackSignalOwner(window, unmanagingOwner);
+            window.connectObject('unmanaging', () => {
+                this._disconnectSignalOwner(window, unmanagingOwner);
                 this._cleanUpSessionFileByWindow(window, sessionDirectory, sessionName);
-            });
-            this._signals.push([unmanagingId, window]);
+            }, unmanagingOwner);
 
             // Clean up while the app state becomes STOPPED, just in case the session file cannot be cleanup while the last window is closed.
-
             const app = this._windowTracker.get_window_app(window);
             if (app) {
                 const appName = app.get_name();
-                let appId = app.connect('notify::state', app => {
+                const appOwner = {};
+                this._trackSignalOwner(app, appOwner);
+                app.connectObject('notify::state', () => {
                     if (app.state === Shell.AppState.STOPPED) {
-                        app.disconnect(appId);
-                        appId = 0;
+                        this._disconnectSignalOwner(app, appOwner);
                         this._cleanUpSessionFileByApp(app, appName, window, sessionDirectory);
                     }
-                });
-                this._signals.push([appId, app]);
+                }, appOwner);
                 this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
             }
         } catch (e) {
@@ -793,12 +796,12 @@ export const OpenWindowsTracker = class {
             this._overrideSystemActionsPrototypeMap = null;
         }
 
-        if (this._metaWindowConnectIds) {
-            for (let [obj, signalId] of this._metaWindowConnectIds) {
-                if (obj && signalId)
-                    obj.disconnect(signalId);
+        if (this._signalOwners) {
+            for (const [obj, owner] of this._signalOwners) {
+                if (obj && owner)
+                    obj.disconnectObject(owner);
             }
-            this._metaWindowConnectIds = null;
+            this._signalOwners = null;
         }
 
         if (this._windowsWithSaveSignals) {
@@ -814,15 +817,6 @@ export const OpenWindowsTracker = class {
         global.workspace_manager.disconnectObject(this);
         this._settings.disconnectObject(this);
         WindowTilingSupport.disconnectObject(this);
-
-        if (this._signals && this._signals.length) {
-            this._signals.forEach(([id, obj]) => {
-                if (id && obj) {
-                    obj.disconnect(id);
-                }
-            });
-            this._signals = null;
-        }
     }
 
 }

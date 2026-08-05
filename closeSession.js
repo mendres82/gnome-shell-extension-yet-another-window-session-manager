@@ -203,10 +203,11 @@ export const CloseSession = class {
     _deleteWindow(app, metaWindow) {
         return new Promise((resolve, reject) => {
             // We use 'windows-changed' here because a confirm window could be popped up
-            const windowsChangedId = app.connect('windows-changed', () => {
-                app.disconnect(windowsChangedId);
+            const owner = {};
+            app.connectObject('windows-changed', () => {
+                app.disconnectObject(owner);
                 resolve(app.get_n_windows() === 0);
-            });
+            }, owner);
             metaWindow._aboutToClose = true;
             metaWindow.delete(DateUtils.get_current_time());
         });
@@ -220,11 +221,11 @@ export const CloseSession = class {
 
         return new Promise((resolve, reject) => {
             // We use 'windows-changed' here because a confirm window might be popped up
-            let windowsChangedId = app.connect('windows-changed', () => {
-                app.disconnect(windowsChangedId);
-                windowsChangedId = null;
+            const owner = {};
+            app.connectObject('windows-changed', () => {
+                app.disconnectObject(owner);
                 resolve(app.get_n_windows() === 0);
-            });
+            }, owner);
 
             const quitAction = 'app.quit';
             if (app.action_group.has_action(quitAction)
@@ -238,7 +239,7 @@ export const CloseSession = class {
             }
             
             if (!metaWindow._aboutToClose) {
-                if (windowsChangedId) app.disconnect(windowsChangedId);
+                app.disconnectObject(owner);
                 resolve(false);
             }
         });
@@ -295,10 +296,11 @@ export const CloseSession = class {
 
     _leaveOverview() {
         return new Promise((resolve) => {
-            const hiddenId = Main.overview.connect('hidden', () => {
-                Main.overview.disconnect(hiddenId);
+            const owner = {};
+            Main.overview.connectObject('hidden', () => {
+                Main.overview.disconnectObject(owner);
                 resolve();
-            });
+            }, owner);
             Main.overview.hide();
         });
     }

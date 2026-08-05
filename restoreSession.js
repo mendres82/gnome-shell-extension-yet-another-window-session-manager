@@ -38,8 +38,6 @@ export const RestoreSession = class {
         this._cmdAppIdMap = new Map();
 
         this._display = global.display;
-
-        this._connectIds = [];
     }
 
     restoreSession(sessionName) {
@@ -333,13 +331,6 @@ export const RestoreSession = class {
         if (this._restoreSessionTimeoutId) {
             GLib.Source.remove(this._restoreSessionTimeoutId);
             this._restoreSessionTimeoutId = null;
-        }
-
-        if (this._connectIds) {
-            for (let [obj, id] of this._connectIds) {
-                obj.disconnect(id);
-            }
-            this._connectIds = null;
         }
 
         if (this._restoredApps) {

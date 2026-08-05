@@ -18,13 +18,13 @@ export class WindowTilingSupport {
 
         this._signals = new WindowTilingSupportSignals();
 
-        // Used for getting another raised signal id to prevent 'too much recursion' due to raising each other.
-        this._signalsConnectedMap = new Map();
+        // Windows with a `raised` handler owned by this class
+        this._raisedSignalWindows = new Set();
 
         this._grabbedWindowsAboutToUntileMap = new Map();
 
-        this._sizeChangedId = 0;
         this._sizeChangedWindow = null;
+        this._sizeChangedOwner = null;
 
         global.display.connectObject(
             'grab-op-begin', this._grabOpBegin.bind(this),
@@ -43,18 +43,21 @@ export class WindowTilingSupport {
         
         this._signals.emit('window-tiled', metaWindow, windowAboutToResize);
 
-        // Connect `raised` only once and this will prevent `JS ERROR: too much recursion`
-        if (!this._signalsConnectedMap.get(metaWindow)) {
-            const raisedId = metaWindow.connect('raised', () => {
-                const raisedTogether = this._settings.get_boolean('raise-windows-together');
-                if (raisedTogether) {
-                    const anotherWindowRaisedId = this._signalsConnectedMap.get(windowAboutToResize);
-                    windowAboutToResize.block_signal_handler(anotherWindowRaisedId);
-                    windowAboutToResize.raise();
-                    windowAboutToResize.unblock_signal_handler(anotherWindowRaisedId);
-                }
-            });
-            this._signalsConnectedMap.set(metaWindow, raisedId);
+        // Connect `raised` only once; flag guards against raise recursion
+        if (!this._raisedSignalWindows.has(metaWindow)) {
+            metaWindow.connectObject('raised', () => {
+                if (metaWindow._yawsmRaising)
+                    return;
+                if (!this._settings.get_boolean('raise-windows-together'))
+                    return;
+                const other = metaWindow._tile_match_yawsm;
+                if (!other || other._yawsmRaising)
+                    return;
+                other._yawsmRaising = true;
+                other.raise();
+                other._yawsmRaising = false;
+            }, this);
+            this._raisedSignalWindows.add(metaWindow);
         }
     }
 
@@ -77,8 +80,10 @@ export class WindowTilingSupport {
         
         if (!this._settings.get_boolean('restore-window-tiling')) return;
 
+        this._disconnectSizeChanged();
         this._sizeChangedWindow = grabbedWindow;
-        this._sizeChangedId = grabbedWindow.connect('size-changed', () => {
+        this._sizeChangedOwner = {};
+        grabbedWindow.connectObject('size-changed', () => {
             const grabbedWindowRect = grabbedWindow.get_frame_rect();
             const windowAboutToResizeRect = windowAboutToResize.get_frame_rect();
             const grabbedWindowOnLeftSide = grabbedWindowRect.x < windowAboutToResizeRect.x;
@@ -101,7 +106,7 @@ export class WindowTilingSupport {
                 windowAboutToResize.move_resize_frame(false, ...xywh);
             }
 
-        });
+        }, this._sizeChangedOwner);
     }
 
     static _grabOpEnd(display, grabbedWindow, grabOp) {
@@ -128,8 +133,6 @@ export class WindowTilingSupport {
                 delete anotherTilingWindow._tile_match_yawsm;
             }
             this._grabbedWindowsAboutToUntileMap.delete(grabbedWindow);
-
-            this._disconnectRaisedSignals();
 
             this._signals.emit('window-untiled', grabbedWindow, anotherTilingWindow);
         }
@@ -161,14 +164,6 @@ export class WindowTilingSupport {
         return windowAboutToResize;
     }
 
-    static connect(signal, func) {
-        return this._signals.connect(signal, func);
-    }
-
-    static disconnect(id) {
-        this._signals.disconnect(id);
-    }
-
     static connectObject(...args) {
         this._signals.connectObject(...args);
     }
@@ -178,20 +173,18 @@ export class WindowTilingSupport {
     }
 
     static _disconnectRaisedSignals() {
-        if (this._signalsConnectedMap) {
-            this._signalsConnectedMap.forEach((id, obj) => {
-                obj.disconnect(id);
-            });
-            this._signalsConnectedMap.clear();
+        if (this._raisedSignalWindows) {
+            for (const win of this._raisedSignalWindows)
+                win.disconnectObject(this);
+            this._raisedSignalWindows.clear();
         }
     }
 
     static _disconnectSizeChanged() {
-        if (this._sizeChangedId && this._sizeChangedWindow) {
-            this._sizeChangedWindow.disconnect(this._sizeChangedId);
-        }
-        this._sizeChangedId = 0;
+        if (this._sizeChangedWindow && this._sizeChangedOwner)
+            this._sizeChangedWindow.disconnectObject(this._sizeChangedOwner);
         this._sizeChangedWindow = null;
+        this._sizeChangedOwner = null;
     }
 
     static destroy() {
@@ -204,7 +197,7 @@ export class WindowTilingSupport {
         this._disconnectRaisedSignals();
         this._disconnectSizeChanged();
 
-        this._signalsConnectedMap = null;
+        this._raisedSignalWindows = null;
 
         global.display.disconnectObject(this._signals);
 
