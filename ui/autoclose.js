@@ -555,7 +555,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                     return null;
                 return stat[closeParen + 2];
             } catch (e) {
-                // ENOENT etc. — process has exited
+                // ENOENT etc.: process has exited
                 return null;
             }
         }

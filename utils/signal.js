@@ -23,7 +23,7 @@ export const Signal = class {
             if (GObject.signal_handler_is_connected(obj, signalId))
                 obj.disconnect(signalId);
         } catch (e) {
-            // Object already disposed — nothing left to disconnect
+            // Object already disposed; nothing left to disconnect
         }
     }
 

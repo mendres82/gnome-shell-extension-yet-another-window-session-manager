@@ -144,7 +144,7 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
       try {
         this._dbus.unexport();
       } catch (_e) {
-        // Not exported yet — expected on first enable()
+        // Not exported yet; expected on first enable()
       }
       this._dbus.export(Gio.DBus.session, '/org/gnome/shell/extensions/yawsm');
     }).catch(e => logError(e, 'Failed to load PickWindow dbus interface!'));
@@ -160,7 +160,7 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
       try {
         this._dbus.unexport();
       } catch (_e) {
-        // Already unexported — not an error
+        // Already unexported; not an error
       }
       this._dbus = null;
     }
