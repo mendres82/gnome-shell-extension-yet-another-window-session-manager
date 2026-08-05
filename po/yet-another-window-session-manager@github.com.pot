@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Yet Another Window Session Manager 59\n"
+"Project-Id-Version: Yet Another Window Session Manager 60\n"
 "Report-Msgid-Bugs-To: https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager/issues\n"
-"POT-Creation-Date: 2026-07-14 10:11+0200\n"
+"POT-Creation-Date: 2026-08-06 00:17+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -443,11 +443,6 @@ msgstr ""
 #: restoreSession.js
 #, javascript-format
 msgid "Can't restore this app from %s: %s."
-msgstr ""
-
-#: restoreSession.js
-#, javascript-format
-msgid "exit status %d"
 msgstr ""
 
 #: restoreSession.js
