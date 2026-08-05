@@ -224,9 +224,6 @@ export const Autoclose = GObject.registerClass(
         }
 
         disable() {
-            if (!this._log)
-                return;
-
             this._restoreEndSessionDialog();
             if (this._retryIdleId) {
                 GLib.source_remove(this._retryIdleId);
@@ -715,9 +712,6 @@ const RunningApplicationListWindow = GObject.registerClass({
         }
 
         disable() {
-            if (!this._log)
-                return;
-
             if (this._confirmIdleId) {
                 GLib.source_remove(this._confirmIdleId);
                 this._confirmIdleId = null;
