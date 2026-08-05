@@ -803,11 +803,7 @@ export const OpenWindowsTracker = class {
 
         if (this._windowsWithSaveSignals) {
             for (const window of this._windowsWithSaveSignals) {
-                try {
-                    window.disconnectObject(this);
-                } catch (e) {
-                    // Meta.Window already disposed
-                }
+                window.disconnectObject(this);
             }
             this._windowsWithSaveSignals.clear();
             this._windowsWithSaveSignals = null;

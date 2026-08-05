@@ -294,14 +294,10 @@ export const CloseSession = class {
     }
 
     _leaveOverview() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const hiddenId = Main.overview.connect('hidden', () => {
-                try {
-                    Main.overview.disconnect(hiddenId);
-                    resolve();
-                } catch (e) {
-                    reject(e);
-                }
+                Main.overview.disconnect(hiddenId);
+                resolve();
             });
             Main.overview.hide();
         });
