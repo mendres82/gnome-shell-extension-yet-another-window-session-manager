@@ -239,6 +239,10 @@ export const Tooltip = class Tooltip {
             });
         }
 
+        if (tooltipBrowseId) {
+            GLib.source_remove(tooltipBrowseId);
+            tooltipBrowseId = 0;
+        }
         tooltipBrowseId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
             tooltipBrowseMode = false;
             tooltipBrowseId = 0;
