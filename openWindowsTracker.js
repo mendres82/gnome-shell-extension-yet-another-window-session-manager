@@ -18,8 +18,6 @@ import * as Log from './utils/log.js';
 import {SettingsUtils} from './utils/settingsUtils.js';
 import * as FileUtils from './utils/fileUtils.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
-import * as Signal from './utils/signal.js';
-
 import {WindowTilingSupport} from './windowTilingSupport.js';
 
 
@@ -80,7 +78,6 @@ export const OpenWindowsTracker = class {
 
         this._log = new Log.Log();
         this._settings = SettingsUtils.getSettings();
-        this._signal = new Signal.Signal();
         this._metaWindowConnectIds = [];
         this._windowsWithSaveSignals = new Set();
         this._compositorIdleIds = [];
@@ -309,15 +306,18 @@ export const OpenWindowsTracker = class {
         const connectFirstFrame = (metaWindowActor) => {
             let firstFrameId = metaWindowActor.connect('first-frame', () => {
                 moveIfRestoring('first-frame');
-                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
+                metaWindowActor.disconnect(firstFrameId);
                 dropConnectId(metaWindowActor, firstFrameId);
                 firstFrameId = 0;
             });
             this._metaWindowConnectIds.push([metaWindowActor, firstFrameId]);
 
             let unmanagingId = metaWindow.connect('unmanaging', () => {
-                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-                dropConnectId(metaWindowActor, firstFrameId);
+                if (firstFrameId) {
+                    metaWindowActor.disconnect(firstFrameId);
+                    dropConnectId(metaWindowActor, firstFrameId);
+                    firstFrameId = 0;
+                }
                 dropConnectId(metaWindow, unmanagingId);
             });
             this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
@@ -796,7 +796,8 @@ export const OpenWindowsTracker = class {
 
         if (this._metaWindowConnectIds) {
             for (let [obj, signalId] of this._metaWindowConnectIds) {
-                this._signal.disconnectSafely(obj, signalId);
+                if (obj && signalId)
+                    obj.disconnect(signalId);
             }
             this._metaWindowConnectIds = null;
         }
