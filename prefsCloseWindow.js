@@ -10,7 +10,7 @@ import Gdk from 'gi://Gdk';
 
 import * as CloseWindowsRule from './model/closeWindowsRule.js';
 
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as Log from './utils/log.js';
 import * as IconFinder from './utils/iconFinder.js';
 
@@ -35,7 +35,7 @@ export const UICloseWindows = GObject.registerClass(
             this._builder = builder;
             this.close_by_rules_switch = this._builder.get_object('close_by_rules_switch');
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
 
             // TODO
             this._scrollToWidget = null;
@@ -410,7 +410,7 @@ const RuleRow = GObject.registerClass({
 }, class RuleRow extends Row {
     _init(ruleDetail) {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         const ruleRowBox = this._newBox({
             hexpand: false,
@@ -873,7 +873,7 @@ const WhitelistRow = GObject.registerClass({
 }, class WhitelistRow extends Row {
 
     _init(ruleDetail) {
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         const rowBox = PrefsWidgets._newBox({
             hexpand: false,
@@ -1111,7 +1111,7 @@ const YawsmNewRuleByAppDialog = GObject.registerClass(
                 modal: true,
             });
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
 
             this.get_widget().set({
                 show_recommended: true,

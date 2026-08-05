@@ -15,7 +15,7 @@ import * as Constants from './constants.js';
 import * as UiHelper from './ui/uiHelper.js';
 
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as FileUtils from './utils/fileUtils.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
 import * as Function from './utils/function.js';
@@ -80,7 +80,7 @@ export const OpenWindowsTracker = class {
         this._wm = global.workspace_manager;
 
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
         this._signal = new Signal.Signal();
         this._metaWindowConnectIds = [];
         this._windowsWithSaveSignals = new Set();

@@ -19,7 +19,7 @@ import * as MoveSession from '../moveSession.js';
 import * as Constants from '../constants.js';
 
 import * as Log from '../utils/log.js';
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 import * as FileUtils from '../utils/fileUtils.js';
 
 
@@ -137,7 +137,7 @@ const AutostartService = GObject.registerClass(
             this._restorePreviousSourceId = 0;
             this._idleIdOpenRestoreSessionDialog = 0;
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
             this._sessionName = this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
         }
 
@@ -295,7 +295,7 @@ const AutostartDialog = GObject.registerClass(
             // clear the owner's reference so disable does not destroy() twice.
             this._service = service;
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
 
             this._sessionName = this._settings.get_string(Constants.PREFS_SETTING_AUTORESTORE_SESSIONS);
 

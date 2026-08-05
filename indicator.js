@@ -19,7 +19,7 @@ import * as SessionItem from './ui/sessionItem.js';
 import * as SearchSessionItem from './ui/searchSessionItem.js';
 import * as PopupMenuButtonItems from './ui/popupMenuButtonItems.js';
 import * as IconFinder from './utils/iconFinder.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as Log from './utils/log.js';
 
 
@@ -31,7 +31,7 @@ class AwsIndicator extends PanelMenu.Button {
 
         this._windowTracker = Shell.WindowTracker.get_default();
 
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
         this._log = new Log.Log();
         
         this._itemIndex = 0;

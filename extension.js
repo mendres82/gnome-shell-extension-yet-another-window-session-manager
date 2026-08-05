@@ -15,7 +15,7 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 
 import * as Log from './utils/log.js';
 import * as FileUtils from './utils/fileUtils.js';
-import {prefsUtilsInit, prefsUtilsDestroy} from './utils/prefsUtils.js';
+import {settingsUtilsInit, settingsUtilsDestroy} from './utils/settingsUtils.js';
 
 
 let _indicator;
@@ -53,7 +53,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
     }
 
     initUtils() {
-        prefsUtilsInit(this, this._settings);
+        settingsUtilsInit(this, this._settings);
         FileUtils.init(this);
     }
     
@@ -120,7 +120,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
         }
 
         FileUtils.destroy();
-        prefsUtilsDestroy();
+        settingsUtilsDestroy();
     
     }
     

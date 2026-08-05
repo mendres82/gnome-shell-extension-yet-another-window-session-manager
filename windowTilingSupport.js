@@ -5,7 +5,7 @@ import Meta from 'gi://Meta';
 import GObject from 'gi://GObject';
 
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 
 
 // Singleton class, all methods are `static`
@@ -13,7 +13,7 @@ export class WindowTilingSupport {
 
     static initialize() {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
         this._defaultAppSystem = Shell.AppSystem.get_default();
 
         this._signals = new WindowTilingSupportSignals();

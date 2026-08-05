@@ -12,7 +12,7 @@ import * as FileUtils from '../utils/fileUtils.js';
 import * as DateUtils from '../utils/dateUtils.js';
 import * as Tooltip from '../utils/tooltip.js';
 import * as Log from '../utils/log.js';
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 
 import * as SaveSession from '../saveSession.js';
 import * as RestoreSession from '../restoreSession.js';
@@ -42,7 +42,7 @@ class SessionItemButtons extends GObject.Object {
         this._closeSession = new CloseSession.CloseSession(CloseSession.flags.closeWindows);
         this._tooltips = [];
 
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
     }
 
     addButtons() {

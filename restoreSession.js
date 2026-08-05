@@ -6,7 +6,7 @@ import GLib from 'gi://GLib';
 
 import * as FileUtils from './utils/fileUtils.js';
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -21,7 +21,7 @@ export const RestoreSession = class {
 
     constructor() {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         this.sessionName = FileUtils.default_sessionName;
         this._defaultAppSystem = Shell.AppSystem.get_default();

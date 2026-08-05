@@ -19,7 +19,7 @@ import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 import * as Log from '../utils/log.js';
 import * as Function from '../utils/function.js';
 
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -52,7 +52,7 @@ export const Autoclose = GObject.registerClass(
         _init() {
 
             this._log = new Log.Log();
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
             this._defaultAppSystem = Shell.AppSystem.get_default();
 
             this._runningApplicationListWindow = null;

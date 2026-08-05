@@ -1,37 +1,37 @@
 'use strict';
 
 /**
- * The instance of the PrefsUtilsClass
+ * The instance of the SettingsUtilsClass
  */
-export let PrefsUtils = null;
+export let SettingsUtils = null;
 
 /**
- * Initialize the PrefsUtilsClass from extension.js or prefs.js so that it can be used.
+ * Initialize the SettingsUtilsClass from extension.js or prefs.js so that it can be used.
  * 
  * @param {*} extensionObject 
  * @param {*} settings 
  */
-export function prefsUtilsInit(extensionObject, settings) {
-    if (PrefsUtils) {
+export function settingsUtilsInit(extensionObject, settings) {
+    if (SettingsUtils) {
         return;
     }
 
-    const prefsUtilsClass = new PrefsUtilsClass();
-    prefsUtilsClass._init(extensionObject, settings);
-    PrefsUtils = prefsUtilsClass;
+    const settingsUtilsClass = new SettingsUtilsClass();
+    settingsUtilsClass._init(extensionObject, settings);
+    SettingsUtils = settingsUtilsClass;
 }
 
-export function prefsUtilsDestroy() {
-    if (PrefsUtils) {
-        PrefsUtils.destroy();
-        PrefsUtils = null;
+export function settingsUtilsDestroy() {
+    if (SettingsUtils) {
+        SettingsUtils.destroy();
+        SettingsUtils = null;
     }
 }
 
 /**
- * This class must be initialized using `prefsUtilsInit()` from extension.js or prefs.js before it can be used.
+ * This class must be initialized using `settingsUtilsInit()` from extension.js or prefs.js before it can be used.
  */
-const PrefsUtilsClass = class {
+const SettingsUtilsClass = class {
 
     constructor() {
     }
@@ -66,4 +66,3 @@ const PrefsUtilsClass = class {
         this.extensionObject = null;
     }
 }
-

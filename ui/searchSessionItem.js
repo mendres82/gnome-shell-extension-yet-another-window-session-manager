@@ -10,7 +10,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as Tooltip from '../utils/tooltip.js';
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 
 
 export const SearchSessionItem = GObject.registerClass(
@@ -115,7 +115,7 @@ export const SearchSessionItem = GObject.registerClass(
                     '/org/gnome/Shell/Extensions',
                     'org.gnome.Shell.Extensions',
                     'OpenExtensionPrefs',
-                    new GLib.Variant('(ssa{sv})', [PrefsUtils.extensionObject.uuid, '', {}]),
+                    new GLib.Variant('(ssa{sv})', [SettingsUtils.extensionObject.uuid, '', {}]),
                     null,
                     Gio.DBusCallFlags.NONE,
                     -1,

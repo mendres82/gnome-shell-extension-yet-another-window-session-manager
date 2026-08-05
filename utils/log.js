@@ -1,6 +1,6 @@
 'use strict';
 
-import {PrefsUtils} from './prefsUtils.js';
+import {SettingsUtils} from './settingsUtils.js';
 
 
 export const Log = class {
@@ -9,11 +9,11 @@ export const Log = class {
     }
     
     isDebug() {
-        return PrefsUtils.isDebug();
+        return SettingsUtils.isDebug();
     }
 
     isVerboseLogging() {
-        return PrefsUtils.isVerboseLogging();
+        return SettingsUtils.isVerboseLogging();
     }
 
     debug(logContent) {
