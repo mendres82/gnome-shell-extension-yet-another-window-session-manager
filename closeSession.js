@@ -10,7 +10,6 @@ import * as Log from './utils/log.js';
 import {SettingsUtils} from './utils/settingsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
 import * as DateUtils from './utils/dateUtils.js';
-import * as Function from './utils/function.js';
 
 import * as Constants from './constants.js';
 
@@ -189,7 +188,7 @@ export const CloseSession = class {
             } = row;
             if (!enabled || !name) continue;
 
-            let compareWithValue = Function.callFunc(window, Meta.Window.prototype[`get_${compareWith}`]);
+            let compareWithValue = window[`get_${compareWith}`]();
             const matched = this._ruleMatched(compareWithValue, method, name);
             if (matched) {
                 let _flags = 0;
@@ -461,7 +460,7 @@ export const CloseSession = class {
                     }
                 } else {
                     for (const window of app.get_windows()) {
-                        let compareWithValue = Function.callFunc(window, Meta.Window.prototype[`get_${compareWith}`]);
+                        let compareWithValue = window[`get_${compareWith}`]();
                         matched = this._ruleMatched(compareWithValue, method, keyword);
                         if (matched) {
                             runningAppsClosingByKeywordRules.push([app, rules]);
@@ -486,7 +485,7 @@ export const CloseSession = class {
         } else if (method === 'equals') {
             matched = keyword === compareWithValue;
         } else {
-            matched = Function.callFunc(compareWithValue, String.prototype[method], keyword);
+            matched = compareWithValue[method](keyword);
         }
         return matched;
     }

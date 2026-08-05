@@ -18,7 +18,6 @@ import * as Log from './utils/log.js';
 import {SettingsUtils} from './utils/settingsUtils.js';
 import * as FileUtils from './utils/fileUtils.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
-import * as Function from './utils/function.js';
 import * as Signal from './utils/signal.js';
 
 import {WindowTilingSupport} from './windowTilingSupport.js';
@@ -176,7 +175,7 @@ export const OpenWindowsTracker = class {
             this._overrideSystemActionsPrototypeMap.set(funcName, originalFunc);
             proto[funcName] = function () {
                 sessionEndState.sessionClosedByUser = true;
-                Function.callFunc(this, originalFunc);
+                originalFunc.call(this);
             };
         }
     }

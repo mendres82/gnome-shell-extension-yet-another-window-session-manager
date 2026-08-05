@@ -17,7 +17,6 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
-import * as Function from '../utils/function.js';
 
 import {SettingsUtils} from '../utils/settingsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
@@ -105,7 +104,7 @@ export const Autoclose = GObject.registerClass(
 
                     const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
                     if (!enableAutocloseSession) {
-                        Function.callFunc(this, __confirm, signal);
+                        __confirm.call(this, signal);
                         return;
                     }
 
@@ -129,7 +128,7 @@ export const Autoclose = GObject.registerClass(
 
                                 if (opt === 'Confirm') {
                                     // this.close();
-                                    Function.callFunc(this, __confirm, signal);
+                                    __confirm.call(this, signal);
                                 }
 
                                 if (opt == 'Cancel') {
