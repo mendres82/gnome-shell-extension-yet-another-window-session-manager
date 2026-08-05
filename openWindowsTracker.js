@@ -339,7 +339,6 @@ export const OpenWindowsTracker = class {
                 connectFirstFrame(metaWindowActor);
                 return GLib.SOURCE_REMOVE;
             });
-            GLib.Source.set_name_by_id(idleCompositorId, '[gnome-shell-extension-yet-another-window-session-manager] wait-for-compositor');
             this._compositorIdleIds.push(idleCompositorId);
         }
 
