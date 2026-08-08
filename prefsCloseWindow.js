@@ -440,8 +440,6 @@ const RuleRow = GObject.registerClass({
         });
 
         super._init(ruleDetail, {
-            // TODO
-            // value: GLib.Variant.new_strv(ruleDetail.value),
             child: scroll,
         });
         this._ruleDetail = ruleDetail;

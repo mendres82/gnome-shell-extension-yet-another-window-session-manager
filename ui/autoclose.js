@@ -123,7 +123,6 @@ export const Autoclose = GObject.registerClass(
                                 this._openingByYAWSM = false;
 
                                 if (opt === 'Confirm') {
-                                    // this.close();
                                     __confirm.call(this, signal);
                                 }
 
@@ -253,10 +252,6 @@ const RunningApplicationListWindow = GObject.registerClass({
         _init(confirmButtOnLabel, onOpen, onComplete, onRetry) {
             this._visibleToUser = false;
             super._init({
-                // TODO
-                // style: 'width: 150em;',
-                // shellReactive: true,
-                // destroyOnClose: true
                 style_class: 'modal-dialog',
                 can_focus: true,
                 visible: false,
@@ -587,7 +582,6 @@ const RunningApplicationListWindow = GObject.registerClass({
                 // is removed from the process table, finally ending the process's lifetime.
                 // See: https://en.wikipedia.org/wiki/Zombie_process and https://en.wikipedia.org/wiki/Process_state#Terminated
                 if (state && state !== ProcState.ZOMBIE) {
-                    // this._log.debug(`Process ${pid} (${appName}) is still running with state ${state}, waiting it to exit`)
                     pidStateMap.set(pid, state);
                 } else {
                     this._log.info(`Process ${pid} (${appName}) is exited with process state ${state} (${this._formatProcessState(state)})`);

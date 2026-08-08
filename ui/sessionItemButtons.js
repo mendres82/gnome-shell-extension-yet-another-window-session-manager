@@ -17,7 +17,6 @@ import {SettingsUtils} from '../utils/settingsUtils.js';
 import * as SaveSession from '../saveSession.js';
 import * as RestoreSession from '../restoreSession.js';
 import * as MoveSession from '../moveSession.js';
-import * as CloseSession from '../closeSession.js';
 import * as Constants from '../constants.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -39,7 +38,6 @@ class SessionItemButtons extends GObject.Object {
         // TODO Nullify created object?
         this._saveSession = new SaveSession.SaveSession(true);
         this._moveSession = new MoveSession.MoveSession();
-        this._closeSession = new CloseSession.CloseSession(CloseSession.flags.closeWindows);
         this._tooltips = [];
 
         this._settings = SettingsUtils.getSettings();
@@ -73,11 +71,6 @@ class SessionItemButtons extends GObject.Object {
         }));
         moveButton.connectObject('clicked', this._onClickMove.bind(this), this);
         this._moveButton = moveButton;
-
-        // this._addSeparator();
-
-        // const closeButton = this._addButton('close-symbolic.svg');
-        // closeButton.connect('clicked', this._onClickClose.bind(this));
 
         const autoRestoreSwitcher = this._addAutostartSwitcher();
         this._tooltips.push(new Tooltip.Tooltip({
@@ -265,11 +258,6 @@ class SessionItemButtons extends GObject.Object {
         this._moveSession.moveWindows(this.sessionItem._filename);
     }
 
-    _onClickClose(button, event) {
-        // TODO Close specified windows in the session?
-        this._closeSession.closeWindows();
-    }
-
     destroy() {
         this._settings.disconnectObject(this);
         const autostartSwitch = this._autostartSwitch;
@@ -297,10 +285,6 @@ class SessionItemButtons extends GObject.Object {
         if (this._moveSession) {
             this._moveSession.destroy();
             this._moveSession = null;
-        }
-        if (this._closeSession) {
-            this._closeSession.destroy();
-            this._closeSession = null;
         }
         if (this._log) {
             this._log.destroy();

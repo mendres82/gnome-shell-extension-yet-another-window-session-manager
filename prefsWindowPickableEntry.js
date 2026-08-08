@@ -105,7 +105,6 @@ export const WindowPickableEntry = GObject.registerClass({
 
         const chooseButton = new Gtk.Button({
             icon_name: 'find-location-symbolic',
-            // label: 'Pick...',
             tooltip_text: _('Choose a window to fill the entry based on the current setting'),
         });
         this.chooseButton = chooseButton;
