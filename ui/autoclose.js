@@ -274,6 +274,7 @@ const RunningApplicationListWindow = GObject.registerClass({
 
             this._confirmIdleId = null;
             this._checkProcessStateId = null;
+            this._checkingPidState = false;
             this._updatePositionIdleId = null;
 
             this._apps_recheck_process_state = new Set(['Microsoft-edge']);
@@ -509,12 +510,21 @@ const RunningApplicationListWindow = GObject.registerClass({
             this._applicationSection.title = _('Waiting below processes to exit, this may take a while…');
             this._log.info(`Waiting processes to exit`);
             this._checkProcessStateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                if (this._checkingPidState)
+                    return GLib.SOURCE_CONTINUE;
+
+                this._checkingPidState = true;
                 this.updateRunningPids();
-                const pidStateMap = this._checkRunningPidState();
-                if (this._pidsMap.size) {
-                    this._showProcesses(pidStateMap);
-                } else {
-                    // this._log.info(`All processes of running apps have exited, ${this._confirmButtOnLabel} ...`);
+                this._checkRunningPidState().then(pidStateMap => {
+                    this._checkingPidState = false;
+                    if (!this._checkProcessStateId)
+                        return;
+
+                    if (this._pidsMap.size) {
+                        this._showProcesses(pidStateMap);
+                        return;
+                    }
+
                     const nChildren = this._applicationSection.list.get_n_children();
                     if (nChildren) {
                         this._applicationSection.list.remove_all_children();
@@ -526,9 +536,12 @@ const RunningApplicationListWindow = GObject.registerClass({
                         this._confirmIdleId = null;
                         return GLib.SOURCE_REMOVE;
                     });
+                    GLib.source_remove(this._checkProcessStateId);
                     this._checkProcessStateId = null;
-                    return GLib.SOURCE_REMOVE;
-                }
+                }).catch(e => {
+                    this._checkingPidState = false;
+                    this._log.error(e);
+                });
                 return GLib.SOURCE_CONTINUE;
             });
         }
@@ -538,11 +551,18 @@ const RunningApplicationListWindow = GObject.registerClass({
          * Returns the state character, or null if the process no longer exists.
          * See proc(5): field 3 after "pid (comm)".
          */
-        _readProcState(pid) {
+        async _readProcState(pid) {
+            const file = Gio.File.new_for_path(`/proc/${pid}/stat`);
             try {
-                const [ok, bytes] = GLib.file_get_contents(`/proc/${pid}/stat`);
-                if (!ok)
-                    return null;
+                const [, bytes] = await new Promise((resolve, reject) => {
+                    file.load_contents_async(null, (f, res) => {
+                        try {
+                            resolve(f.load_contents_finish(res));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                });
                 const stat = new TextDecoder().decode(bytes);
                 // comm may contain spaces and parentheses; state follows the last ')'
                 const closeParen = stat.lastIndexOf(')');
@@ -555,10 +575,10 @@ const RunningApplicationListWindow = GObject.registerClass({
             }
         }
 
-        _checkRunningPidState() {
+        async _checkRunningPidState() {
             const pidStateMap = new Map();
-            for (const [pid, app] of this._pidsMap) {
-                const state = this._readProcState(pid);
+            for (const [pid, app] of [...this._pidsMap]) {
+                const state = await this._readProcState(pid);
                 const appName = app.get_name();
                 // A zombie process is in terminated state and it has completed execution.
                 // The underlying program is no longer executing, but the process remains
@@ -689,6 +709,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
             }
+            this._checkingPidState = false;
 
             if (this._updatePositionIdleId) {
                 GLib.source_remove(this._updatePositionIdleId);
@@ -715,6 +736,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
             }
+            this._checkingPidState = false;
             if (this._updatePositionIdleId) {
                 GLib.source_remove(this._updatePositionIdleId);
                 this._updatePositionIdleId = null;
