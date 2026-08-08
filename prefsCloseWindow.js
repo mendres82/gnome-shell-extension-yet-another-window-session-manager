@@ -92,11 +92,13 @@ export const UICloseWindows = GObject.registerClass(
             this._whitelistChangedId = this._settings.connect(
                 `changed::${settingKey}`,
                 () => {
+                    if (this._syncingWhitelist)
+                        return;
+                    this._syncingWhitelist = true;
                     try {
-                        this._settings.block_signal_handler(this._whitelistChangedId);
                         this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
                     } finally {
-                        this._settings.unblock_signal_handler(this._whitelistChangedId);
+                        this._syncingWhitelist = false;
                     }
                 });
             this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
@@ -124,14 +126,16 @@ export const UICloseWindows = GObject.registerClass(
 
             this._rulesChangedId = this._settings.connect(
                 'changed::close-windows-rules',
-                (settings) => {
+                () => {
+                    if (this._syncingRules)
+                        return;
+                    this._syncingRules = true;
                     try {
-                        this._settings.block_signal_handler(this._rulesChangedId);
                         this._updateAction.enabled = false;
                         this._sync(close_by_rules_list_box, RuleRowByApp, 'close-windows-rules', 'appDesktopFilePath');
                         this._updateAction.enabled = true;
                     } finally {
-                        this._settings.unblock_signal_handler(this._rulesChangedId);
+                        this._syncingRules = false;
                     }
                 });
             this._sync(close_by_rules_list_box, RuleRowByApp, 'close-windows-rules', 'appDesktopFilePath');
@@ -169,12 +173,14 @@ export const UICloseWindows = GObject.registerClass(
 
             this._changedId = this._settings.connect(
                 'changed::close-windows-rules-by-keyword',
-                (settings) => {
+                () => {
+                    if (this._syncingKeywords)
+                        return;
+                    this._syncingKeywords = true;
                     try {
-                        this._settings.block_signal_handler(this._changedId);
                         this._sync(close_by_rules_by_keyword_list_box, RuleRowByKeyword, 'close-windows-rules-by-keyword', 'id');
                     } finally {
-                        this._settings.unblock_signal_handler(this._changedId);
+                        this._syncingKeywords = false;
                     }
                 });
             this._sync(close_by_rules_by_keyword_list_box, RuleRowByKeyword, 'close-windows-rules-by-keyword', 'id');

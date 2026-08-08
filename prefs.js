@@ -187,40 +187,40 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
             Gio.SettingsBindFlags.DEFAULT
         );
 
-        SettingsUtils.getSettings().connect('changed::enable-autorestore-sessions', (settings) => {
-            if (SettingsUtils.getSettings().get_boolean('enable-autorestore-sessions')) {
-                this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_at_autostart,
-                    FileUtils.autostart_restore_desktop_file_path);
-            } else {
-                this._removeAutostartDesktopFile(FileUtils.autostart_restore_desktop_file_path);
-            }
-        });
-
-        SettingsUtils.getSettings().connect('changed::enable-restore-previous-session', (settings) => {
-            if (SettingsUtils.getSettings().get_boolean('enable-restore-previous-session')) {
-                this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_previous_at_autostart,
-                    FileUtils.autostart_restore_previous_desktop_file_path);
-            } else {
-                this._removeAutostartDesktopFile(FileUtils.autostart_restore_previous_desktop_file_path);
-            }
-        });
-
-        SettingsUtils.getSettings().connect('changed::restore-at-startup-without-asking', (settings) => {
-            this.timer_on_the_autostart_dialog_spinbutton.set_sensitive(
-                !SettingsUtils.getSettings().get_boolean('restore-at-startup-without-asking')
-            );
-        });
-
-        SettingsUtils.getSettings().connect('changed::autostart-delay', (settings) => {
-            if (SettingsUtils.getSettings().get_boolean('enable-autorestore-sessions')) {
-                this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_at_autostart,
-                    FileUtils.autostart_restore_desktop_file_path);
-            }
-            if (SettingsUtils.getSettings().get_boolean('enable-restore-previous-session')) {
-                this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_previous_at_autostart,
-                    FileUtils.autostart_restore_previous_desktop_file_path);
-            }
-        });
+        const settings = SettingsUtils.getSettings();
+        this._settingsSignalIds = [
+            settings.connect('changed::enable-autorestore-sessions', () => {
+                if (settings.get_boolean('enable-autorestore-sessions')) {
+                    this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_at_autostart,
+                        FileUtils.autostart_restore_desktop_file_path);
+                } else {
+                    this._removeAutostartDesktopFile(FileUtils.autostart_restore_desktop_file_path);
+                }
+            }),
+            settings.connect('changed::enable-restore-previous-session', () => {
+                if (settings.get_boolean('enable-restore-previous-session')) {
+                    this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_previous_at_autostart,
+                        FileUtils.autostart_restore_previous_desktop_file_path);
+                } else {
+                    this._removeAutostartDesktopFile(FileUtils.autostart_restore_previous_desktop_file_path);
+                }
+            }),
+            settings.connect('changed::restore-at-startup-without-asking', () => {
+                this.timer_on_the_autostart_dialog_spinbutton.set_sensitive(
+                    !settings.get_boolean('restore-at-startup-without-asking')
+                );
+            }),
+            settings.connect('changed::autostart-delay', () => {
+                if (settings.get_boolean('enable-autorestore-sessions')) {
+                    this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_at_autostart,
+                        FileUtils.autostart_restore_desktop_file_path);
+                }
+                if (settings.get_boolean('enable-restore-previous-session')) {
+                    this._installAutostartDesktopFile(FileUtils.desktop_template_path_restore_previous_at_autostart,
+                        FileUtils.autostart_restore_previous_desktop_file_path);
+                }
+            }),
+        ];
 
     }
 
@@ -334,9 +334,17 @@ export default class AnotherWindowSessionManagerPreferences extends ExtensionPre
             this._uiCloseWindows.destroy();
             this._uiCloseWindows = null;
         }
-        
+
+        if (this._settingsSignalIds) {
+            const settings = SettingsUtils.getSettings();
+            if (settings) {
+                for (const id of this._settingsSignalIds)
+                    settings.disconnect(id);
+            }
+            this._settingsSignalIds = null;
+        }
+
         settingsUtilsDestroy();
-        
     }
 }
 
