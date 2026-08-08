@@ -80,22 +80,18 @@ export const Autoclose = GObject.registerClass(
 
             const that = this;
 
-            // OpenAsync is promised and does not have a `try..catch...` surrounding the entire function, 
-            // so here we catch the error to avoid `Unhandled promise rejection` possibly caused by this extension.
+            // OpenAsync is promised and does not have a `try..catch...` surrounding the entire function,
+            // so catch rejections here to avoid unhandled promise rejection from this extension.
             EndSessionDialog.EndSessionDialog.prototype.OpenAsync = function (parameters, invocation) {
-                try {
-                    if (this._openingByYAWSM) {
-                        that._log.debug(`EndSessionDialog is already opening by YAWSM, ignore...`);
-                        return;
-                    }
-    
-                    _OpenAsync.call(this, parameters, invocation)
-                        .catch(e => {
-                            that._log.error(e);
-                        });
-                } catch (e) {
-                    that._log.error(e);
+                if (this._openingByYAWSM) {
+                    that._log.debug(`EndSessionDialog is already opening by YAWSM, ignore...`);
+                    return;
                 }
+
+                _OpenAsync.call(this, parameters, invocation)
+                    .catch(e => {
+                        that._log.error(e);
+                    });
             }
 
             EndSessionDialog.EndSessionDialog.prototype._confirm = async function (signal) {

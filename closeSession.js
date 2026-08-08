@@ -65,19 +65,14 @@ export const CloseSession = class {
                 const promise = new Promise((resolve, reject) => {
                     this._log.info(`Closing ${app.get_name()}`);
                     this._closeOneApp(app).then(([closed, reason]) => {
-                        try {
-                            if (closed) {
-                                this._log.info(`Closed ${app.get_name()}`);
-                            } else {
-                                this._log.warn(`Can not close ${app.get_name()} because ${reason}`);
-                                app._cannot_close_reason = reason;
-                            }
-                            resolve();   
-                        } catch (error) {
-                            this._log.error(error);
-                            reject(error);
+                        if (closed) {
+                            this._log.info(`Closed ${app.get_name()}`);
+                        } else {
+                            this._log.warn(`Can not close ${app.get_name()} because ${reason}`);
+                            app._cannot_close_reason = reason;
                         }
-                    });
+                        resolve();
+                    }, reject);
                 });
                 promises.push(promise);
             }

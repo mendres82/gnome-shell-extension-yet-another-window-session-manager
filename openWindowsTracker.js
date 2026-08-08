@@ -466,16 +466,12 @@ export const OpenWindowsTracker = class {
                     windows,
                     this._runningSaveCancelableMap
                 ).then(sessionSaved => {
-                    try {
-                        if (sessionSaved) {
-                            for (const [success, metaWindow, baseDir, sessionName] of sessionSaved) {
-                                if (success) {
-                                    this._connectSignalsToCleanUpSessionFile(metaWindow, baseDir, sessionName);
-                                }
+                    if (sessionSaved) {
+                        for (const [success, metaWindow, baseDir, sessionName] of sessionSaved) {
+                            if (success) {
+                                this._connectSignalsToCleanUpSessionFile(metaWindow, baseDir, sessionName);
                             }
                         }
-                    } catch (e) {
-                        this._log.error(e);
                     }
                 });
             }
@@ -484,31 +480,27 @@ export const OpenWindowsTracker = class {
     }
 
     _connectSignalsToCleanUpSessionFile(window, sessionDirectory, sessionName) {
-        try {
-            // Clean up while window is closing
-            const unmanagingOwner = {};
-            this._trackSignalOwner(window, unmanagingOwner);
-            window.connectObject('unmanaging', () => {
-                this._disconnectSignalOwner(window, unmanagingOwner);
-                this._cleanUpSessionFileByWindow(window, sessionDirectory, sessionName);
-            }, unmanagingOwner);
+        // Clean up while window is closing
+        const unmanagingOwner = {};
+        this._trackSignalOwner(window, unmanagingOwner);
+        window.connectObject('unmanaging', () => {
+            this._disconnectSignalOwner(window, unmanagingOwner);
+            this._cleanUpSessionFileByWindow(window, sessionDirectory, sessionName);
+        }, unmanagingOwner);
 
-            // Clean up while the app state becomes STOPPED, just in case the session file cannot be cleanup while the last window is closed.
-            const app = this._windowTracker.get_window_app(window);
-            if (app) {
-                const appName = app.get_name();
-                const appOwner = {};
-                this._trackSignalOwner(app, appOwner);
-                app.connectObject('notify::state', () => {
-                    if (app.state === Shell.AppState.STOPPED) {
-                        this._disconnectSignalOwner(app, appOwner);
-                        this._cleanUpSessionFileByApp(app, appName, window, sessionDirectory);
-                    }
-                }, appOwner);
-                this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
-            }
-        } catch (e) {
-            this._log.error(e);
+        // Clean up while the app state becomes STOPPED, just in case the session file cannot be cleanup while the last window is closed.
+        const app = this._windowTracker.get_window_app(window);
+        if (app) {
+            const appName = app.get_name();
+            const appOwner = {};
+            this._trackSignalOwner(app, appOwner);
+            app.connectObject('notify::state', () => {
+                if (app.state === Shell.AppState.STOPPED) {
+                    this._disconnectSignalOwner(app, appOwner);
+                    this._cleanUpSessionFileByApp(app, appName, window, sessionDirectory);
+                }
+            }, appOwner);
+            this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
         }
     }
 
@@ -624,12 +616,8 @@ export const OpenWindowsTracker = class {
     }
 
     _onConfirmedLogout(proxy, sender) {
-        try {
-            this._log.debug(`Resetting windows-mapping before logout.`);
-            this._settings.set_string('windows-mapping', '[]');
-        } catch (error) {
-            this._log.error(error);
-        }
+        this._log.debug(`Resetting windows-mapping before logout.`);
+        this._settings.set_string('windows-mapping', '[]');
     }
 
     _onConfirmedReboot(proxy, sender) {
