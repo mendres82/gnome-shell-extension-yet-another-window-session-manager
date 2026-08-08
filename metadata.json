@@ -12,5 +12,6 @@
     "uuid": "yet-another-window-session-manager@github.com",
     "gettext-domain": "yet-another-window-session-manager@github.com",
     "settings-schema": "org.gnome.shell.extensions.yet-another-window-session-manager",
-    "version": 60
+    "version": 7,
+    "version-name": "60"
   }

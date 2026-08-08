@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Pack the extension into ${uuid}-v${version}.zip (version from metadata.json).
+# Pack the extension into ${uuid}-v${version-name}.zip (version-name from metadata.json).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 METADATA="${ROOT}/metadata.json"
 
-VERSION="$(grep -o '"version"[[:space:]]*:[[:space:]]*[0-9]*' "$METADATA" | grep -o '[0-9]*$')"
+VERSION="$(grep -o '"version-name"[[:space:]]*:[[:space:]]*"[^"]*"' "$METADATA" | cut -d'"' -f4)"
 UUID="$(grep -o '"uuid"[[:space:]]*:[[:space:]]*"[^"]*"' "$METADATA" | cut -d'"' -f4)"
 
 if [ -z "$VERSION" ] || [ -z "$UUID" ]; then
-    echo "Failed to read uuid/version from ${METADATA}" >&2
+    echo "Failed to read uuid/version-name from ${METADATA}" >&2
     exit 1
 fi
 

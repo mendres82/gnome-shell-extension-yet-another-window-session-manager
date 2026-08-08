@@ -7,7 +7,7 @@ DOMAIN="yet-another-window-session-manager@github.com"
 POT="${ROOT}/po/${DOMAIN}.pot"
 METADATA="${ROOT}/metadata.json"
 
-VERSION="$(grep -o '"version"[[:space:]]*:[[:space:]]*[0-9]*' "$METADATA" | grep -o '[0-9]*$')"
+VERSION="$(grep -o '"version-name"[[:space:]]*:[[:space:]]*"[^"]*"' "$METADATA" | cut -d'"' -f4)"
 
 cd "$ROOT"
 
