@@ -24,6 +24,10 @@ export const WindowPickableEntry = GObject.registerClass({
         super._init(PrefsWidgets.boxProperties);
         Object.assign(this, boxParams);
 
+        this._dbusConnection = null;
+        this._windowPickCancelledId = null;
+        this._dbusCloseRequestId = null;
+
         const entry = new Gtk.Entry({
             editable: false,
             can_focus: false,
@@ -45,6 +49,20 @@ export const WindowPickableEntry = GObject.registerClass({
         
         this.append(entry);
         this.append(this.chooseButton);
+
+        this.connect('map', () => {
+            if (this._dbusCloseRequestId)
+                return;
+            const prefsDialogWindow = this.get_root();
+            if (!prefsDialogWindow)
+                return;
+            this._dbusCloseRequestId = prefsDialogWindow.connect('close-request', () => {
+                this._unsubscribeDbusSignals();
+            });
+        });
+        this.connect('destroy', () => {
+            this._unsubscribeDbusSignals();
+        });
     }
 
     setText(text) {
@@ -175,11 +193,11 @@ export const WindowPickableEntry = GObject.registerClass({
             });
         });
 
-        this._subscribeSignal('WindowPickCancelled', () => {
-            // Unsubscribe the PickWindow DBus service, it's really no necessary to keep the subscription all the time
-            Gio.DBus.session.signal_unsubscribe(this._dbusConnection);
-            this._dbusConnection = null;
-            
+        this._windowPickCancelledId = this._subscribeSignal('WindowPickCancelled', () => {
+            if (this._dbusConnection) {
+                Gio.DBus.session.signal_unsubscribe(this._dbusConnection);
+                this._dbusConnection = null;
+            }
             this._unfocus(entry);
         });
     }
@@ -191,6 +209,17 @@ export const WindowPickableEntry = GObject.registerClass({
             '/org/gnome/shell/extensions/yawsm', null, Gio.DBusSignalFlags.NONE, 
             callback);
         return dbusConnection;
+    }
+
+    _unsubscribeDbusSignals() {
+        if (this._dbusConnection) {
+            Gio.DBus.session.signal_unsubscribe(this._dbusConnection);
+            this._dbusConnection = null;
+        }
+        if (this._windowPickCancelledId) {
+            Gio.DBus.session.signal_unsubscribe(this._windowPickCancelledId);
+            this._windowPickCancelledId = null;
+        }
     }
 
     _completeEditEntry(entry) {
