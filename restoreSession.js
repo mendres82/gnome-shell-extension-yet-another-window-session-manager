@@ -205,10 +205,19 @@ export const RestoreSession = class {
                 } else {
                     // https://gjs-docs.gnome.org/gio20~2.0/gio.subprocesslauncher#method-set_environ
                     // TODO Support snap apps
+                    
+                    const savedCmd = session_config_object.cmd;
+                    const cmdArgs = [];
+                    if (Array.isArray(savedCmd)) {
+                        for (const cmdArg of savedCmd) {
+                            if (typeof cmdArg !== 'string' || !cmdArg)
+                                continue;
+                            cmdArgs.push(cmdArg);
+                        }
+                    }
 
-                    const cmd = session_config_object.cmd;
-                    if (cmd && cmd.length) {
-                        const cmdString = cmd.join(' ');
+                    if (cmdArgs.length) {
+                        const cmdString = cmdArgs.join(' ');
                         const existingPid = this._cmdAppIdMap.get(cmdString);
                         if (existingPid) {
                             this._log.debug(`${app_name} might be running, preparing to restore window (${session_config_object.window_title}) states.`);
@@ -229,7 +238,7 @@ export const RestoreSession = class {
                             this._log.info(`Launching ${app_name} via command line ${cmdString}!`);
                             const [, pid] = GLib.spawn_async(
                                 null,
-                                cmd,
+                                cmdArgs,
                                 null,
                                 GLib.SpawnFlags.SEARCH_PATH |
                                     GLib.SpawnFlags.STDOUT_TO_DEV_NULL |
@@ -264,7 +273,7 @@ export const RestoreSession = class {
                         // TODO try to launch via app_info by searching the app name?
                         let errorMsg = _('Failed to launch %s via command line').format(app_name);
                         let errorDetail = _('Can\'t restore this app from %s: Invalid command line: %s.').format(
-                            session_config_object._file_path, cmd);
+                            session_config_object._file_path, savedCmd);
                         this._log.error(errorMsg, errorDetail);
                         global.notify_error(errorMsg, errorDetail);
                         resolve([launched, running]);
