@@ -15,12 +15,9 @@ import * as Constants from './constants.js';
 import * as UiHelper from './ui/uiHelper.js';
 
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as FileUtils from './utils/fileUtils.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
-import * as Function from './utils/function.js';
-import * as Signal from './utils/signal.js';
-
 import {WindowTilingSupport} from './windowTilingSupport.js';
 
 
@@ -73,17 +70,17 @@ export const OpenWindowsTracker = class {
             }
         ];
 
-        this._signals = [];
+        // Remaining [obj, owner] pairs for connectObject cleanup on destroy
+        this._signalOwners = [];
 
         this._windowTracker = Shell.WindowTracker.get_default();
         this._defaultAppSystem = Shell.AppSystem.get_default();
         this._wm = global.workspace_manager;
 
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
-        this._signal = new Signal.Signal();
-        this._metaWindowConnectIds = [];
-        this._isDestroyed = false;
+        this._settings = SettingsUtils.getSettings();
+        this._windowsWithSaveSignals = new Set();
+        this._compositorIdleIds = [];
 
         this._saveSession = new SaveSession.SaveSession();
         this._moveSession = new MoveSession.MoveSession();
@@ -109,29 +106,27 @@ export const OpenWindowsTracker = class {
 
         this._display = global.display;
 
-        const x11DisplayOpenedId = this._display.connect('x11-display-opened', () => {
+        this._display.connectObject('x11-display-opened', () => {
             this._restoringSession = true;
             this._allSavedWindowSessions = [];
             
             // `installed-changed` emits after `shell_app_system_init()` is called 
             // and all `window-created` emits.
-            const installedChangedId = this._defaultAppSystem.connect('installed-changed', () => {
+            this._defaultAppSystem.disconnectObject(this);
+            this._defaultAppSystem.connectObject('installed-changed', () => {
                 Log.Log.getDefault().info(`Restoring windows states after gnome shell starts`);
                 this._moveSession.moveApps(this._allSavedWindowSessions);
 
                 this._restoringSession = false;
-            });
-            this._signals.push([installedChangedId, this._defaultAppSystem]);
-        });
-        this._signals.push([x11DisplayOpenedId, this._display]);
+            }, this);
+        }, this);
 
-        const windowCreatedId = this._display.connect('window-created', (display, window, userData) => {
+        this._display.connectObject('window-created', (display, window, userData) => {
             this._onWindowCreatedSaveOrUpdateWindowsMapping(display, window, userData);
 
             this._restoreOrSaveWindowSession(window);
             this._placeRestoredWindow(window);
-        });
-        this._signals.push([windowCreatedId, this._display]);
+        }, this);
 
         this._meta_is_restarting = false;
         this._overrideMetaRestart();
@@ -142,28 +137,27 @@ export const OpenWindowsTracker = class {
         this._saveSummary();
         
         this._saveAllWindows();
-        const settingsChangedToSaveAllWindows = [
-            'stash-and-restore-states',
-            'enable-restore-previous-session'
-        ];
-        settingsChangedToSaveAllWindows.forEach((setting) => {
-            this._settings.connect(`changed::${setting}`, () => {
-                if (this._settings.get_boolean(`${setting}`))
+        this._settings.connectObject(
+            'changed::stash-and-restore-states', () => {
+                if (this._settings.get_boolean('stash-and-restore-states'))
                     this._saveAllWindows();
-            });
-        });
+            },
+            'changed::enable-restore-previous-session', () => {
+                if (this._settings.get_boolean('enable-restore-previous-session'))
+                    this._saveAllWindows();
+            },
+            this);
 
-        const windowTiledId = WindowTilingSupport.connect('window-tiled', (signals, w1, w2) => {
-            // w2 will be saved in another 'window-tiled'
-            this._prepareToSaveWindowSession(w1);
-        });
-        this._signals.push([windowTiledId, WindowTilingSupport]);
-
-        const windowUntiledId = WindowTilingSupport.connect('window-untiled', (signals, w1, w2) => {
-            this._prepareToSaveWindowSession(w1);
-            this._prepareToSaveWindowSession(w2);
-        });
-        this._signals.push([windowUntiledId, WindowTilingSupport]);
+        WindowTilingSupport.connectObject(
+            'window-tiled', (signals, w1, w2) => {
+                // w2 will be saved in another 'window-tiled'
+                this._prepareToSaveWindowSession(w1);
+            },
+            'window-untiled', (signals, w1, w2) => {
+                this._prepareToSaveWindowSession(w1);
+                this._prepareToSaveWindowSession(w2);
+            },
+            this);
 
         this._overrideSystemActionsPrototypeMap = new Map();
         // org.gnome.SessionManager logout-prompt=false skips EndSessionDialog; autoclose.js never runs.
@@ -178,7 +172,7 @@ export const OpenWindowsTracker = class {
             this._overrideSystemActionsPrototypeMap.set(funcName, originalFunc);
             proto[funcName] = function () {
                 sessionEndState.sessionClosedByUser = true;
-                Function.callFunc(this, originalFunc);
+                originalFunc.call(this);
             };
         }
     }
@@ -194,12 +188,14 @@ export const OpenWindowsTracker = class {
 
     _connectSignalsToSaveSummary() {
         this._signalsToSaveSummary.forEach(e => {
+            const args = [];
             e.signals.forEach(signal => {
-                const id = e.instance.connect(signal, () => {
+                args.push(signal, () => {
                     this._summaryAboutToSave = true;
                 });
-                this._signals.push([id, e.instance]);
             });
+            args.push(this);
+            e.instance.connectObject(...args);
         });
     }
 
@@ -282,9 +278,26 @@ export const OpenWindowsTracker = class {
         }
     }
 
+    _trackSignalOwner(obj, owner) {
+        this._signalOwners.push([obj, owner]);
+    }
+
+    _dropSignalOwner(obj, owner) {
+        if (!this._signalOwners)
+            return;
+        this._signalOwners = this._signalOwners.filter(
+            ([o, ow]) => !(o === obj && ow === owner));
+    }
+
+    _disconnectSignalOwner(obj, owner) {
+        if (obj && owner)
+            obj.disconnectObject(owner);
+        this._dropSignalOwner(obj, owner);
+    }
+
     _connectPlacementSignals(metaWindow) {
         const moveIfRestoring = (phase) => {
-            if (this._isDestroyed || metaWindow._aboutToClose)
+            if (metaWindow._aboutToClose)
                 return;
 
             const shellApp = this._windowTracker.get_window_app(metaWindow);
@@ -301,21 +314,21 @@ export const OpenWindowsTracker = class {
         };
 
         const connectFirstFrame = (metaWindowActor) => {
-            let firstFrameId = metaWindowActor.connect('first-frame', () => {
-                if (this._isDestroyed) {
-                    this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-                    return;
-                }
+            const firstFrameOwner = {};
+            const unmanagingOwner = {};
+            this._trackSignalOwner(metaWindowActor, firstFrameOwner);
+            this._trackSignalOwner(metaWindow, unmanagingOwner);
 
+            metaWindowActor.connectObject('first-frame', () => {
                 moveIfRestoring('first-frame');
-                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-                firstFrameId = 0;
-            });
+                this._disconnectSignalOwner(metaWindowActor, firstFrameOwner);
+                this._disconnectSignalOwner(metaWindow, unmanagingOwner);
+            }, firstFrameOwner);
 
-            let unmanagingId = metaWindow.connect('unmanaging', () => {
-                this._signal.disconnectSafely(metaWindowActor, firstFrameId);
-            });
-            this._metaWindowConnectIds.push([metaWindow, unmanagingId]);
+            metaWindow.connectObject('unmanaging', () => {
+                this._disconnectSignalOwner(metaWindowActor, firstFrameOwner);
+                this._disconnectSignalOwner(metaWindow, unmanagingOwner);
+            }, unmanagingOwner);
         };
 
         let metaWindowActor = metaWindow.get_compositor_private();
@@ -323,52 +336,45 @@ export const OpenWindowsTracker = class {
             connectFirstFrame(metaWindowActor);
         } else {
             const idleCompositorId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                if (this._isDestroyed)
-                    return GLib.SOURCE_REMOVE;
-
                 metaWindowActor = metaWindow.get_compositor_private();
                 if (!metaWindowActor)
                     return GLib.SOURCE_CONTINUE;
 
+                const idx = this._compositorIdleIds.indexOf(idleCompositorId);
+                if (idx >= 0)
+                    this._compositorIdleIds.splice(idx, 1);
+
                 connectFirstFrame(metaWindowActor);
                 return GLib.SOURCE_REMOVE;
             });
-            GLib.Source.set_name_by_id(idleCompositorId, '[gnome-shell-extension-yet-another-window-session-manager] wait-for-compositor');
+            this._compositorIdleIds.push(idleCompositorId);
         }
 
-        let shownId = metaWindow.connect('shown', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(shownId);
-                return;
-            }
-
+        const shownOwner = {};
+        this._trackSignalOwner(metaWindow, shownOwner);
+        metaWindow.connectObject('shown', () => {
             moveIfRestoring('shown');
-            metaWindow.disconnect(shownId);
-            shownId = 0;
-        });
+            this._disconnectSignalOwner(metaWindow, shownOwner);
+        }, shownOwner);
 
-        let titleChangedId = metaWindow.connect('notify::title', () => {
-            if (this._isDestroyed) {
-                metaWindow.disconnect(titleChangedId);
-                return;
-            }
-
+        const titleOwner = {};
+        this._trackSignalOwner(metaWindow, titleOwner);
+        metaWindow.connectObject('notify::title', () => {
             moveIfRestoring('title changed');
-            metaWindow.disconnect(titleChangedId);
-            titleChangedId = 0;
-        });
-
-        this._metaWindowConnectIds.push([metaWindow, shownId]);
-        this._metaWindowConnectIds.push([metaWindow, titleChangedId]);
+            this._disconnectSignalOwner(metaWindow, titleOwner);
+        }, titleOwner);
     }
 
     _connectWindowSignalsToSaveSession(window) {
+        const args = [];
         this._windowInterestingSignalsWhileSave.forEach(signal => {
-            const windowSignalId = window.connect(signal, () => {
+            args.push(signal, () => {
                 this._prepareToSaveWindowSession(window);
             });
-            this._signals.push([windowSignalId, window]);
         })
+        args.push(this);
+        window.connectObject(...args);
+        this._windowsWithSaveSignals.add(window);
     }
 
     _restoreWindowState(window) {
@@ -460,16 +466,12 @@ export const OpenWindowsTracker = class {
                     windows,
                     this._runningSaveCancelableMap
                 ).then(sessionSaved => {
-                    try {
-                        if (sessionSaved) {
-                            for (const [success, metaWindow, baseDir, sessionName] of sessionSaved) {
-                                if (success) {
-                                    this._connectSignalsToCleanUpSessionFile(metaWindow, baseDir, sessionName);
-                                }
+                    if (sessionSaved) {
+                        for (const [success, metaWindow, baseDir, sessionName] of sessionSaved) {
+                            if (success) {
+                                this._connectSignalsToCleanUpSessionFile(metaWindow, baseDir, sessionName);
                             }
                         }
-                    } catch (e) {
-                        this._log.error(e);
                     }
                 });
             }
@@ -478,33 +480,27 @@ export const OpenWindowsTracker = class {
     }
 
     _connectSignalsToCleanUpSessionFile(window, sessionDirectory, sessionName) {
-        try {
-            // Clean up while window is closing
+        // Clean up while window is closing
+        const unmanagingOwner = {};
+        this._trackSignalOwner(window, unmanagingOwner);
+        window.connectObject('unmanaging', () => {
+            this._disconnectSignalOwner(window, unmanagingOwner);
+            this._cleanUpSessionFileByWindow(window, sessionDirectory, sessionName);
+        }, unmanagingOwner);
 
-            let unmanagingId = window.connect('unmanaging', () => {
-                window.disconnect(unmanagingId);
-                unmanagingId = 0;
-                this._cleanUpSessionFileByWindow(window, sessionDirectory, sessionName);
-            });
-            this._signals.push([unmanagingId, window]);
-
-            // Clean up while the app state becomes STOPPED, just in case the session file cannot be cleanup while the last window is closed.
-
-            const app = this._windowTracker.get_window_app(window);
-            if (app) {
-                const appName = app.get_name();
-                let appId = app.connect('notify::state', app => {
-                    if (app.state === Shell.AppState.STOPPED) {
-                        app.disconnect(appId);
-                        appId = 0;
-                        this._cleanUpSessionFileByApp(app, appName, window, sessionDirectory);
-                    }
-                });
-                this._signals.push([appId, app]);
-                this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
-            }
-        } catch (e) {
-            this._log.error(e);
+        // Clean up while the app state becomes STOPPED, just in case the session file cannot be cleanup while the last window is closed.
+        const app = this._windowTracker.get_window_app(window);
+        if (app) {
+            const appName = app.get_name();
+            const appOwner = {};
+            this._trackSignalOwner(app, appOwner);
+            app.connectObject('notify::state', () => {
+                if (app.state === Shell.AppState.STOPPED) {
+                    this._disconnectSignalOwner(app, appOwner);
+                    this._cleanUpSessionFileByApp(app, appName, window, sessionDirectory);
+                }
+            }, appOwner);
+            this._removeOrphanSessionConfigs(app, sessionDirectory).catch(e => this._log.error(e));
         }
     }
 
@@ -620,12 +616,8 @@ export const OpenWindowsTracker = class {
     }
 
     _onConfirmedLogout(proxy, sender) {
-        try {
-            this._log.debug(`Resetting windows-mapping before logout.`);
-            this._settings.set_string('windows-mapping', '[]');
-        } catch (error) {
-            this._log.error(error);
-        }
+        this._log.debug(`Resetting windows-mapping before logout.`);
+        this._settings.set_string('windows-mapping', '[]');
     }
 
     _onConfirmedReboot(proxy, sender) {
@@ -724,8 +716,33 @@ export const OpenWindowsTracker = class {
     }
 
     destroy() {
-        this._isDestroyed = true;
+        if (this._compositorIdleIds) {
+            for (const idleId of this._compositorIdleIds) {
+                GLib.Source.remove(idleId);
+            }
+            this._compositorIdleIds = null;
+        }
+
+        if (this._saveSummaryCancellable && !this._saveSummaryCancellable.is_cancelled())
+            this._saveSummaryCancellable.cancel();
+        this._saveSummaryCancellable = null;
+
         this._cancelAllRunningSave();
+
+        if (this._saveSessionByBatchTimeoutId) {
+            GLib.Source.remove(this._saveSessionByBatchTimeoutId);
+            this._saveSessionByBatchTimeoutId = 0;
+        }
+
+        if (this._saveSession) {
+            this._saveSession.destroy();
+            this._saveSession = null;
+        }
+
+        if (this._moveSession) {
+            this._moveSession.destroy();
+            this._moveSession = null;
+        }
 
         if (this._busWatchId) {
             Gio.bus_unwatch_name(this._busWatchId);
@@ -752,17 +769,13 @@ export const OpenWindowsTracker = class {
             this._endSessionProxy?.disconnectSignal(this._canceledId);
             this._canceledId = 0;
         }
-        if (this._saveSessionByBatchTimeoutId) {
-            GLib.Source.remove(this._saveSessionByBatchTimeoutId);
-            this._saveSessionByBatchTimeoutId = 0;
-        }
 
         if (_meta_restart) {
             Meta.restart = _meta_restart;
             _meta_restart = null;
         }
 
-        if (this._overrideSystemActionsPrototypeMap?.size) {
+        if (this._overrideSystemActionsPrototypeMap) {
             const proto = Object.getPrototypeOf(SystemActions.getDefault());
             this._overrideSystemActionsPrototypeMap.forEach((originalFunc, funcName) => {
                 proto[funcName] = originalFunc;
@@ -771,21 +784,27 @@ export const OpenWindowsTracker = class {
             this._overrideSystemActionsPrototypeMap = null;
         }
 
-        if (this._metaWindowConnectIds) {
-            for (let [obj, signalId] of this._metaWindowConnectIds) {
-                this._signal.disconnectSafely(obj, signalId);
+        if (this._signalOwners) {
+            for (const [obj, owner] of this._signalOwners) {
+                if (obj && owner)
+                    obj.disconnectObject(owner);
             }
-            this._metaWindowConnectIds = null;
+            this._signalOwners = null;
         }
 
-        if (this._signals && this._signals.length) {
-            this._signals.forEach(([id, obj]) => {
-                if (id && obj) {
-                    obj.disconnect(id);
-                }
-            });
-            this._signals = null;
+        if (this._windowsWithSaveSignals) {
+            for (const window of this._windowsWithSaveSignals) {
+                window.disconnectObject(this);
+            }
+            this._windowsWithSaveSignals.clear();
+            this._windowsWithSaveSignals = null;
         }
+
+        this._display.disconnectObject(this);
+        this._defaultAppSystem.disconnectObject(this);
+        global.workspace_manager.disconnectObject(this);
+        this._settings.disconnectObject(this);
+        WindowTilingSupport.disconnectObject(this);
     }
 
 }

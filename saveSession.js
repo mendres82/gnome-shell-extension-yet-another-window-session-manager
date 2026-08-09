@@ -19,7 +19,7 @@ import * as Log from './utils/log.js';
 import * as MetaWindowUtils from './utils/metaWindowUtils.js';
 import * as CommonError from './utils/CommonError.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as StringUtils from './utils/stringUtils.js';
 
 
@@ -37,7 +37,7 @@ export const SaveSession = class {
                     Gio.SubprocessFlags.STDERR_PIPE)});
         this._defaultAppSystem = Shell.AppSystem.get_default();
 
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
     }
 
     async saveSummaryAsync(cancellable) {

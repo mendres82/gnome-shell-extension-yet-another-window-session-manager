@@ -10,7 +10,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as Tooltip from '../utils/tooltip.js';
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 
 
 export const SearchSessionItem = GObject.registerClass(
@@ -48,7 +48,7 @@ export const SearchSessionItem = GObject.registerClass(
             });
 
             this._entry.set_secondary_icon(this._clearIcon);
-            this._secondaryIconClickedId = this._entry.connect('secondary-icon-clicked', this.reset.bind(this));
+            this._entry.connectObject('secondary-icon-clicked', this.reset.bind(this), this);
 
             this._addFilters();
         }
@@ -79,7 +79,7 @@ export const SearchSessionItem = GObject.registerClass(
                 button, 'checked',
                 GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE);
 
-            new Tooltip.Tooltip({
+            this._filterAutoRestoreTooltip = new Tooltip.Tooltip({
                 parent: button,
                 markup: _('Show only the default session'),
             });
@@ -103,19 +103,19 @@ export const SearchSessionItem = GObject.registerClass(
                 track_hover: true,
             });
 
-            new Tooltip.Tooltip({
+            this._preferencesTooltip = new Tooltip.Tooltip({
                 parent: button,
                 markup: _('Open preferences'),
             });
 
-            button.connect('clicked', () => {
+            button.connectObject('clicked', () => {
                 this._getTopMenu()?.close(true);
                 Gio.DBus.session.call(
                     'org.gnome.Shell.Extensions',
                     '/org/gnome/Shell/Extensions',
                     'org.gnome.Shell.Extensions',
                     'OpenExtensionPrefs',
-                    new GLib.Variant('(ssa{sv})', [PrefsUtils.extensionObject.uuid, '', {}]),
+                    new GLib.Variant('(ssa{sv})', [SettingsUtils.extensionObject.uuid, '', {}]),
                     null,
                     Gio.DBusCallFlags.NONE,
                     -1,
@@ -128,7 +128,8 @@ export const SearchSessionItem = GObject.registerClass(
                         }
                     },
                 );
-            });
+            }, this);
+            this._preferencesButton = button;
 
             this.add_child(button);
         }
@@ -141,9 +142,20 @@ export const SearchSessionItem = GObject.registerClass(
         }
 
         destroy() {
-            if (this._secondaryIconClickedId) {
-                this._entry.disconnect(this._secondaryIconClickedId);
-                this._secondaryIconClickedId = null;
+            this._entry.get_clutter_text().disconnectObject(this);
+            this._filterAutoRestoreSwitch.disconnectObject(this);
+            this._entry.disconnectObject(this);
+            this._preferencesButton.disconnectObject(this);
+
+            if (this._filterAutoRestoreTooltip) {
+                this._filterAutoRestoreTooltip.destroy();
+                this._filterAutoRestoreTooltip = null;
             }
+            if (this._preferencesTooltip) {
+                this._preferencesTooltip.destroy();
+                this._preferencesTooltip = null;
+            }
+
+            super.destroy();
         }
     });

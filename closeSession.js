@@ -7,10 +7,9 @@ import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as SubprocessUtils from './utils/subprocessUtils.js';
 import * as DateUtils from './utils/dateUtils.js';
-import * as Function from './utils/function.js';
 
 import * as Constants from './constants.js';
 
@@ -27,7 +26,7 @@ const allFlags = flags.closeWindows | flags.logoff;
 export const CloseSession = class {
     constructor(flags) {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         this._skip_app_with_multiple_windows = true;
         this._defaultAppSystem = Shell.AppSystem.get_default();
@@ -66,19 +65,14 @@ export const CloseSession = class {
                 const promise = new Promise((resolve, reject) => {
                     this._log.info(`Closing ${app.get_name()}`);
                     this._closeOneApp(app).then(([closed, reason]) => {
-                        try {
-                            if (closed) {
-                                this._log.info(`Closed ${app.get_name()}`);
-                            } else {
-                                this._log.warn(`Can not close ${app.get_name()} because ${reason}`);
-                                app._cannot_close_reason = reason;
-                            }
-                            resolve();   
-                        } catch (error) {
-                            this._log.error(error);
-                            reject(error);
+                        if (closed) {
+                            this._log.info(`Closed ${app.get_name()}`);
+                        } else {
+                            this._log.warn(`Can not close ${app.get_name()} because ${reason}`);
+                            app._cannot_close_reason = reason;
                         }
-                    });
+                        resolve();
+                    }, reject);
                 });
                 promises.push(promise);
             }
@@ -189,7 +183,7 @@ export const CloseSession = class {
             } = row;
             if (!enabled || !name) continue;
 
-            let compareWithValue = Function.callFunc(window, Meta.Window.prototype[`get_${compareWith}`]);
+            let compareWithValue = window[`get_${compareWith}`]();
             const matched = this._ruleMatched(compareWithValue, method, name);
             if (matched) {
                 let _flags = 0;
@@ -204,10 +198,11 @@ export const CloseSession = class {
     _deleteWindow(app, metaWindow) {
         return new Promise((resolve, reject) => {
             // We use 'windows-changed' here because a confirm window could be popped up
-            const windowsChangedId = app.connect('windows-changed', () => {
-                app.disconnect(windowsChangedId);
+            const owner = {};
+            app.connectObject('windows-changed', () => {
+                app.disconnectObject(owner);
                 resolve(app.get_n_windows() === 0);
-            });
+            }, owner);
             metaWindow._aboutToClose = true;
             metaWindow.delete(DateUtils.get_current_time());
         });
@@ -221,11 +216,11 @@ export const CloseSession = class {
 
         return new Promise((resolve, reject) => {
             // We use 'windows-changed' here because a confirm window might be popped up
-            let windowsChangedId = app.connect('windows-changed', () => {
-                app.disconnect(windowsChangedId);
-                windowsChangedId = null;
+            const owner = {};
+            app.connectObject('windows-changed', () => {
+                app.disconnectObject(owner);
                 resolve(app.get_n_windows() === 0);
-            });
+            }, owner);
 
             const quitAction = 'app.quit';
             if (app.action_group.has_action(quitAction)
@@ -239,7 +234,7 @@ export const CloseSession = class {
             }
             
             if (!metaWindow._aboutToClose) {
-                if (windowsChangedId) app.disconnect(windowsChangedId);
+                app.disconnectObject(owner);
                 resolve(false);
             }
         });
@@ -295,15 +290,12 @@ export const CloseSession = class {
     }
 
     _leaveOverview() {
-        return new Promise((resolve, reject) => {
-            const hiddenId = Main.overview.connect('hidden', () => {
-                try {
-                    Main.overview.disconnect(hiddenId);
-                    resolve();
-                } catch (e) {
-                    reject(e);
-                }
-            });
+        return new Promise((resolve) => {
+            const owner = {};
+            Main.overview.connectObject('hidden', () => {
+                Main.overview.disconnectObject(owner);
+                resolve();
+            }, owner);
             Main.overview.hide();
         });
     }
@@ -351,8 +343,28 @@ export const CloseSession = class {
     async _activateAndCloseWindows(app, linuxKeyCodes, shortcutsOriginal) {
         try {
             const rules = app._rulesYAWSM;
-            const keyDelay = rules?.keyDelay;
-            const cmd = ['ydotool', 'key', '--key-delay', keyDelay ? keyDelay + '' : '0'].concat(linuxKeyCodes);
+            let keyDelay = parseInt(rules?.keyDelay ?? 0);
+            if (Number.isNaN(keyDelay))
+                keyDelay = 0;
+            const keyDelayArg = String(keyDelay);
+
+            const keyCodeArgs = [];
+            for (const keyCode of linuxKeyCodes) {
+                const [codeStr, stateStr] = String(keyCode).split(':');
+                const code = parseInt(codeStr);
+                const state = parseInt(stateStr);
+                if (Number.isNaN(code) || Number.isNaN(state))
+                    continue;
+                keyCodeArgs.push(`${code}:${state}`);
+            }
+
+            const cmd = [
+                'ydotool',
+                'key',
+                '--key-delay',
+                keyDelayArg,
+                ...keyCodeArgs,
+            ];
             const cmdStr = cmd.join(' ');
             
             this._log.info(`Closing ${app.get_name()} by sending: ${cmdStr} (${shortcutsOriginal.join(' ')})`);
@@ -409,10 +421,10 @@ export const CloseSession = class {
             return [this._defaultAppSystem.get_running(), [], []];
         }
 
-        const closeWindowsRules = PrefsUtils.getSettingString('close-windows-rules');
+        const closeWindowsRules = SettingsUtils.getSettingString('close-windows-rules');
         const closeWindowsRulesObj = JSON.parse(closeWindowsRules);
 
-        const closeWindowsRulesKeyword = PrefsUtils.getSettingString('close-windows-rules-by-keyword');
+        const closeWindowsRulesKeyword = SettingsUtils.getSettingString('close-windows-rules-by-keyword');
         const closeWindowsRulesObjKeyword = JSON.parse(closeWindowsRulesKeyword);
 
         let runningAppsClosingByAppRules = [];
@@ -441,7 +453,7 @@ export const CloseSession = class {
                     }
                 } else {
                     for (const window of app.get_windows()) {
-                        let compareWithValue = Function.callFunc(window, Meta.Window.prototype[`get_${compareWith}`]);
+                        let compareWithValue = window[`get_${compareWith}`]();
                         matched = this._ruleMatched(compareWithValue, method, keyword);
                         if (matched) {
                             runningAppsClosingByKeywordRules.push([app, rules]);
@@ -466,7 +478,7 @@ export const CloseSession = class {
         } else if (method === 'equals') {
             matched = keyword === compareWithValue;
         } else {
-            matched = Function.callFunc(compareWithValue, String.prototype[method], keyword);
+            matched = compareWithValue[method](keyword);
         }
         return matched;
     }

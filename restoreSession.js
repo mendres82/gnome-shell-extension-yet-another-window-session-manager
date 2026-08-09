@@ -6,9 +6,7 @@ import GLib from 'gi://GLib';
 
 import * as FileUtils from './utils/fileUtils.js';
 import * as Log from './utils/log.js';
-import {PrefsUtils} from './utils/prefsUtils.js';
-import * as SubprocessUtils from './utils/subprocessUtils.js';
-import * as StringUtils from './utils/stringUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
@@ -21,7 +19,7 @@ export const RestoreSession = class {
 
     constructor() {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         this.sessionName = FileUtils.default_sessionName;
         this._defaultAppSystem = Shell.AppSystem.get_default();
@@ -40,8 +38,6 @@ export const RestoreSession = class {
         this._cmdAppIdMap = new Map();
 
         this._display = global.display;
-
-        this._connectIds = [];
     }
 
     restoreSession(sessionName) {
@@ -112,6 +108,7 @@ export const RestoreSession = class {
                     this._restore_session_interval,
                     () => {
                         if (!session_config_objects.length) {
+                            this._restoreSessionTimeoutId = null;
                             return GLib.SOURCE_REMOVE;
                         }
                         this._restoreOneSession(session_config_objects.shift());
@@ -171,7 +168,7 @@ export const RestoreSession = class {
         let launched = false;
         let running = false;
         try {
-            return await new Promise((resolve, reject) => {
+            return await new Promise((resolve) => {
                 let desktop_file_id = session_config_object.desktop_file_id;
                 const shell_app = desktop_file_id ? this._defaultAppSystem.lookup_app(desktop_file_id) : null;
                 if (shell_app) {
@@ -209,14 +206,51 @@ export const RestoreSession = class {
                     // https://gjs-docs.gnome.org/gio20~2.0/gio.subprocesslauncher#method-set_environ
                     // TODO Support snap apps
                     
-                    const cmd = session_config_object.cmd;
-                    if (cmd && cmd.length) {
-                        const cmdString = cmd.join(' ');
-                        const pid = this._cmdAppIdMap.get(cmdString);
-                        if (pid) {
+                    const savedCmd = session_config_object.cmd;
+                    const cmdArgs = [];
+                    if (Array.isArray(savedCmd)) {
+                        for (const cmdArg of savedCmd) {
+                            if (typeof cmdArg !== 'string' || !cmdArg)
+                                continue;
+                            cmdArgs.push(cmdArg);
+                        }
+                    }
+
+                    if (cmdArgs.length) {
+                        const cmdString = cmdArgs.join(' ');
+                        const existingPid = this._cmdAppIdMap.get(cmdString);
+                        if (existingPid) {
                             this._log.debug(`${app_name} might be running, preparing to restore window (${session_config_object.window_title}) states.`);
-                            
-                            // Here we use pid as the key, because the associated ShellApp might not be instantiated at this moment
+
+                            const restoringShellAppData = restoreSessionObject.restoringApps.get(existingPid);
+                            if (restoringShellAppData) {
+                                restoringShellAppData.saved_window_sessions.push(session_config_object);
+                            } else {
+                                restoreSessionObject.restoringApps.set(existingPid, {
+                                    saved_window_sessions: [session_config_object]
+                                });
+                            }
+                            resolve([true, true]);
+                            return;
+                        }
+
+                        try {
+                            this._log.info(`Launching ${app_name} via command line ${cmdString}!`);
+                            const [, pid] = GLib.spawn_async(
+                                null,
+                                cmdArgs,
+                                null,
+                                GLib.SpawnFlags.SEARCH_PATH |
+                                    GLib.SpawnFlags.STDOUT_TO_DEV_NULL |
+                                    GLib.SpawnFlags.STDERR_TO_DEV_NULL |
+                                    GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                                null);
+
+                            GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, () => {
+                                GLib.spawn_close_pid(pid);
+                            });
+
+                            this._cmdAppIdMap.set(cmdString, pid);
                             const restoringShellAppData = restoreSessionObject.restoringApps.get(pid);
                             if (restoringShellAppData) {
                                 restoringShellAppData.saved_window_sessions.push(session_config_object);
@@ -225,72 +259,21 @@ export const RestoreSession = class {
                                     saved_window_sessions: [session_config_object]
                                 });
                             }
+                            resolve([true, false]);
+                        } catch (e) {
+                            const msg = _('Failed to launch %s via command line').format(app_name);
+                            const errorDetail = _('Can\'t restore this app from %s: %s.').format(
+                                session_config_object._file_path,
+                                e.message);
+                            this._log.error(`${msg}. output: ${errorDetail}`);
+                            global.notify_error(msg, errorDetail);
+                            resolve([false, false]);
                         }
-
-                        const launchAppTemplate = FileUtils.desktop_template_launch_app_shell_script;
-                        FileUtils.loadTemplate(launchAppTemplate).then(template => {
-                            const launchAppShellScript = StringUtils.format(template, {cmdString});
-                            this._log.info(`Launching ${app_name} via command line ${cmdString}!`);
-                            return SubprocessUtils.trySpawnCmdstr(`bash -c '${launchAppShellScript}'`);
-                        }).then(
-                            ([success, status, stdoutInputStream, stderrInputStream]) => {
-                                if (success) {
-                                    stdoutInputStream.read_line_async(
-                                        GLib.PRIORITY_DEFAULT,
-                                        null,
-                                        (stream, res) => {
-                                            try {
-                                                let pid = stream.read_line_finish_utf8(res)[0];
-                                                if (!pid) return;
-    
-                                                pid = Number(pid);
-                                                this._cmdAppIdMap.set(cmdString, pid);
-                                                const restoringShellAppData = restoreSessionObject.restoringApps.get(pid);
-                                                if (restoringShellAppData) {
-                                                    restoringShellAppData.saved_window_sessions.push(session_config_object);
-                                                } else {
-                                                    restoreSessionObject.restoringApps.set(pid, {
-                                                        saved_window_sessions: [session_config_object]
-                                                    });
-                                                }
-                                                launched = true;
-                                                resolve([launched, running]);
-                                            } catch (e) {
-                                                this._log.error(e);
-                                                reject(e);
-                                            }
-                                        }
-                                    );
-                                } else {
-                                    if (status === 79) {
-                                        launched = true;
-                                        running = true;
-                                        this._log.info(`${app_name} is running, skipping`)
-                                    } else {
-                                        const msg = _('Failed to launch %s via command line').format(app_name);
-                                        let stderr = '';
-                                        if (stderrInputStream) {
-                                            let bytes;
-                                            while ((bytes = stderrInputStream.read_line(null)[0]) !== null)
-                                                stderr += (stderr ? '\n' : '') + new TextDecoder().decode(bytes);
-                                        }
-                                        const errorDetail = _('Can\'t restore this app from %s: %s.').format(
-                                            session_config_object._file_path,
-                                            stderr.trim() || _('exit status %d').format(status));
-                                        this._log.error(`${msg}. output: ${errorDetail}`);
-                                        global.notify_error(msg, errorDetail);
-                                    }
-                                    resolve([launched, running]);
-                                }
-                            }).catch(e => {
-                                this._log.error(e)
-                                reject(e);
-                            });
                     } else {
                         // TODO try to launch via app_info by searching the app name?
                         let errorMsg = _('Failed to launch %s via command line').format(app_name);
                         let errorDetail = _('Can\'t restore this app from %s: Invalid command line: %s.').format(
-                            session_config_object._file_path, cmd);
+                            session_config_object._file_path, savedCmd);
                         this._log.error(errorMsg, errorDetail);
                         global.notify_error(errorMsg, errorDetail);
                         resolve([launched, running]);
@@ -354,9 +337,9 @@ export const RestoreSession = class {
     }
 
     destroy() {
-        if (restoreSessionObject.restoringApps) {
-            restoreSessionObject.restoringApps.clear();
-            restoreSessionObject.restoringApps = null;
+        if (this._restoreSessionTimeoutId) {
+            GLib.Source.remove(this._restoreSessionTimeoutId);
+            this._restoreSessionTimeoutId = null;
         }
 
         if (this._restoredApps) {
@@ -364,31 +347,13 @@ export const RestoreSession = class {
             this._restoredApps = null;
         }
 
-        if (this._defaultAppSystem) {
-            this._defaultAppSystem = null;
-        }
-
-        if (this._windowTracker) {
-            this._windowTracker = null;
-        }
+        this._defaultAppSystem = null;
+        this._windowTracker = null;
 
         if (this._log) {
             this._log.destroy();
             this._log = null;
         }
-
-        if (this._connectIds) {
-            for (let [obj, id] of this._connectIds) {
-                obj.disconnect(id);
-            }
-            this._connectIds = null;
-        }
-
-        if (this._restoreSessionTimeoutId) {
-            GLib.Source.remove(this._restoreSessionTimeoutId);
-            this._restoreSessionTimeoutId = null;
-        }
-        
     }
 
 }

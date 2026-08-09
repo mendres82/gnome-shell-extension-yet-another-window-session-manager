@@ -20,8 +20,8 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
  * Adapted from: https://github.com/RaphaelRochet/applications-overview-tooltip
  * See also: https://github.com/GNOME/gtk/blob/master/gtk/gtktooltip.c
  */
-var TOOLTIP_BROWSE_ID = 0;
-var TOOLTIP_BROWSE_MODE = false;
+let tooltipBrowseId = 0;
+let tooltipBrowseMode = false;
 
 export const Tooltip = class Tooltip {
 
@@ -32,20 +32,11 @@ export const Tooltip = class Tooltip {
         this._hoverTimeoutId = 0;
         this._showing = false;
 
-        this._destroyId = this.parent.connect(
-            'destroy',
-            this.destroy.bind(this)
-        );
-
-        this._hoverId = this.parent.connect(
-            'notify::hover',
-            this._onHover.bind(this)
-        );
-
-        this._buttonPressEventId = this.parent.connect(
-            'button-press-event',
-            this._hide.bind(this)
-        );
+        this.parent.connectObject(
+            'destroy', this.destroy.bind(this),
+            'notify::hover', this._onHover.bind(this),
+            'button-press-event', this._hide.bind(this),
+            this);
     }
 
     get custom() {
@@ -217,11 +208,11 @@ export const Tooltip = class Tooltip {
         }
 
         // Enable browse mode
-        TOOLTIP_BROWSE_MODE = true;
+        tooltipBrowseMode = true;
 
-        if (TOOLTIP_BROWSE_ID) {
-            GLib.source_remove(TOOLTIP_BROWSE_ID);
-            TOOLTIP_BROWSE_ID = 0;
+        if (tooltipBrowseId) {
+            GLib.source_remove(tooltipBrowseId);
+            tooltipBrowseId = 0;
         }
 
         if (this._hoverTimeoutId) {
@@ -248,9 +239,13 @@ export const Tooltip = class Tooltip {
             });
         }
 
-        TOOLTIP_BROWSE_ID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-            TOOLTIP_BROWSE_MODE = false;
-            TOOLTIP_BROWSE_ID = 0;
+        if (tooltipBrowseId) {
+            GLib.source_remove(tooltipBrowseId);
+            tooltipBrowseId = 0;
+        }
+        tooltipBrowseId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+            tooltipBrowseMode = false;
+            tooltipBrowseId = 0;
             return false;
         });
 
@@ -271,7 +266,7 @@ export const Tooltip = class Tooltip {
                 } else {
                     this._hoverTimeoutId = GLib.timeout_add(
                         GLib.PRIORITY_DEFAULT,
-                        (TOOLTIP_BROWSE_MODE) ? 60 : 500,
+                        (tooltipBrowseMode) ? 60 : 500,
                         () => {
                             this._show();
                             this._hoverTimeoutId = 0;
@@ -286,9 +281,7 @@ export const Tooltip = class Tooltip {
     }
 
     destroy() {
-        this.parent.disconnect(this._destroyId);
-        this.parent.disconnect(this._hoverId);
-        this.parent.disconnect(this._buttonPressEventId);
+        this.parent.disconnectObject(this);
 
         if (this.custom)
             this.custom.destroy();
@@ -298,9 +291,9 @@ export const Tooltip = class Tooltip {
             this._bin.destroy();
         }
 
-        if (TOOLTIP_BROWSE_ID) {
-            GLib.source_remove(TOOLTIP_BROWSE_ID);
-            TOOLTIP_BROWSE_ID = 0;
+        if (tooltipBrowseId) {
+            GLib.source_remove(tooltipBrowseId);
+            tooltipBrowseId = 0;
         }
 
         if (this._hoverTimeoutId) {

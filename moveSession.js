@@ -28,6 +28,7 @@ export const MoveSession = class {
         this._windowTracker = Shell.WindowTracker.get_default();
 
         this._delayRestoreGeometryId = 0;
+        this._monitorMoveTimeoutIds = new Set();
 
     }
 
@@ -181,16 +182,29 @@ export const MoveSession = class {
         }
 
         if (toMonitorIndex != null) {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 // MetaWindow.move_to_monitor() can no longer be assumed to have updated the monitor on return, as under wayland
                 // Wait for the monitor change to take effect
                 // See: https://gitlab.gnome.org/GNOME/gnome-shell/-/commit/1cb01ec5b139da136cac665fc705e4ddd1d926a1
-                const id = global.display.connect('window-entered-monitor',
+                const owner = {};
+                const timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+                    this._monitorMoveTimeoutIds.delete(timeoutId);
+                    global.display.disconnectObject(owner);
+                    resolve(metaWindow);
+                    return GLib.SOURCE_REMOVE;
+                });
+                this._monitorMoveTimeoutIds.add(timeoutId);
+                global.display.connectObject('window-entered-monitor',
                     (dsp, num, w) => {
-                        if (w === metaWindow)
-                            global.display.disconnect(id);
+                        if (w !== metaWindow)
+                            return;
+                        if (this._monitorMoveTimeoutIds.has(timeoutId)) {
+                            GLib.Source.remove(timeoutId);
+                            this._monitorMoveTimeoutIds.delete(timeoutId);
+                        }
+                        global.display.disconnectObject(owner);
                         resolve(metaWindow);
-                    });
+                    }, owner);
                 metaWindow.move_to_monitor(toMonitorIndex);
             });
         }
@@ -407,7 +421,12 @@ export const MoveSession = class {
         if (delay) {
             // Fix: https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/25
             // TODO Note that this is not a perfect solution to address the above issue.
+            if (this._delayRestoreGeometryId) {
+                GLib.Source.remove(this._delayRestoreGeometryId);
+                this._delayRestoreGeometryId = 0;
+            }
             this._delayRestoreGeometryId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                this._delayRestoreGeometryId = 0;
                 this._moveResizeFrame(metaWindow, saved_window_session);
                 return GLib.SOURCE_REMOVE;
             });
@@ -535,6 +554,10 @@ export const MoveSession = class {
             GLib.Source.remove(this._delayRestoreGeometryId);
             this._delayRestoreGeometryId = 0;
         }
+
+        for (const timeoutId of this._monitorMoveTimeoutIds)
+            GLib.Source.remove(timeoutId);
+        this._monitorMoveTimeoutIds.clear();
 
     }
 

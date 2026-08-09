@@ -17,9 +17,8 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
-import * as Function from '../utils/function.js';
 
-import {PrefsUtils} from '../utils/prefsUtils.js';
+import {SettingsUtils} from '../utils/settingsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -52,12 +51,13 @@ export const Autoclose = GObject.registerClass(
         _init() {
 
             this._log = new Log.Log();
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
             this._defaultAppSystem = Shell.AppSystem.get_default();
 
             this._runningApplicationListWindow = null;
             
             this._retryIdleId = null;
+            this._closeSession = null;
 
             // org.gnome.SessionManager logout-prompt=false skips EndSessionDialog;
             // session preservation is handled via SystemActions in openWindowsTracker.js.
@@ -80,22 +80,18 @@ export const Autoclose = GObject.registerClass(
 
             const that = this;
 
-            // OpenAsync is promised and does not have a `try..catch...` surrounding the entire function, 
-            // so here we catch the error to avoid `Unhandled promise rejection` possibly caused by this extension.
+            // OpenAsync is promised and does not have a `try..catch...` surrounding the entire function,
+            // so catch rejections here to avoid unhandled promise rejection from this extension.
             EndSessionDialog.EndSessionDialog.prototype.OpenAsync = function (parameters, invocation) {
-                try {
-                    if (this._openingByYAWSM) {
-                        that._log.debug(`EndSessionDialog is already opening by YAWSM, ignore...`);
-                        return;
-                    }
-    
-                    _OpenAsync.call(this, parameters, invocation)
-                        .catch(e => {
-                            that._log.error(e);
-                        });
-                } catch (e) {
-                    that._log.error(e);
+                if (this._openingByYAWSM) {
+                    that._log.debug(`EndSessionDialog is already opening by YAWSM, ignore...`);
+                    return;
                 }
+
+                _OpenAsync.call(this, parameters, invocation)
+                    .catch(e => {
+                        that._log.error(e);
+                    });
             }
 
             EndSessionDialog.EndSessionDialog.prototype._confirm = async function (signal) {
@@ -104,7 +100,7 @@ export const Autoclose = GObject.registerClass(
 
                     const enableAutocloseSession = that._settings.get_boolean('enable-autoclose-session');
                     if (!enableAutocloseSession) {
-                        Function.callFunc(this, __confirm, signal);
+                        __confirm.call(this, signal);
                         return;
                     }
 
@@ -127,8 +123,7 @@ export const Autoclose = GObject.registerClass(
                                 this._openingByYAWSM = false;
 
                                 if (opt === 'Confirm') {
-                                    // this.close();
-                                    Function.callFunc(this, __confirm, signal);
+                                    __confirm.call(this, signal);
                                 }
 
                                 if (opt == 'Cancel') {
@@ -137,8 +132,18 @@ export const Autoclose = GObject.registerClass(
                             },
                             () => {
                                 that._retryIdleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                                    if (that._closeSession) {
+                                        that._closeSession.destroy();
+                                        that._closeSession = null;
+                                    }
                                     const closeSession = new CloseSession.CloseSession(CloseSession.flags.logoff);
-                                    closeSession.closeWindows(true);
+                                    that._closeSession = closeSession;
+                                    closeSession.closeWindows(true).finally(() => {
+                                        if (that._closeSession === closeSession) {
+                                            closeSession.destroy();
+                                            that._closeSession = null;
+                                        }
+                                    });
                                     that._retryIdleId = null;
                                     return GLib.SOURCE_REMOVE;
                                 });
@@ -158,7 +163,12 @@ export const Autoclose = GObject.registerClass(
                     that._runningApplicationListWindow.open();
 
                     that._runningApplicationListWindow.updateRunningPids()
+                    if (that._closeSession) {
+                        that._closeSession.destroy();
+                        that._closeSession = null;
+                    }
                     const closeSession = new CloseSession.CloseSession(CloseSession.flags.logoff);
+                    that._closeSession = closeSession;
                     closeSession.closeWindows(true)
                         .then((result) => {
                             try {
@@ -177,6 +187,11 @@ export const Autoclose = GObject.registerClass(
                             }
                         }).catch(error => {
                             that._log.error(error);
+                        }).finally(() => {
+                            if (that._closeSession === closeSession) {
+                                closeSession.destroy();
+                                that._closeSession = null;
+                            }
                         });
                 } catch (error) {
                     that._log.error(error);
@@ -203,19 +218,22 @@ export const Autoclose = GObject.registerClass(
         }
 
         disable() {
-            if (this._disabled)
-                return;
-            this._disabled = true;
-
             this._restoreEndSessionDialog();
-            if (this._runningApplicationListWindow) {
-                this._runningApplicationListWindow.disable();
-                this._runningApplicationListWindow = null;
-            }
             if (this._retryIdleId) {
                 GLib.source_remove(this._retryIdleId);
                 this._retryIdleId = null;
             }
+            if (this._closeSession) {
+                this._closeSession.destroy();
+                this._closeSession = null;
+            }
+            if (this._runningApplicationListWindow) {
+                this._runningApplicationListWindow.destroy();
+                this._runningApplicationListWindow = null;
+            }
+            this._log.destroy();
+            this._log = null;
+            this._settings = null;
         }
 
         destroy() {
@@ -234,10 +252,6 @@ const RunningApplicationListWindow = GObject.registerClass({
         _init(confirmButtOnLabel, onOpen, onComplete, onRetry) {
             this._visibleToUser = false;
             super._init({
-                // TODO
-                // style: 'width: 150em;',
-                // shellReactive: true,
-                // destroyOnClose: true
                 style_class: 'modal-dialog',
                 can_focus: true,
                 visible: false,
@@ -255,6 +269,7 @@ const RunningApplicationListWindow = GObject.registerClass({
 
             this._confirmIdleId = null;
             this._checkProcessStateId = null;
+            this._checkingPidState = false;
             this._updatePositionIdleId = null;
 
             this._apps_recheck_process_state = new Set(['Microsoft-edge']);
@@ -490,12 +505,21 @@ const RunningApplicationListWindow = GObject.registerClass({
             this._applicationSection.title = _('Waiting below processes to exit, this may take a while…');
             this._log.info(`Waiting processes to exit`);
             this._checkProcessStateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                if (this._checkingPidState)
+                    return GLib.SOURCE_CONTINUE;
+
+                this._checkingPidState = true;
                 this.updateRunningPids();
-                const pidStateMap = this._checkRunningPidState();
-                if (this._pidsMap.size) {
-                    this._showProcesses(pidStateMap);
-                } else {
-                    // this._log.info(`All processes of running apps have exited, ${this._confirmButtOnLabel} ...`);
+                this._checkRunningPidState().then(pidStateMap => {
+                    this._checkingPidState = false;
+                    if (!this._checkProcessStateId)
+                        return;
+
+                    if (this._pidsMap.size) {
+                        this._showProcesses(pidStateMap);
+                        return;
+                    }
+
                     const nChildren = this._applicationSection.list.get_n_children();
                     if (nChildren) {
                         this._applicationSection.list.remove_all_children();
@@ -507,9 +531,12 @@ const RunningApplicationListWindow = GObject.registerClass({
                         this._confirmIdleId = null;
                         return GLib.SOURCE_REMOVE;
                     });
+                    GLib.source_remove(this._checkProcessStateId);
                     this._checkProcessStateId = null;
-                    return GLib.SOURCE_REMOVE;
-                }
+                }).catch(e => {
+                    this._checkingPidState = false;
+                    this._log.error(e);
+                });
                 return GLib.SOURCE_CONTINUE;
             });
         }
@@ -519,11 +546,18 @@ const RunningApplicationListWindow = GObject.registerClass({
          * Returns the state character, or null if the process no longer exists.
          * See proc(5): field 3 after "pid (comm)".
          */
-        _readProcState(pid) {
+        async _readProcState(pid) {
+            const file = Gio.File.new_for_path(`/proc/${pid}/stat`);
             try {
-                const [ok, bytes] = GLib.file_get_contents(`/proc/${pid}/stat`);
-                if (!ok)
-                    return null;
+                const [, bytes] = await new Promise((resolve, reject) => {
+                    file.load_contents_async(null, (f, res) => {
+                        try {
+                            resolve(f.load_contents_finish(res));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                });
                 const stat = new TextDecoder().decode(bytes);
                 // comm may contain spaces and parentheses; state follows the last ')'
                 const closeParen = stat.lastIndexOf(')');
@@ -531,15 +565,15 @@ const RunningApplicationListWindow = GObject.registerClass({
                     return null;
                 return stat[closeParen + 2];
             } catch (e) {
-                // ENOENT etc. — process has exited
+                // ENOENT etc.: process has exited
                 return null;
             }
         }
 
-        _checkRunningPidState() {
+        async _checkRunningPidState() {
             const pidStateMap = new Map();
-            for (const [pid, app] of this._pidsMap) {
-                const state = this._readProcState(pid);
+            for (const [pid, app] of [...this._pidsMap]) {
+                const state = await this._readProcState(pid);
                 const appName = app.get_name();
                 // A zombie process is in terminated state and it has completed execution.
                 // The underlying program is no longer executing, but the process remains
@@ -548,7 +582,6 @@ const RunningApplicationListWindow = GObject.registerClass({
                 // is removed from the process table, finally ending the process's lifetime.
                 // See: https://en.wikipedia.org/wiki/Zombie_process and https://en.wikipedia.org/wiki/Process_state#Terminated
                 if (state && state !== ProcState.ZOMBIE) {
-                    // this._log.debug(`Process ${pid} (${appName}) is still running with state ${state}, waiting it to exit`)
                     pidStateMap.set(pid, state);
                 } else {
                     this._log.info(`Process ${pid} (${appName}) is exited with process state ${state} (${this._formatProcessState(state)})`);
@@ -670,6 +703,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
             }
+            this._checkingPidState = false;
 
             if (this._updatePositionIdleId) {
                 GLib.source_remove(this._updatePositionIdleId);
@@ -688,15 +722,6 @@ const RunningApplicationListWindow = GObject.registerClass({
         }
 
         disable() {
-            if (this._disabled)
-                return;
-            this._disabled = true;
-
-            this._defaultAppSystem.disconnectObject(this);
-            Main.overview.disconnectObject(this);
-            this._initialKeyFocus?.disconnectObject(this);
-            this._initialKeyFocus = null;
-
             if (this._confirmIdleId) {
                 GLib.source_remove(this._confirmIdleId);
                 this._confirmIdleId = null;
@@ -705,10 +730,21 @@ const RunningApplicationListWindow = GObject.registerClass({
                 GLib.source_remove(this._checkProcessStateId);
                 this._checkProcessStateId = null;
             }
+            this._checkingPidState = false;
             if (this._updatePositionIdleId) {
                 GLib.source_remove(this._updatePositionIdleId);
                 this._updatePositionIdleId = null;
             }
+
+            this._defaultAppSystem.disconnectObject(this);
+            Main.overview.disconnectObject(this);
+            this._initialKeyFocus?.disconnectObject(this);
+            this._initialKeyFocus = null;
+            this._defaultAppSystem = null;
+
+            this._log.destroy();
+            this._log = null;
+
             this.hide();
             super.destroy();
         }

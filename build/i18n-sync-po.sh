@@ -21,6 +21,7 @@ fi
 
 for po in "${po_files[@]}"; do
     msgmerge --update --backup=none --no-wrap "$po" "$POT"
+    msgattrib --no-obsolete --no-wrap --output-file="$po" "$po"
     echo "Synced $po with ${POT}"
 done
 

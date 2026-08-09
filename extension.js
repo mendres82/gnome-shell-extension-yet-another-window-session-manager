@@ -15,7 +15,7 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 
 import * as Log from './utils/log.js';
 import * as FileUtils from './utils/fileUtils.js';
-import {prefsUtilsInit, prefsUtilsDestroy} from './utils/prefsUtils.js';
+import {settingsUtilsInit, settingsUtilsDestroy} from './utils/settingsUtils.js';
 
 
 let _indicator;
@@ -27,18 +27,15 @@ let _keyboardShortcuts;
 
 export default class AnotherWindowSessionManagerExtension extends Extension {
 
-    constructor(metadata) {
-        super(metadata);
-        this.initTranslations(this.metadata['gettext-domain'] ?? this.metadata.uuid);
-    }
-
     enable() {
         // settings is needed by the initialization of some utils
-        this._settings = this.getSettings('org.gnome.shell.extensions.yet-another-window-session-manager');        
+        this._settings = this.getSettings();        
 
         this.initUtils();
         
-        this._settingsChangedId = this._settings.connect('changed::show-indicator', () => this.showOrHideIndicator());
+        this._settings.connectObject(
+            'changed::show-indicator', () => this.showOrHideIndicator(),
+            this);
         this.showOrHideIndicator();
     
         _autostartServiceProvider = new Autostart.AutostartServiceProvider();
@@ -56,7 +53,7 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
     }
 
     initUtils() {
-        prefsUtilsInit(this, this._settings);
+        settingsUtilsInit(this, this._settings);
         FileUtils.init(this);
     }
     
@@ -118,14 +115,12 @@ export default class AnotherWindowSessionManagerExtension extends Extension {
         }
 
         if (this._settings) {
-            if (this._settingsChangedId) {
-                this._settings.disconnect(this._settingsChangedId);
-                this._settingsChangedId = null;
-            }
+            this._settings.disconnectObject(this);
             this._settings = null;
         }
 
-        prefsUtilsDestroy();
+        FileUtils.destroy();
+        settingsUtilsDestroy();
     
     }
     

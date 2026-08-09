@@ -10,7 +10,7 @@ import Gdk from 'gi://Gdk';
 
 import * as CloseWindowsRule from './model/closeWindowsRule.js';
 
-import {PrefsUtils} from './utils/prefsUtils.js';
+import {SettingsUtils} from './utils/settingsUtils.js';
 import * as Log from './utils/log.js';
 import * as IconFinder from './utils/iconFinder.js';
 
@@ -35,7 +35,7 @@ export const UICloseWindows = GObject.registerClass(
             this._builder = builder;
             this.close_by_rules_switch = this._builder.get_object('close_by_rules_switch');
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
 
             // TODO
             this._scrollToWidget = null;
@@ -92,11 +92,13 @@ export const UICloseWindows = GObject.registerClass(
             this._whitelistChangedId = this._settings.connect(
                 `changed::${settingKey}`,
                 () => {
+                    if (this._syncingWhitelist)
+                        return;
+                    this._syncingWhitelist = true;
                     try {
-                        this._settings.block_signal_handler(this._whitelistChangedId);
                         this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
                     } finally {
-                        this._settings.unblock_signal_handler(this._whitelistChangedId);
+                        this._syncingWhitelist = false;
                     }
                 });
             this._sync(close_windows_whitelist_listbox, WhitelistRow, settingKey, 'id');
@@ -124,14 +126,16 @@ export const UICloseWindows = GObject.registerClass(
 
             this._rulesChangedId = this._settings.connect(
                 'changed::close-windows-rules',
-                (settings) => {
+                () => {
+                    if (this._syncingRules)
+                        return;
+                    this._syncingRules = true;
                     try {
-                        this._settings.block_signal_handler(this._rulesChangedId);
                         this._updateAction.enabled = false;
                         this._sync(close_by_rules_list_box, RuleRowByApp, 'close-windows-rules', 'appDesktopFilePath');
                         this._updateAction.enabled = true;
                     } finally {
-                        this._settings.unblock_signal_handler(this._rulesChangedId);
+                        this._syncingRules = false;
                     }
                 });
             this._sync(close_by_rules_list_box, RuleRowByApp, 'close-windows-rules', 'appDesktopFilePath');
@@ -169,12 +173,14 @@ export const UICloseWindows = GObject.registerClass(
 
             this._changedId = this._settings.connect(
                 'changed::close-windows-rules-by-keyword',
-                (settings) => {
+                () => {
+                    if (this._syncingKeywords)
+                        return;
+                    this._syncingKeywords = true;
                     try {
-                        this._settings.block_signal_handler(this._changedId);
                         this._sync(close_by_rules_by_keyword_list_box, RuleRowByKeyword, 'close-windows-rules-by-keyword', 'id');
                     } finally {
-                        this._settings.unblock_signal_handler(this._changedId);
+                        this._syncingKeywords = false;
                     }
                 });
             this._sync(close_by_rules_by_keyword_list_box, RuleRowByKeyword, 'close-windows-rules-by-keyword', 'id');
@@ -410,7 +416,7 @@ const RuleRow = GObject.registerClass({
 }, class RuleRow extends Row {
     _init(ruleDetail) {
         this._log = new Log.Log();
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         const ruleRowBox = this._newBox({
             hexpand: false,
@@ -434,8 +440,6 @@ const RuleRow = GObject.registerClass({
         });
 
         super._init(ruleDetail, {
-            // TODO
-            // value: GLib.Variant.new_strv(ruleDetail.value),
             child: scroll,
         });
         this._ruleDetail = ruleDetail;
@@ -873,7 +877,7 @@ const WhitelistRow = GObject.registerClass({
 }, class WhitelistRow extends Row {
 
     _init(ruleDetail) {
-        this._settings = PrefsUtils.getSettings();
+        this._settings = SettingsUtils.getSettings();
 
         const rowBox = PrefsWidgets._newBox({
             hexpand: false,
@@ -1111,7 +1115,7 @@ const YawsmNewRuleByAppDialog = GObject.registerClass(
                 modal: true,
             });
 
-            this._settings = PrefsUtils.getSettings();
+            this._settings = SettingsUtils.getSettings();
 
             this.get_widget().set({
                 show_recommended: true,

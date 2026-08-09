@@ -23,13 +23,12 @@ const sessions_backup_path = GLib.build_filenamev([sessions_path, sessions_backu
 export let desktop_template_path = null;
 export let desktop_template_path_restore_at_autostart = null;
 export let desktop_template_path_restore_previous_at_autostart = null;
-export let desktop_template_launch_app_shell_script = null;
 
 export const desktop_file_store_path_base = GLib.build_filenamev([data_dir, '/applications']);
 
 export const recently_closed_session_name = 'Recently Closed Session';
 export const recently_closed_session_path = GLib.build_filenamev([sessions_path, recently_closed_session_name]);
-export const recently_closed_session_file = Gio.File.new_for_path(recently_closed_session_path);
+export let recently_closed_session_file = null;
 
 export const current_session_path = `${config_path_base}/currentSession`;
 
@@ -46,7 +45,16 @@ export function init(extensionObject) {
     desktop_template_path = GLib.build_filenamev([extensionObject.path, '/template/template.desktop']);
     desktop_template_path_restore_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_gnome-shell-extension-yet-another-window-session-manager.desktop']);
     desktop_template_path_restore_previous_at_autostart = GLib.build_filenamev([extensionObject.path, '/template/_yawsm-restore-previous-session.desktop']);
-    desktop_template_launch_app_shell_script = GLib.build_filenamev([extensionObject.path, '/template/launch-app.sh']);
+    recently_closed_session_file = Gio.File.new_for_path(recently_closed_session_path);
+}
+
+export function destroy() {
+    current_extension_dir = null;
+    current_extension_path = null;
+    desktop_template_path = null;
+    desktop_template_path_restore_at_autostart = null;
+    desktop_template_path_restore_previous_at_autostart = null;
+    recently_closed_session_file = null;
 }
 
 /**
@@ -69,16 +77,7 @@ export function get_sessions_backups_path() {
 }
 
 export function getJsonObj(contents) {
-    let session_config;
-        // Fix Gnome 3 crash due to: Some code called array.toString() on a Uint8Array instance. Previously this would have interpreted the bytes of the array as a string, but that is nonstandard. In the future this will return the bytes as comma-separated digits. For the time being, the old behavior has been preserved, but please fix your code anyway to explicitly call new TextDecoder().decode(array).
-    if (contents instanceof Uint8Array) {
-        const contentsConverted = new TextDecoder().decode(contents);
-        session_config = JSON.parse(contentsConverted);
-    } else {
-        // Unreachable code
-        session_config = JSON.parse(contents);
-    }
-    return session_config;
+    return JSON.parse(new TextDecoder().decode(contents));
 }
 
 export async function listAllSessions(sessionPath, recursion, callback) {
@@ -246,12 +245,7 @@ export function loadTemplate(path, cancellable = null) {
             try {
                 const [success, contents] = file.load_contents_finish(asyncResult);
                 if (success) {
-                    if (contents instanceof Uint8Array) {
-                        resolve(new TextDecoder().decode(contents));
-                    } else {
-                        // Unreachable code
-                        resolve(contents);
-                    }
+                    resolve(new TextDecoder().decode(contents));
                 } else {
                     resolve('');
                 }

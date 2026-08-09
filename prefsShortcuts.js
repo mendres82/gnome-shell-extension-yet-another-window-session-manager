@@ -61,7 +61,16 @@ const ShortcutRow = GObject.registerClass({
         eventControllerKey.connect('key-pressed', this._onKeyPressed.bind(this));
         eventControllerKey.connect('key-released', this._onKeyReleased.bind(this));
         this._shortcutButton.connect('clicked', this._onShortcutButtonClicked.bind(this));
-        this._settings.connect(`changed::${this._settingsKey}`, () => this._updateShortcutLabel());
+        this._settingsChangedId = this._settings.connect(
+            `changed::${this._settingsKey}`,
+            () => this._updateShortcutLabel()
+        );
+        this.connect('destroy', () => {
+            if (this._settingsChangedId) {
+                this._settings.disconnect(this._settingsChangedId);
+                this._settingsChangedId = 0;
+            }
+        });
         this._updateShortcutLabel();
     }
 
