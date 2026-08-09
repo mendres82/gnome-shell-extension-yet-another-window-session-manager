@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pack the extension into ${uuid}-v${version-name}.zip (version-name from metadata.json).
+# Pack the extension into build/dist/${uuid}-v${version-name}.zip (version-name from metadata.json).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -13,12 +13,20 @@ if [ -z "$VERSION" ] || [ -z "$UUID" ]; then
     exit 1
 fi
 
-OUT="${ROOT}/${UUID}-v${VERSION}.zip"
+DIST="${ROOT}/build/dist"
+OUT="${DIST}/${UUID}-v${VERSION}.zip"
 
 cd "$ROOT"
+mkdir -p "$DIST"
 rm -f "$OUT"
 
 shopt -s nullglob
+mo_files=(locale/*/LC_MESSAGES/*.mo)
+if [ ${#mo_files[@]} -eq 0 ]; then
+    echo "No locale/*/LC_MESSAGES/*.mo files found. Run ./build/i18n-compile-locales.sh first." >&2
+    exit 1
+fi
+
 args=(
     metadata.json
     stylesheet.css
@@ -30,11 +38,9 @@ args=(
     model
     dbus-interfaces
     template
+    locale
     *.js
 )
-if [ -d locale ]; then
-    args+=(locale)
-fi
 
 python3 - "$OUT" "${args[@]}" <<'PY'
 import sys

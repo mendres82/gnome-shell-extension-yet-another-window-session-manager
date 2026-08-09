@@ -14,7 +14,7 @@ help:
 	@echo "  make -C build i18n-sync-po           Merge template into po/*.po"
 	@echo "  make -C build i18n-compile-locales   Compile po/*.po to locale/*/LC_MESSAGES/*.mo"
 	@echo "  make -C build i18n                   i18n-update-template + i18n-sync-po (edit po/*.po, then pack-extension)"
-	@echo "  make -C build pack-extension         Compile locales and pack $${uuid}-v$${version}.zip"
+	@echo "  make -C build pack-extension         Compile locales and pack build/dist/$${uuid}-v$${version}.zip"
 
 i18n-update-template:
 	./i18n-update-template.sh
