@@ -17,10 +17,17 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 
 import * as Log from '../utils/log.js';
+import * as Constants from '../constants.js';
 
 import {SettingsUtils} from '../utils/settingsUtils.js';
 import {sessionEndState} from '../openWindowsTracker.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
+let verticalBoxProps;
+if (Constants.shellVersion >= 48)
+    verticalBoxProps = {orientation: Clutter.Orientation.VERTICAL};
+else
+    verticalBoxProps = {vertical: true};
 
 let __confirm = null;
 let __init = null;
@@ -258,7 +265,7 @@ const RunningApplicationListWindow = GObject.registerClass({
                 reactive: true,
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
-                vertical: true,
+                ...verticalBoxProps,
                 accessible_role: Atk.Role.DIALOG,
             });
 
@@ -288,7 +295,7 @@ const RunningApplicationListWindow = GObject.registerClass({
             this._confirmDialogContent.title = _('Running applications');
 
             this.contentLayout = new St.BoxLayout({
-                vertical: true,
+                ...verticalBoxProps,
                 style_class: 'modal-dialog-content-box',
                 y_expand: true,
                 x_align: Clutter.ActorAlign.CENTER,
