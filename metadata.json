@@ -6,12 +6,12 @@
       "47",
       "48",
       "49",
-      "50"
+      "50",
+      "51"
     ],
     "url": "https://github.com/mendres82/gnome-shell-extension-yet-another-window-session-manager",
     "uuid": "yet-another-window-session-manager@github.com",
     "gettext-domain": "yet-another-window-session-manager@github.com",
     "settings-schema": "org.gnome.shell.extensions.yet-another-window-session-manager",
-    "version": 7,
-    "version-name": "60"
+    "version-name": "61"
   }
