@@ -74,11 +74,11 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
     inspector.connectObject('target', (me, target, x, y) => {
       // Remove border effect when window is picked.
       target.get_effects()
-        .filter(e => e.toString().includes('lookingGlass_RedBorderEffect'))
+        .filter(e => e.toString().includes('RedBorderEffect'))
         .forEach(e => target.remove_effect(e));
 
-      // While we may switch windows to pick a window, the target actor also changes. 
-      // Here we check the current actor again, make sure it's what we except.
+      // While we may switch windows to pick a window, the target actor also changes.
+      // Here we check the current actor again, make sure it's what we expect.
       let currentActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
       if (currentActor != target) {
         log('Picked window changed to ' + currentActor);
@@ -86,12 +86,11 @@ export const WindowPickerServiceProvider = class WindowPickerServiceProvider {
       }
 
       let actor = target;
-      if (target.toString().includes('MetaSurfaceActor')) {
-        actor = target.get_parent();
-      }
+      while (actor && !actor.meta_window)
+        actor = actor.get_parent();
 
       let variant;
-      if (actor.toString().includes('WindowActor')) {
+      if (actor?.meta_window) {
           const metaWindow = actor.meta_window;
           const app = Shell.WindowTracker.get_default().get_window_app(metaWindow);
           const appName = app ? app.get_name() : '';
