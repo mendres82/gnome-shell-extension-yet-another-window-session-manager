@@ -155,13 +155,15 @@ const MyInspector = GObject.registerClass({
 }, class MyInspector extends LookingGlass.Inspector {
   _init(lookingGlass) {
     super._init(lookingGlass);
+    this._windowPicked = false;
+    this.connectObject('target', () => {
+      this._windowPicked = true;
+    }, this);
   }
 
-  _onKeyPressEvent(actor, event) {
-    if (event.get_key_symbol() === Clutter.KEY_Escape) {
+  _close() {
+    if (!this._windowPicked)
       this.emit('WindowPickCancelled');
-      this._close();
-    }
-    return Clutter.EVENT_STOP;
+    super._close();
   }
 });
