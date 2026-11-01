@@ -11,6 +11,7 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 
 import * as Tooltip from '../utils/tooltip.js';
 import {SettingsUtils} from '../utils/settingsUtils.js';
+import * as Constants from '../constants.js';
 
 
 export const SearchSessionItem = GObject.registerClass(
@@ -109,7 +110,10 @@ export const SearchSessionItem = GObject.registerClass(
             });
 
             button.connectObject('clicked', () => {
-                this._getTopMenu()?.close(true);
+                if (Constants.shellVersion >= 51)
+                    this._getTopMenu()?.close();
+                else
+                    this._getTopMenu()?.close(true);
                 Gio.DBus.session.call(
                     'org.gnome.Shell.Extensions',
                     '/org/gnome/Shell/Extensions',
