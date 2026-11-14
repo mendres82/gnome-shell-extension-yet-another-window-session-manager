@@ -443,7 +443,24 @@ export const MoveSession = class {
             const to_width = window_position.width;
             const to_height = window_position.height;
 
+            // get_monitor() may return -1 before the window is attached; get_work_area_for_monitor(-1) crashes the shell.
+            // See: https://github.com/nlpsuge/gnome-shell-extension-another-window-session-manager/issues/153
             const currentMonitor = metaWindow.get_monitor();
+            if (currentMonitor < 0) {
+                if (this._delayRestoreGeometryId) {
+                    GLib.Source.remove(this._delayRestoreGeometryId);
+                    this._delayRestoreGeometryId = 0;
+                }
+                this._delayRestoreGeometryId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
+                    this._delayRestoreGeometryId = 0;
+                    if (metaWindow.get_monitor() >= 0)
+                        this._moveResizeFrame(metaWindow, saved_window_session);
+                    else
+                        this._log.warn(`Could not move '${metaWindow.get_title()}': not attached to a monitor`);
+                    return GLib.SOURCE_REMOVE;
+                });
+                return;
+            }
             const rectWorkArea = metaWindow.get_work_area_for_monitor(currentMonitor);
             
             // For more info about the below issue see also: https://github.com/Leleat/Tiling-Assistant/blob/1e4176a9a7037ee5dd0612e4c9f9dbe45d4e67cf/tiling-assistant%40leleat-on-github/src/extension/tilingWindowManager.js#L186-L199
